@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillExam | Главная</title>
+    <link href="fonts.googleapis.com" rel="stylesheet">
+    <style>
+        :root {
+            --quizlet-blue: #4255ff;
+            --quizlet-text: #2e3856;
+            --background: #f6f7fb;
+            --card-bg: #ffffff;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Roboto', -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            background-color: var(--background);
+            color: var(--quizlet-text);
+            line-height: 1.5;
+        }
+
+        .header-nav {
+            background-color: var(--card-bg);
+            box-shadow: var(--shadow);
+            padding: 16px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--quizlet-blue);
+            text-decoration: none;
+        }
+
+        .nav-links a {
+            color: var(--quizlet-text);
+            text-decoration: none;
+            font-weight: 600;
+            margin-left: 24px;
+            padding: 8px 12px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .nav-links a:hover {
+            background-color: var(--background);
+        }
+
+        /* Кнопка регистрации в хедере */
+        .nav-links .signup-btn {
+            background-color: var(--quizlet-blue);
+            color: #fff;
+            padding: 8px 20px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .nav-links .signup-btn:hover {
+            background-color: #3848d9;
+        }
+
+
+        .main-hero {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 60px 5%;
+            max-width: 1200px;
+            margin: 0 auto;
+            min-height: calc(100vh - 80px); /* Учитываем высоту хедера */
+        }
+
+        .hero-text {
+            flex: 1;
+            max-width: 500px;
+        }
+
+        .hero-text h1 {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            line-height: 1.1;
+        }
+
+        .hero-text p {
+            font-size: 18px;
+            color: #6a6f8c;
+            margin-bottom: 30px;
+        }
+
+        .cta-button-large {
+            display: inline-block;
+            padding: 16px 40px;
+            background-color: var(--quizlet-blue);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 18px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(66, 85, 255, 0.3);
+        }
+
+        .cta-button-large:hover {
+            background-color: #3848d9;
+            transform: translateY(-2px);
+        }
+
+        .hero-image-placeholder {
+            flex: 1;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        /* Реалистичный плейсхолдер для изображения */
+        .hero-image-placeholder img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            /* В реальном проекте здесь будет красивая иллюстрация */
+            min-width: 400px; 
+        }
+
+        /* Адаптивность для мобильных устройств */
+        @media (max-width: 768px) {
+            .main-hero {
+                flex-direction: column;
+                text-align: center;
+                padding-top: 40px;
+            }
+            .hero-image-placeholder {
+                margin-top: 40px;
+                justify-content: center;
+            }
+            .hero-text h1 {
+                font-size: 36px;
+            }
+            .hero-image-placeholder img {
+                min-width: unset;
+                max-width: 80%;
+            }
+            .nav-links a {
+                margin-left: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Хедер в стиле Quizlet -->
+    <header class="header-nav">
+        <a href="#" class="logo">SkillExam</a>
+        <nav class="nav-links">
+            <a href="#">Особенности</a>
+            <a href="#">Для команд</a>
+            <a href="#">Войти</a>
+            <a href="#" class="signup-btn">Регистрация</a>
+        </nav>
+    </header>
+
+    <!-- Основная секция HERO -->
+    <main class="main-hero">
+        <div class="hero-text">
+            <h1>Быстро оценивайте навыки вашей IT-команды</h1>
+            <p>
+                Платформа SkillExam помогает наглядно отслеживать актуальный уровень компетенций сотрудников, планировать обучение и эффективно распределять ресурсы проекта.
+            </p>
+            <a href="#" class="cta-button-large" onclick="alert('Переход на страницу входа или регистрации')">
+                Начать бесплатно
+            </a>
+        </div>
+        <div class="hero-image-placeholder">
+            <!-- Здесь должна быть иллюстрация. Пока используем плейсхолдер -->
+            <img src="via.placeholder.com" alt="Иллюстрация панели инструментов">
+        </div>
+    </main>
+
+</body>
+</html>
