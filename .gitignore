@@ -1,0 +1,8 @@
+# Alembic/Flask-Migrate папка миграций
+migrations/
+
+# Python кэш-файлы
+__pycache__
+
+# Изолированное окружение
+venv/
