@@ -9,7 +9,7 @@ migrate = Migrate()
 
 def create_app():
     app = Flask(__name__)
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://site_admin:Passw7986_!.@localhost:5432/skills-assessment-app'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://NV:NVCASE2@postgres:5432/RTK_DB'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
     
     db.init_app(app)
