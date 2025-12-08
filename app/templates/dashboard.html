@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Дашборд | SkillExam</title>
+    <style>
+        :root {
+            --quizlet-blue: #4255ff;
+            --quizlet-text: #2e3856;
+            --background: #f6f7fb;
+            --card-bg: #ffffff;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .main-hero {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 60px 5%;
+            max-width: 1200px;
+            margin: 0 auto;
+            min-height: calc(100vh - 80px);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--background);
+            color: var(--quizlet-text);
+            line-height: 1.5;
+        }
+
+        .header-nav {
+            background-color: var(--card-bg);
+            box-shadow: var(--shadow);
+            padding: 6px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--quizlet-blue);
+            text-decoration: none;
+        }
+        
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        
+        .nav-links a {
+            color: var(--quizlet-text);
+            text-decoration: none;
+            font-weight: 600;
+            margin-left: 24px;
+            padding: 8px 12px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        
+        .nav-links a:hover {
+            background-color: var(--background);
+        }
+        
+        .signup-btn {
+            background-color: var(--quizlet-blue);
+            color: #fff;
+            padding: 8px 20px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .signup-btn:hover {
+            background-color: #3848d9;
+        }
+        
+        .logout-btn {
+            background-color: #f44336;
+            color: white !important;
+            padding: 0.5rem 1.5rem;
+            border-radius: 5px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .logout-btn:hover {
+            background-color: #d32f2f;
+        }
+        
+        .user-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .user-menu-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            color: #333;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        
+        .user-menu-btn:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #4a6cf7;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background-color: white;
+            min-width: 200px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            z-index: 1000;
+            margin-top: 0.5rem;
+        }
+        
+        .dropdown-menu.show {
+            display: block;
+        }
+        
+        .dropdown-item {
+            display: block;
+            padding: 0.75rem 1rem;
+            text-decoration: none;
+            color: #333;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .dropdown-item:hover {
+            background-color: #f9f9f9;
+        }
+        
+        .dropdown-item.logout {
+            color: #f44336;
+            border-bottom: none;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-right: 1rem;
+        }
+        
+        .role-badge {
+            background-color: #e0f7fa;
+            color: #00796b;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            display: inline-block;
+            margin: 0.2rem auto 0;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+    <header class="header-nav">
+        <a href="/" class="logo">SkillExam</a>
+        <nav class="nav-links">
+            {% if current_user.is_authenticated %}
+                <div class="user-dropdown">
+                    <button class="user-menu-btn">
+                        <div class="user-avatar">
+                            {{ current_user.full_name.split()[0][0] if current_user.full_name else 'U' }}
+                        </div>
+                        <div class="user-details" style="text-align: right;">
+                            <div class="user-name">{{ current_user.full_name }}</div>
+                            <div class="role-badge">
+                                {% if current_user.role == 'admin' %}Администратор
+                                {% elif current_user.role == 'hr' %}HR
+                                {% elif current_user.role == 'manager' %}Руководитель
+                                {% elif current_user.role == 'employee' %}Сотрудник
+                                {% endif %}
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-down" style="margin-left: 0.5rem;"></i>
+                    </button>
+                    <div class="dropdown-menu" id="userDropdown">
+                        <a href="{{ url_for('main.logout') }}" class="dropdown-item logout">
+                            <i class="fas fa-sign-out-alt"></i> Выйти
+                        </a>
+                    </div>
+                </div>   
+               
+            {% else %}
+                <a href="#" class="signup-btn open-modal-btn" data-mode="login">Вход</a>
+                <a href="#" class="signup-btn open-modal-btn" data-mode="register" 
+                   style="background-color: #28a745;">Регистрация</a>
+            {% endif %}
+        </nav>
+    </header>
+
+    <main style="padding: 2rem; max-width: 1200px; margin: 0 auto;">
+        <h1>Добро пожаловать в SkillExam, {{ current_user.full_name if current_user.is_authenticated else 'Гость' }}!</h1>
+        <p>Вы успешно вошли в систему.</p>
+        
+        <div class="user-management-panel" style="margin-top: 2rem;">
+            {% if current_user.is_authenticated %}
+                <!-- Для админов - все действия -->
+                {% if current_user.role == 'admin' %}
+                <div class="admin-buttons" style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <a href="{{ url_for('main.register') }}" class="btn btn-success" 
+                       style="padding: 0.75rem 1.5rem; background-color: #28a745; color: white; text-decoration: none; border-radius: 5px;">
+                        <i class="fas fa-user-plus"></i> Добавить пользователя
+                    </a>
+                    <a href="{{ url_for('main.user_list') }}" class="btn btn-info"
+                       style="padding: 0.75rem 1.5rem; background-color: #17a2b8; color: white; text-decoration: none; border-radius: 5px;">
+                        <i class="fas fa-users"></i> Список пользователей
+                    </a>
+                    <a href="{{ url_for('main.edit_permissions') }}" class="btn btn-warning"
+                       style="padding: 0.75rem 1.5rem; background-color: #ffc107; color: #212529; text-decoration: none; border-radius: 5px;">
+                        <i class="fas fa-user-cog"></i> Управление правами
+                    </a>
+                </div>
+                
+                <!-- Для HR - только добавление и просмотр -->
+                {% elif current_user.role == 'hr' %}
+                <div class="hr-buttons" style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <a href="{{ url_for('main.register') }}" class="btn btn-success"
+                       style="padding: 0.75rem 1.5rem; background-color: #28a745; color: white; text-decoration: none; border-radius: 5px;">
+                        <i class="fas fa-user-plus"></i> Добавить пользователя
+                    </a>
+                </div>
+                
+                <!-- Для руководителей - только добавление в свой отдел -->
+                {% elif current_user.role == 'manager' %}
+                <div class="manager-buttons">
+                    <a href="{{ url_for('main.register') }}" 
+                       class="btn btn-success"
+                       style="padding: 0.75rem 1.5rem; background-color: #28a745; color: white; text-decoration: none; border-radius: 5px;">
+                        <i class="fas fa-user-plus"></i> Добавить сотрудника
+                    </a>
+                </div>
+                {% endif %}
+            {% endif %}
+        </div>
+    </main>
+
+    <!-- JavaScript для выпадающего меню -->
+    <script>
+        // Открытие/закрытие выпадающего меню пользователя
+        document.addEventListener('DOMContentLoaded', function() {
+            const userMenuBtn = document.querySelector('.user-menu-btn');
+            const userDropdown = document.getElementById('userDropdown');
+            
+            if (userMenuBtn && userDropdown) {
+                userMenuBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    userDropdown.classList.toggle('show');
+                });
+                
+                // Закрытие меню при клике вне его
+                document.addEventListener('click', function(e) {
+                    if (!userDropdown.contains(e.target) && !userMenuBtn.contains(e.target)) {
+                        userDropdown.classList.remove('show');
+                    }
+                });
+            }
+            
+            // Подтверждение выхода
+            const logoutLinks = document.querySelectorAll('a[href*="logout"]');
+            logoutLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    if (!confirm('Вы уверены, что хотите выйти?')) {
+                        e.preventDefault();
+                    }
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Регистрация</title>
+    <style>
+        /* Небольшие CSS стили для читаемости */
+        .container {
+            width: 350px;
+            margin: 50px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .form-field {
+            margin-bottom: 15px;
+        }
+        .form-field label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-field input[type="text"], 
+        .form-field input[type="password"],
+        .form-field input[type="number"],
+        .form-field select {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box; /* Учитываем padding в ширине */
+            border: 1px solid #aaa;
+            border-radius: 3px;
+        }
+        .form-field select {
+            /* Убираем скролл-бар для выпадающих списков */
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-color: white;
+            background-image: url('data:image/svg+xml;utf8,<svg fill="black" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            background-size: 16px;
+            padding-right: 30px;
+        }
+        .error {
+            color: red;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        .submit-button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+        }
+        .submit-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Форма Регистрации</h2>
+    
+    <form method="POST" action="">
+        {{ form.csrf_token }}
+
+        <div class="form-field">
+            {{ form.full_name.label }}
+            {{ form.full_name(size=30) }}
+            {% for error in form.full_name.errors %}
+                <span class="error">{{ error }}</span>
+            {% endfor %}
+        </div>
+
+        <div class="form-field">
+            {{ form.login.label }}
+            {{ form.login(size=30) }}
+            {% for error in form.login.errors %}
+                <span class="error">{{ error }}</span>
+            {% endfor %}
+        </div>
+
+        <div class="form-field">
+            {{ form.password_hash.label }}
+            {{ form.password_hash(size=30) }}
+            {% for error in form.password_hash.errors %}
+                <span class="error">{{ error }}</span>
+            {% endfor %}
+        </div>
+        
+        <div class="form-field">
+            {{ form.role.label }}
+            {{ form.role() }}
+            {% for error in form.role.errors %}
+                <span class="error">{{ error }}</span>
+            {% endfor %}
+        </div>
+
+        <div class="form-field">
+                {% if current_user.role == 'manager' %}
+                    <label for="department_name">Отдел</label>
+                    
+                    <input type="text" id="department_name" 
+                        value="{{ current_user_department_name }}" 
+                        disabled style="background-color: #eee;">
+                    
+                    {{ form.department_id(style="display: none;") }}
+                    
+                {% else %}
+                    {{ form.department_id.label }}
+                    {{ form.department_id() }}
+                    {% for error in form.department_id.errors %}
+                        <span class="error">{{ error }}</span>
+                    {% endfor %}
+                {% endif %}
+        </div>
+        
+        <div class="form-field">
+            {{ form.submit(class="submit-button") }}
+        </div>
+    </form>
+</div>
+
+</body>
+</html>

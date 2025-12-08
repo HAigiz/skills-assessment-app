@@ -1,4 +1,5 @@
-from .__init__ import db
+from . import db
+from flask_login import UserMixin
 
 class Department(db.Model):
     __tablename__ = 'departments'
@@ -12,7 +13,7 @@ class Department(db.Model):
     def __repr__(self):
         return '<Department id {}, name {} and manager id {}>'.format(self.id, self.name, self.manager_id)
 
-class User(db.Model):
+class User(UserMixin, db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     login = db.Column(db.String(50), unique=True, nullable=False)
@@ -26,7 +27,7 @@ class User(db.Model):
     def __repr__(self):
         return '<User id {}, login {} and department id {}>'.format(self.id, self.login, self.department_id)
     
-class Skill(db.Model):
+class Skill(UserMixin, db.Model):
     __tablename__ = 'skills'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
@@ -35,7 +36,7 @@ class Skill(db.Model):
     
     assessments = db.relationship('SkillAssessment', backref='skill', cascade='all, delete-orphan')
 
-class SkillAssessment(db.Model):
+class SkillAssessment(UserMixin, db.Model):
     __tablename__ = 'skill_assessments'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
@@ -52,7 +53,7 @@ class SkillAssessment(db.Model):
     
     history = db.relationship('AssessmentHistory', backref='assessment', cascade='all, delete-orphan')
 
-class AssessmentHistory(db.Model):
+class AssessmentHistory(UserMixin, db.Model):
     __tablename__ = 'assessment_history'
     id = db.Column(db.Integer, primary_key=True)
     assessment_id = db.Column(db.Integer, db.ForeignKey('skill_assessments.id', ondelete='CASCADE'), nullable=False)
