@@ -406,7 +406,6 @@
         
         <div class="user-management-panel" style="margin-top: 2rem;">
             {% if current_user.is_authenticated %}
-                <!-- Для админов - все действия -->
                 {% if current_user.role == 'admin' %}
                 <div class="admin-buttons" style="display: flex; gap: 1rem; flex-wrap: wrap;">
                     <a href="{{ url_for('main.register') }}" class="btn btn-success" 
@@ -423,7 +422,6 @@
                     </a>
                 </div>
                 
-                <!-- Для HR - только добавление и просмотр -->
                 {% elif current_user.role == 'hr' %}
                 <div class="hr-buttons" style="display: flex; gap: 1rem; flex-wrap: wrap;">
                     <button class="open-add-user-modal btn btn-success"
@@ -433,7 +431,6 @@
                     </button>
                 </div>
                 
-                <!-- Для руководителей - только добавление в свой отдел -->
                 {% elif current_user.role == 'manager' %}
                 <div class="manager-buttons">
                     <button class="open-add-user-modal btn btn-success"
@@ -449,7 +446,6 @@
         </div>
     </main>
 
-    <!-- Модальное окно для добавления пользователя -->
     <div class="modal-overlay" id="addUserModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -518,10 +514,8 @@
         </div>
     </div>
 
-    <!-- JavaScript для выпадающего меню и модального окна -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Открытие/закрытие выпадающего меню пользователя
             const userMenuBtn = document.querySelector('.user-menu-btn');
             const userDropdown = document.getElementById('userDropdown');
             
@@ -531,7 +525,6 @@
                     userDropdown.classList.toggle('show');
                 });
                 
-                // Закрытие меню при клике вне его
                 document.addEventListener('click', function(e) {
                     if (!userDropdown.contains(e.target) && !userMenuBtn.contains(e.target)) {
                         userDropdown.classList.remove('show');
@@ -539,7 +532,6 @@
                 });
             }
             
-            // Подтверждение выхода
             const logoutLinks = document.querySelectorAll('a[href*="logout"]');
             logoutLinks.forEach(link => {
                 link.addEventListener('click', function(e) {
@@ -549,7 +541,6 @@
                 });
             });
 
-            // Модальное окно для добавления пользователя
             const modal = document.getElementById('addUserModal');
             const openModalButtons = document.querySelectorAll('.open-add-user-modal');
             const closeModalBtn = document.getElementById('closeModal');
@@ -564,13 +555,11 @@
             const managerDepartmentId = document.getElementById('manager_department_id');
             const departmentSelect = document.getElementById('department_id');
 
-            // Переменные для хранения данных пользователя
             let currentUserRole = '';
             let currentUserDepartmentId = '';
             let currentUserDepartmentName = '';
-            let formDataCache = {}; // Кэш для данных формы
+            let formDataCache = {}; 
 
-            // Открытие модального окна
             openModalButtons.forEach(button => {
                 button.addEventListener('click', function() {
                     currentUserRole = this.getAttribute('data-role');
@@ -578,13 +567,12 @@
                     currentUserDepartmentName = this.getAttribute('data-department-name');
                     
                     setupModal();
-                    restoreFormData(); // Восстанавливаем данные при открытии
+                    restoreFormData(); 
                     modal.classList.add('show');
                     document.body.style.overflow = 'hidden';
                 });
             });
 
-            // Закрытие модального окна с сохранением данных
             function saveFormData() {
                 formDataCache = {
                     full_name: document.getElementById('full_name').value,
@@ -596,7 +584,6 @@
                 };
             }
 
-            // Восстановление данных формы
             function restoreFormData() {
                 if (formDataCache.full_name) {
                     document.getElementById('full_name').value = formDataCache.full_name;
@@ -612,22 +599,19 @@
                 }
             }
 
-            // Закрытие модального окна (только визуальное)
             function closeModal() {
-                saveFormData(); // Сохраняем данные перед закрытием
+                saveFormData(); 
                 modal.classList.remove('show');
                 document.body.style.overflow = 'auto';
                 hideAllErrors();
             }
 
-            // Сброс формы (только при явном вызове)
             function resetForm() {
                 document.getElementById('addUserForm').reset();
                 hideAllErrors();
-                formDataCache = {}; // Очищаем кэш
+                formDataCache = {}; 
             }
 
-            // Закрытие при клике на крестик или отмену
             closeModalBtn.addEventListener('click', function() {
                 closeModal();
             });
@@ -637,44 +621,36 @@
                 resetForm();
             });
 
-            // Обработка клика по оверлею (фону)
             modal.addEventListener('click', function(e) {
                 if (e.target === modal) {
                     closeModal();
                 }
             });
 
-            // Настройка модального окна в зависимости от роли
             function setupModal() {
                 if (currentUserRole === 'hr') {
                     modalTitle.textContent = 'Добавить пользователя';
                     formNotice.innerHTML = '<strong>HR-менеджер</strong> может добавлять пользователей в любой отдел';
                     
-                    // Показать выпадающий список отделов для HR
                     departmentField.style.display = 'block';
                     managerDepartmentInfo.style.display = 'none';
                     
-                    // Загрузить список отделов
                     loadDepartments();
                     
                 } else if (currentUserRole === 'manager') {
                     modalTitle.textContent = 'Добавить сотрудника в отдел';
                     formNotice.innerHTML = '<strong>Руководитель</strong> может добавлять сотрудников только в свой отдел';
                     
-                    // Скрыть выпадающий список и показать фиксированное поле для руководителя
                     departmentField.style.display = 'none';
                     managerDepartmentInfo.style.display = 'block';
                     
-                    // Установить данные отдела руководителя
                     managerDepartmentDisplay.value = currentUserDepartmentName;
                     managerDepartmentId.value = currentUserDepartmentId;
                 }
                 
-                // Скрыть ошибки
                 hideAllErrors();
             }
 
-            // Загрузка списка отделов для HR
             async function loadDepartments() {
                 try {
                     const response = await fetch('/departments');
@@ -689,7 +665,6 @@
                             departmentSelect.appendChild(option);
                         });
                         
-                        // Восстанавливаем выбранное значение из кэша
                         if (formDataCache.department_id) {
                             departmentSelect.value = formDataCache.department_id;
                         }
@@ -702,25 +677,21 @@
                     }
                 } catch (error) {
                     console.error('Ошибка сети:', error);
-                    // Используем временные данные, если API не доступно
                     useFallbackDepartments();
                 }
             }
             
-            // Скрытие всех сообщений об ошибках
             function hideAllErrors() {
                 document.querySelectorAll('.error-message').forEach(error => {
                     error.style.display = 'none';
                 });
             }
 
-            // Валидация формы
             function validateForm() {
                 let isValid = true;
                 
                 hideAllErrors();
                 
-                // Проверка полей
                 const fields = ['full_name', 'login', 'password', 'role'];
                 fields.forEach(fieldId => {
                     const field = document.getElementById(fieldId);
@@ -730,7 +701,6 @@
                     }
                 });
                 
-                // Проверка отдела
                 let departmentId = '';
                 if (currentUserRole === 'hr') {
                     departmentId = document.getElementById('department_id').value;
@@ -743,7 +713,6 @@
                     isValid = false;
                 }
                 
-                // Проверка минимальной длины пароля
                 const password = document.getElementById('password').value;
                 if (password && password.length < 8) {
                     showError('password', 'Пароль должен содержать минимум 8 символов');
@@ -753,7 +722,6 @@
                 return isValid;
             }
 
-            // Показать ошибку
             function showError(fieldId, message) {
                 const errorElement = document.getElementById(fieldId + '_error');
                 if (errorElement) {
@@ -762,7 +730,6 @@
                 }
             }
 
-            // Отправка формы
             submitBtn.addEventListener('click', async function() {
                 if (!validateForm()) return;
                 
@@ -795,7 +762,6 @@
                         resetForm(); 
                         closeModal();
                     } else {
-                        // Показать ошибки с сервера
                         if (result.errors) {
                             Object.keys(result.errors).forEach(field => {
                                 showError(field, result.errors[field]);
@@ -805,7 +771,6 @@
                         result.message.toLowerCase().includes('существует')) {
                         showError('login', 'Пользователь с таким логином уже существует');
                     } else if (result.message) {
-                        // Для других общих ошибок можно показать вверху
                         formNotice.innerHTML = `<strong>Ошибка:</strong> ${result.message}`;
                         formNotice.style.borderLeftColor = '#f44336';
                         formNotice.style.backgroundColor = '#ffebee';
