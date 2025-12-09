@@ -136,7 +136,6 @@
             }
         }
         
-        /* Анимация плавного появления */
         @keyframes fadeIn {
             from {opacity: 0;}
             to {opacity: 1;}
@@ -158,19 +157,17 @@
             background-color: rgba(0,0,0,0.6); 
             justify-content: center; 
             align-items: center; 
-            /* Применяем анимацию фона */
             animation: fadeIn 0.3s forwards;
         }
 
         .modal-content {
             background-color: var(--card-bg);
-            padding: 40px 30px; /* Увеличил паддинги для стиля Quizlet */
+            padding: 40px 30px; 
             border-radius: 10px;
             width: 90%; 
-            max-width: 450px; /* Сделал чуть шире как на изображении */
+            max-width: 450px; 
             position: relative;
             box-shadow: var(--shadow);
-            /* Применяем анимацию контента */
             animation: slideUp 0.3s ease-out forwards;
         }
 
@@ -180,7 +177,7 @@
             top: 0px;
             right: 15px;
             font-size: 32px;
-            font-weight: normal; /* Крестик в Quizlet не жирный */
+            font-weight: normal; 
             cursor: pointer;
         }
 
@@ -189,10 +186,9 @@
             color: var(--quizlet-text);
         }
 
-        /* Навигация внутри модального окна (Вход/Регистрация) */
         .modal-nav {
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             margin-bottom: 25px;
             border-bottom: 2px solid var(--background);
         }
@@ -201,21 +197,16 @@
             cursor: pointer;
             padding: 10px 0;
             font-weight: 600;
-            color: #6a6f8c;
+            color: var(--quizlet-blue);
             flex-grow: 1;
             text-align: center;
             border-bottom: 2px solid transparent;
             transition: color 0.2s, border-color 0.2s;
-        }
-
-        .modal-nav-item.active {
-            color: var(--quizlet-blue);
             border-bottom-color: var(--quizlet-blue);
         }
 
-        /* Стили для формы */
         .form-section {
-            display: none; /* Скрываем неактивные формы */
+            display: none; 
         }
 
         .form-section.active {
@@ -233,7 +224,7 @@
         .modal-content input {
             width: 100%;
             padding: 12px;
-            margin-bottom: 20px; /* Отступы как в Quizlet */
+            margin-bottom: 20px; 
             border: 1px solid #e0e1e6;
             border-radius: 6px;
             box-sizing: border-box;
@@ -262,21 +253,9 @@
             background-color: #3848d9;
         }
 
-        .alt-login-options {
-            margin-top: 15px;
-            text-align: center;
-            font-size: 14px;
-        }
-
-        .alt-login-options a {
-            color: var(--quizlet-blue);
-            text-decoration: none;
-            font-weight: 600;
-        }
-
         /* --- СТИЛИ FOOTER --- */
         .site-footer {
-            background-color: var(--card-bg); /* Белый фон, как у шапки */
+            background-color: var(--card-bg); 
             border-top: 1px solid #e0e1e6;
             padding: 40px 5%;
         }
@@ -285,9 +264,9 @@
             max-width: 1200px;
             margin: 0 auto;
             display: flex;
-            flex-wrap: wrap; /* Для адаптивности */
+            flex-wrap: wrap;
             justify-content: space-between;
-            gap: 30px; /* Отступ между столбцами */
+            gap: 30px;
         }
 
         .footer-col {
@@ -296,7 +275,7 @@
         }
 
         .footer-col-info {
-            flex-basis: 250px; /* Шире для лого и описания */
+            flex-basis: 250px;
             min-width: 200px;
         }
 
@@ -349,6 +328,19 @@
                 flex-direction: column;
                 gap: 20px;
             }
+        }
+
+        .error-message-box {
+            display: none;
+            background-color: #fff2f0;
+            border: 1px solid #ffccc7;
+            border-radius: 6px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            color: #ff4d4f;
+            font-size: 14px;
+            align-items: center;
+            gap: 10px;
         }
 
     </style>
@@ -433,16 +425,17 @@
             <div id="login-form" class="form-section">
                 <form id="log-form" action="{{ url_for('main.login') }}" method="post">
                     {{ form.hidden_tag() }} 
-
-                    <div id="general-error-message" style="color: red; margin-bottom: 15px; font-weight: 600;"></div>
                     
                     <label for="login-username">{{ form.login.label }}</label>
                     {{ form.login(class="form-control", id="login-username", required=True) }}
-                    <div id="login-error" class="field-error" style="color: red; font-size: 12px;"></div>
 
                     <label for="login-password">{{ form.password.label }}</label>
                     {{ form.password(class="form-control", id="login-password", required=True) }}
-                    <div id="password-error" class="field-error" style="color: red; font-size: 12px;"></div>
+
+                    <div id="login-error-message" class="error-message-box">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span><strong>Вы ввели неверные данные для входа. Повторите попытку.</strong></span>
+                    </div>
                     
                     <button type="submit">Войти</button>
                 </form>
@@ -455,54 +448,24 @@
         var modal = document.getElementById("registrationModal");
         var openModalBtns = document.querySelectorAll(".open-modal-btn");
         var closeBtn = document.querySelector(".close");
-        var navItems = document.querySelectorAll(".modal-nav-item");
-        var formSections = document.querySelectorAll(".form-section");
-        var switchLinks = document.querySelectorAll(".switch-mode-link");
 
         function openModal(event) {
             event.preventDefault(); 
-            // Получаем режим из атрибута data-mode кнопки, если он есть
-            const mode = event.currentTarget.getAttribute('data-mode') || 'register';
-            
-            // Устанавливаем нужный режим перед открытием
-            setModalMode(mode);
-            
-            modal.style.display = "flex"; 
+            document.getElementById('login-form').classList.add('active');
+            modal.style.display = "flex";
         }
 
         function closeModal() {
             modal.style.display = "none";
         }
 
-        function setModalMode(mode) {            
-            // 1. Управляем активными классами навигации
-            navItems.forEach(item => {
-                if (item.getAttribute('data-target').includes(mode)) {
-                    item.classList.add('active');
-                } else {
-                    item.classList.remove('active');
-                }
-            });
-
-            // 2. Управляем видимостью форм
-            formSections.forEach(section => {
-                if (section.id.includes(mode)) {
-                    section.classList.add('active');
-                } else {
-                    section.classList.remove('active');
-                }
-            });
-        }
-
-        // Обработчики для кнопок открытия на главной странице
         openModalBtns.forEach(button => {
             button.addEventListener('click', openModal);
         });
 
-        // Обработчик для крестика закрытия
         closeBtn.addEventListener('click', closeModal);
 
-        // Обработчики для навигационных ссылок Вход/Регистрация внутри модального окна
+        // Раньше в приложении можно было выбрать регистрацию и логин, но регистрация была убрана, а без этой строчки код почему-то работает не корректно(постоянно ошибка сети)
         navItems.forEach(item => {
             item.addEventListener('click', function() {
                 const targetId = this.getAttribute('data-target');
@@ -511,22 +474,80 @@
             });
         });
 
-        // Обработчики для маленьких ссылок "Уже есть аккаунт?" / "Нет аккаунта?"
-        switchLinks.forEach(link => {
-            link.addEventListener('click', function(e) {
-                e.preventDefault();
-                const mode = this.getAttribute('data-mode');
-                setModalMode(mode);
-            });
-        });
-
-        // Закрытие по клику вне модального окна
         window.onclick = function(event) {
           if (event.target == modal) {
             closeModal();
           }
         }
-    </script>
 
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginForm = document.getElementById('log-form');
+            const loginErrorMessage = document.getElementById('login-error-message');
+            
+            if (loginForm) {
+                loginForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    loginErrorMessage.style.display = 'none';
+                    
+                    const formData = new FormData(this);
+                    const data = Object.fromEntries(formData);
+                    
+                    try {
+                        const response = await fetch(this.action, { 
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(data)
+                        });
+                        
+                        const result = await response.json();
+                        
+                        if (response.ok && result.success) {
+                            window.location.href = result.redirect_url || '/dashboard'; 
+                        } else {
+                            loginErrorMessage.style.display = 'flex'; 
+                            
+                            let errorMessageText = 'Произошла ошибка при входе. Повторите попытку.';
+                            if (result.message) {
+                                errorMessageText = result.message;
+                            } else if (result.errors) {
+                                errorMessageText = 'Проверьте введенные данные.';
+                            }
+                            loginErrorMessage.querySelector('span:last-child').innerHTML = `<strong>${errorMessageText}</strong>`;
+                            
+                            if (result.errors && result.errors.login) {
+                                document.getElementById('login-username').style.borderColor = '#f44336';
+                            }
+                            if (result.errors && result.errors.password) {
+                                document.getElementById('login-password').style.borderColor = '#f44336';
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Ошибка:', error);
+                        loginErrorMessage.querySelector('span:last-child').innerHTML = '<strong>Ошибка сети. Пожалуйста, попробуйте позже.</strong>';
+                        loginErrorMessage.style.display = 'flex';
+                    }
+                });
+                
+                const loginInput = document.getElementById('login-username');
+                const passwordInput = document.getElementById('login-password');
+                
+                loginInput.addEventListener('input', function() {
+                    this.style.borderColor = '#e0e1e6';
+                    loginErrorMessage.style.display = 'none';
+                });
+                
+                passwordInput.addEventListener('input', function() {
+                    this.style.borderColor = '#e0e1e6';
+                    loginErrorMessage.style.display = 'none';
+                });
+
+                document.getElementById('login-form').classList.add('active');
+            }
+        });
+
+    </script>
 </body>
 </html>
