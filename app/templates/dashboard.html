@@ -184,6 +184,181 @@
             display: inline-block;
             margin: 0.2rem auto 0;
         }
+
+        /* Стили для модального окна */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.15);
+            animation: modalFadeIn 0.3s ease;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 25px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            color: #333;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #777;
+            padding: 5px;
+            line-height: 1;
+        }
+
+        .modal-close:hover {
+            color: #333;
+        }
+
+        .modal-body {
+            padding: 25px;
+        }
+
+        .modal-footer {
+            padding: 20px 25px;
+            border-top: 1px solid #eee;
+            text-align: right;
+        }
+
+        .form-field {
+            margin-bottom: 20px;
+        }
+
+        .form-field label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-field input[type="text"],
+        .form-field input[type="password"],
+        .form-field select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .form-field input:focus,
+        .form-field select:focus {
+            outline: none;
+            border-color: #4255ff;
+            box-shadow: 0 0 0 2px rgba(66, 85, 255, 0.1);
+        }
+
+        .error-message {
+            color: #f44336;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+
+        .btn-primary {
+            background-color: #4255ff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #3848d9;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+            margin-right: 10px;
+        }
+
+        .btn-secondary:hover {
+            background-color: #545b62;
+        }
+
+        .form-notice {
+            background-color: #f8f9fa;
+            padding: 12px 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border-left: 4px solid #4255ff;
+            font-size: 14px;
+        }
+
+        .form-notice strong {
+            color: #4255ff;
+        }
+
+        .disabled-field {
+            background-color: #f5f5f5;
+            color: #666;
+            cursor: not-allowed;
+        }
+
+        .department-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 5px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .department-info i {
+            color: #4255ff;
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -211,7 +386,7 @@
                         <i class="fas fa-chevron-down" style="margin-left: 0.5rem;"></i>
                     </button>
                     <div class="dropdown-menu" id="userDropdown">
-                        <a href="{{ url_for('main.logout') }}" class="dropdown-item logout">
+                        <a href="{{ url_for('main.logout') }}" class="dropdown-item logout" style="margin-left: 0px;">
                             <i class="fas fa-sign-out-alt"></i> Выйти
                         </a>
                     </div>
@@ -251,30 +426,102 @@
                 <!-- Для HR - только добавление и просмотр -->
                 {% elif current_user.role == 'hr' %}
                 <div class="hr-buttons" style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                    <a href="{{ url_for('main.register') }}" class="btn btn-success"
-                       style="padding: 0.75rem 1.5rem; background-color: #28a745; color: white; text-decoration: none; border-radius: 5px;">
+                    <button class="open-add-user-modal btn btn-success"
+                            data-role="hr"
+                            style="padding: 0.75rem 1.5rem; background-color: #28a745; color: white; text-decoration: none; border-radius: 5px; border: none; cursor: pointer;">
                         <i class="fas fa-user-plus"></i> Добавить пользователя
-                    </a>
+                    </button>
                 </div>
                 
                 <!-- Для руководителей - только добавление в свой отдел -->
                 {% elif current_user.role == 'manager' %}
                 <div class="manager-buttons">
-                    <a href="{{ url_for('main.register') }}" 
-                       class="btn btn-success"
-                       style="padding: 0.75rem 1.5rem; background-color: #28a745; color: white; text-decoration: none; border-radius: 5px;">
+                    <button class="open-add-user-modal btn btn-success"
+                            data-role="manager"
+                            data-department-id="{{ current_user.department_id }}"
+                            data-department-name="{{ current_user.department.name if current_user.department else 'Не назначен' }}"
+                            style="padding: 0.75rem 1.5rem; background-color: #28a745; color: white; text-decoration: none; border-radius: 5px; border: none; cursor: pointer;">
                         <i class="fas fa-user-plus"></i> Добавить сотрудника
-                    </a>
+                    </button>
                 </div>
                 {% endif %}
             {% endif %}
         </div>
     </main>
 
-    <!-- JavaScript для выпадающего меню -->
+    <!-- Модальное окно для добавления пользователя -->
+    <div class="modal-overlay" id="addUserModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Добавить пользователя</h2>
+                <button class="modal-close" id="closeModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-notice" id="formNotice">
+                    <!-- Уведомление будет заполнено JavaScript -->
+                </div>
+                
+                <form id="addUserForm">
+                    <div class="form-field">
+                        <label for="full_name">Полное имя *</label>
+                        <input type="text" id="full_name" name="full_name" required>
+                        <div class="error-message" id="full_name_error"></div>
+                    </div>
+                    
+                    <div class="form-field">
+                        <label for="login">Логин *</label>
+                        <input type="text" id="login" name="login" required>
+                        <div class="error-message" id="login_error"></div>
+                    </div>
+                    
+                    <div class="form-field">
+                        <label for="password">Пароль *</label>
+                        <input type="password" id="password" name="password" required>
+                        <div class="error-message" id="password_error"></div>
+                    </div>
+                    
+                    <div class="form-field">
+                        <label for="role">Роль *</label>
+                        <select id="role" name="role" required>
+                            <option value="">Выберите роль</option>
+                            <option value="employee">Сотрудник</option>
+                            <option value="manager">Руководитель</option>
+                            <option value="hr">HR</option>
+                        </select>
+                        <div class="error-message" id="role_error"></div>
+                    </div>
+                    
+                    <div class="form-field" id="departmentField">
+                        <label for="department_id">Отдел *</label>
+                        <select id="department_id" name="department_id" required>
+                            <option value="">Выберите отдел</option>
+                            <!-- Опции будут заполнены JavaScript -->
+                        </select>
+                        <div class="error-message" id="department_id_error"></div>
+                    </div>
+                    
+                    <div class="form-field" id="managerDepartmentInfo" style="display: none;">
+                        <label>Отдел</label>
+                        <input type="text" id="manager_department_display" class="disabled-field" disabled>
+                        <div class="department-info">
+                            <i class="fas fa-info-circle"></i>
+                            <span>Руководитель может добавлять сотрудников только в свой отдел</span>
+                        </div>
+                        <input type="hidden" id="manager_department_id" name="department_id">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelBtn">Отмена</button>
+                <button type="button" class="btn btn-primary" id="submitBtn">Добавить</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript для выпадающего меню и модального окна -->
     <script>
-        // Открытие/закрытие выпадающего меню пользователя
         document.addEventListener('DOMContentLoaded', function() {
+            // Открытие/закрытие выпадающего меню пользователя
             const userMenuBtn = document.querySelector('.user-menu-btn');
             const userDropdown = document.getElementById('userDropdown');
             
@@ -300,6 +547,295 @@
                         e.preventDefault();
                     }
                 });
+            });
+
+            // Модальное окно для добавления пользователя
+            const modal = document.getElementById('addUserModal');
+            const openModalButtons = document.querySelectorAll('.open-add-user-modal');
+            const closeModalBtn = document.getElementById('closeModal');
+            const cancelBtn = document.getElementById('cancelBtn');
+            const submitBtn = document.getElementById('submitBtn');
+            const modalTitle = document.getElementById('modalTitle');
+            const formNotice = document.getElementById('formNotice');
+            const roleSelect = document.getElementById('role');
+            const departmentField = document.getElementById('departmentField');
+            const managerDepartmentInfo = document.getElementById('managerDepartmentInfo');
+            const managerDepartmentDisplay = document.getElementById('manager_department_display');
+            const managerDepartmentId = document.getElementById('manager_department_id');
+            const departmentSelect = document.getElementById('department_id');
+
+            // Переменные для хранения данных пользователя
+            let currentUserRole = '';
+            let currentUserDepartmentId = '';
+            let currentUserDepartmentName = '';
+            let formDataCache = {}; // Кэш для данных формы
+
+            // Открытие модального окна
+            openModalButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    currentUserRole = this.getAttribute('data-role');
+                    currentUserDepartmentId = this.getAttribute('data-department-id');
+                    currentUserDepartmentName = this.getAttribute('data-department-name');
+                    
+                    setupModal();
+                    restoreFormData(); // Восстанавливаем данные при открытии
+                    modal.classList.add('show');
+                    document.body.style.overflow = 'hidden';
+                });
+            });
+
+            // Закрытие модального окна с сохранением данных
+            function saveFormData() {
+                formDataCache = {
+                    full_name: document.getElementById('full_name').value,
+                    login: document.getElementById('login').value,
+                    role: document.getElementById('role').value,
+                    department_id: currentUserRole === 'hr' 
+                        ? document.getElementById('department_id').value
+                        : document.getElementById('manager_department_id').value
+                };
+            }
+
+            // Восстановление данных формы
+            function restoreFormData() {
+                if (formDataCache.full_name) {
+                    document.getElementById('full_name').value = formDataCache.full_name;
+                }
+                if (formDataCache.login) {
+                    document.getElementById('login').value = formDataCache.login;
+                }
+                if (formDataCache.role) {
+                    document.getElementById('role').value = formDataCache.role;
+                }
+                if (currentUserRole === 'hr' && formDataCache.department_id) {
+                    document.getElementById('department_id').value = formDataCache.department_id;
+                }
+            }
+
+            // Закрытие модального окна (только визуальное)
+            function closeModal() {
+                saveFormData(); // Сохраняем данные перед закрытием
+                modal.classList.remove('show');
+                document.body.style.overflow = 'auto';
+                hideAllErrors();
+            }
+
+            // Сброс формы (только при явном вызове)
+            function resetForm() {
+                document.getElementById('addUserForm').reset();
+                hideAllErrors();
+                formDataCache = {}; // Очищаем кэш
+            }
+
+            // Закрытие при клике на крестик или отмену
+            closeModalBtn.addEventListener('click', function() {
+                closeModal();
+            });
+
+            cancelBtn.addEventListener('click', function() {
+                closeModal();
+                resetForm();
+            });
+
+            // Обработка клика по оверлею (фону)
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    closeModal();
+                }
+            });
+
+            // Настройка модального окна в зависимости от роли
+            function setupModal() {
+                if (currentUserRole === 'hr') {
+                    modalTitle.textContent = 'Добавить пользователя';
+                    formNotice.innerHTML = '<strong>HR-менеджер</strong> может добавлять пользователей в любой отдел';
+                    
+                    // Показать выпадающий список отделов для HR
+                    departmentField.style.display = 'block';
+                    managerDepartmentInfo.style.display = 'none';
+                    
+                    // Загрузить список отделов
+                    loadDepartments();
+                    
+                } else if (currentUserRole === 'manager') {
+                    modalTitle.textContent = 'Добавить сотрудника в отдел';
+                    formNotice.innerHTML = '<strong>Руководитель</strong> может добавлять сотрудников только в свой отдел';
+                    
+                    // Скрыть выпадающий список и показать фиксированное поле для руководителя
+                    departmentField.style.display = 'none';
+                    managerDepartmentInfo.style.display = 'block';
+                    
+                    // Установить данные отдела руководителя
+                    managerDepartmentDisplay.value = currentUserDepartmentName;
+                    managerDepartmentId.value = currentUserDepartmentId;
+                }
+                
+                // Скрыть ошибки
+                hideAllErrors();
+            }
+
+            // Загрузка списка отделов для HR
+            async function loadDepartments() {
+                try {
+                    const response = await fetch('/departments');
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        departmentSelect.innerHTML = '<option value="">Выберите отдел</option>';
+                        result.departments.forEach(dept => {
+                            const option = document.createElement('option');
+                            option.value = dept.id;
+                            option.textContent = dept.name;
+                            departmentSelect.appendChild(option);
+                        });
+                        
+                        // Восстанавливаем выбранное значение из кэша
+                        if (formDataCache.department_id) {
+                            departmentSelect.value = formDataCache.department_id;
+                        }
+                    } else {
+                        console.error('Ошибка загрузки отделов:', result.message);
+                        // Показываем сообщение об ошибке
+                        formNotice.innerHTML = '<strong>Ошибка:</strong> Не удалось загрузить список отделов';
+                        formNotice.style.borderLeftColor = '#f44336';
+                        formNotice.style.backgroundColor = '#ffebee';
+                    }
+                } catch (error) {
+                    console.error('Ошибка сети:', error);
+                    // Используем временные данные, если API не доступно
+                    useFallbackDepartments();
+                }
+            }
+            
+            // Скрытие всех сообщений об ошибках
+            function hideAllErrors() {
+                document.querySelectorAll('.error-message').forEach(error => {
+                    error.style.display = 'none';
+                });
+            }
+
+            // Валидация формы
+            function validateForm() {
+                let isValid = true;
+                
+                hideAllErrors();
+                
+                // Проверка полей
+                const fields = ['full_name', 'login', 'password', 'role'];
+                fields.forEach(fieldId => {
+                    const field = document.getElementById(fieldId);
+                    if (!field.value.trim()) {
+                        showError(fieldId, 'Это поле обязательно для заполнения');
+                        isValid = false;
+                    }
+                });
+                
+                // Проверка отдела
+                let departmentId = '';
+                if (currentUserRole === 'hr') {
+                    departmentId = document.getElementById('department_id').value;
+                } else if (currentUserRole === 'manager') {
+                    departmentId = document.getElementById('manager_department_id').value;
+                }
+                
+                if (!departmentId) {
+                    showError('department_id', 'Выберите отдел');
+                    isValid = false;
+                }
+                
+                // Проверка минимальной длины пароля
+                const password = document.getElementById('password').value;
+                if (password && password.length < 8) {
+                    showError('password', 'Пароль должен содержать минимум 8 символов');
+                    isValid = false;
+                }
+                
+                return isValid;
+            }
+
+            // Показать ошибку
+            function showError(fieldId, message) {
+                const errorElement = document.getElementById(fieldId + '_error');
+                if (errorElement) {
+                    errorElement.textContent = message;
+                    errorElement.style.display = 'block';
+                }
+            }
+
+            // Отправка формы
+            submitBtn.addEventListener('click', async function() {
+                if (!validateForm()) return;
+                
+                const formData = {
+                    full_name: document.getElementById('full_name').value,
+                    login: document.getElementById('login').value,
+                    password: document.getElementById('password').value,
+                    role: document.getElementById('role').value,
+                    department_id: currentUserRole === 'hr' 
+                        ? document.getElementById('department_id').value
+                        : document.getElementById('manager_department_id').value
+                };
+                
+                try {
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Добавление...';
+                    
+                    const response = await fetch('/register', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(formData)
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        alert('Пользователь успешно добавлен!');
+                        resetForm(); 
+                        closeModal();
+                    } else {
+                        // Показать ошибки с сервера
+                        if (result.errors) {
+                            Object.keys(result.errors).forEach(field => {
+                                showError(field, result.errors[field]);
+                            });
+                        }
+                        if (result.message && result.message.toLowerCase().includes('логин') && 
+                        result.message.toLowerCase().includes('существует')) {
+                        showError('login', 'Пользователь с таким логином уже существует');
+                    } else if (result.message) {
+                        // Для других общих ошибок можно показать вверху
+                        formNotice.innerHTML = `<strong>Ошибка:</strong> ${result.message}`;
+                        formNotice.style.borderLeftColor = '#f44336';
+                        formNotice.style.backgroundColor = '#ffebee';
+                    }
+                    }
+                } catch (error) {
+                    alert('Ошибка сети. Пожалуйста, попробуйте позже.');
+                    console.error('Error:', error);
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Добавить';
+                }
+            });
+
+            // Обработка изменения роли (дополнительная валидация)
+            roleSelect.addEventListener('change', function() {
+                if (this.value === 'manager' && currentUserRole === 'hr') {
+                    formNotice.innerHTML = '<strong>Внимание:</strong> При добавлении руководителя убедитесь, что у отдела еще нет руководителя';
+                }
+            });
+
+            // Сохраняем данные формы при изменении полей
+            document.getElementById('addUserForm').addEventListener('input', function(e) {
+                if (e.target.type !== 'password') { // Не сохраняем пароль
+                    saveFormData();
+                }
+            });
+
+            document.getElementById('addUserForm').addEventListener('change', function(e) {
+                saveFormData();
             });
         });
     </script>
