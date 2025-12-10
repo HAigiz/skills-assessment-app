@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Главная страница | SkillExam</title>
+    <title>Контакты | SkillExam</title>
     <link href="fonts.googleapis.com" rel="stylesheet">
     <style>
         :root {
@@ -96,6 +96,26 @@
             margin-bottom: 30px;
         }
 
+        .cta-button-large {
+            display: inline-block;
+            padding: 16px 40px;
+            background-color: var(--quizlet-blue);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 18px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(66, 85, 255, 0.3);
+        }
+
+        .cta-button-large:hover {
+            background-color: #3848d9;
+            transform: translateY(-2px);
+        }
+
         .hero-image-placeholder img {
             max-width: 100%;
             height: auto;
@@ -166,16 +186,23 @@
             color: var(--quizlet-text);
         }
 
+        .modal-nav {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 25px;
+            border-bottom: 2px solid var(--background);
+        }
+        
         .modal-nav-item {
             cursor: pointer;
             padding: 10px 0;
             font-weight: 600;
             color: var(--quizlet-blue);
+            flex-grow: 1;
             text-align: center;
             border-bottom: 2px solid transparent;
             transition: color 0.2s, border-color 0.2s;
-            border-bottom-color: 2px solid var(--quizlet-blue);
-            margin-bottom: 25px;
+            border-bottom-color: var(--quizlet-blue);
         }
 
         .form-section {
@@ -319,6 +346,7 @@
     </style>
 </head>
 <body>
+
     <header class="header-nav">
         <a href="/" class="logo">SkillExam</a>
         <nav class="nav-links">
@@ -332,16 +360,51 @@
         </nav>
     </header>
 
-    <main class="main-hero">
-        <div class="hero-text">
-            <h1>Быстро оценивайте навыки вашей IT-команды</h1>
+    <main>
+        <section>
+            <h2>Контактная информация</h2>
+            <!-- Использование тега <address> для семантической разметки контактных данных -->
+            <address>
+                <p><strong>Название организации:</strong> ООО "Пример"</p>
+                <p><strong>Адрес:</strong> <span itemprop="streetAddress">ул. Примерная, 1,</span> <span itemprop="addressLocality">г. Салават,</span> <span itemprop="postalCode">453250</span></p>
+                <p><strong>Телефон:</strong> <a href="tel:+71234567890">+7 (123) 456-78-90</a></p>
+                <p><strong>Email:</strong> <a href="mailto:info@example.com">info@example.com</a></p>
+            </address>
+            
+            <h3>Время работы</h3>
+            <ul>
+                <li>Понедельник - Пятница: 9:00 - 18:00</li>
+                <li>Суббота, Воскресенье: Выходные</li>
+            </ul>
+
+            <!-- Ссылка на карту (можно вставить iframe с Google Maps) -->
+            <h3>Мы на карте</h3>
             <p>
-                Платформа SkillExam помогает наглядно отслеживать актуальный уровень компетенций сотрудников, планировать обучение и эффективно распределять ресурсы проекта.
+                <a href="maps.google.com" target="_blank" rel="noopener noreferrer">Посмотреть на Google Maps</a>
             </p>
-        </div>
-        <div class="hero-image-placeholder">
-            <img src="via.placeholder.com" alt="Иллюстрация панели инструментов">
-        </div>
+        </section>
+
+        <section>
+            <h2>Форма обратной связи</h2>
+            <!-- Простая форма обратной связи. Атрибут action должен указывать на серверный скрипт (например, PHP), который обработает данные -->
+            <form action="submit_form.php" method="POST">
+                <div>
+                    <label for="name">Ваше имя:</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                <div>
+                    <label for="email">Ваш Email:</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div>
+                    <label for="message">Сообщение:</label>
+                    <textarea id="message" name="message" rows="5" required></textarea>
+                </div>
+                <div>
+                    <button type="submit">Отправить сообщение</button>
+                </div>
+            </form>
+        </section>
     </main>
 
     <footer class="site-footer">
@@ -367,7 +430,7 @@
             <div class="footer-col">
                 <h4 class="footer-heading">Ресурсы</h4>
                 <ul class="footer-links">
-                    <li><a href="{{ url_for('main.contacts') }}">Контакты</a></li>
+                    <li><a href="{{ url_for('main.commands') }}">Контакты</a></li>
                     <li><a href="#">О компании</a></li>
                 </ul>
             </div>
@@ -381,7 +444,7 @@
             </div>
         </div>
     </footer>
-    
+
     <div id="registrationModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
@@ -423,21 +486,6 @@
             modal.style.display = "flex";
         }
 
-        modal.addEventListener('pointerdown', function(e) {
-            if (e.target === modal) {
-                modal._clickedOnOverlay = true;
-            } else {
-                modal._clickedOnOverlay = false;
-            }
-        });
-
-        modal.addEventListener('pointerup', function(e) {
-            if (modal._clickedOnOverlay && e.target === modal) {
-                closeModal();
-            }
-            modal._clickedOnOverlay = false;
-        });
-
         function closeModal() {
             modal.style.display = "none";
         }
@@ -448,13 +496,29 @@
 
         closeBtn.addEventListener('click', closeModal);
 
+        // Раньше в приложении можно было выбрать регистрацию и логин, но регистрация была убрана, а без этой строчки код почему-то работает не корректно(постоянно ошибка сети)
+        navItems.forEach(item => {
+            item.addEventListener('click', function() {
+                const targetId = this.getAttribute('data-target');
+                const mode = targetId.includes('register') ? 'register' : 'login';
+                setModalMode(mode);
+            });
+        });
+
+        window.onclick = function(event) {
+          if (event.target == modal) {
+            closeModal();
+          }
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             const loginForm = document.getElementById('log-form');
             const loginErrorMessage = document.getElementById('login-error-message');
-
+            
             if (loginForm) {
                 loginForm.addEventListener('submit', async function(e) {
                     e.preventDefault();
+                    
                     loginErrorMessage.style.display = 'none';
                     
                     const formData = new FormData(this);
@@ -463,7 +527,9 @@
                     try {
                         const response = await fetch(this.action, { 
                             method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
                             body: JSON.stringify(data)
                         });
                         
@@ -481,6 +547,13 @@
                                 errorMessageText = 'Проверьте введенные данные.';
                             }
                             loginErrorMessage.querySelector('span:last-child').innerHTML = `<strong>${errorMessageText}</strong>`;
+                            
+                            if (result.errors && result.errors.login) {
+                                document.getElementById('login-username').style.borderColor = '#f44336';
+                            }
+                            if (result.errors && result.errors.password) {
+                                document.getElementById('login-password').style.borderColor = '#f44336';
+                            }
                         }
                     } catch (error) {
                         console.error('Ошибка:', error);
@@ -507,5 +580,6 @@
         });
 
     </script>
+
 </body>
 </html>

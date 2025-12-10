@@ -1,15 +1,15 @@
 INSERT INTO departments (name) VALUES
-('back'),
-('front'),
+('Backend'),
+('Frontend'),
 ('HR'),
 ('DevOps');
 
 INSERT INTO users (login, password_hash, role, full_name, department_id)
 VALUES
-('Kulikov', 'hash1', 'employee', 'Куликов Кирилл', 1),
-('Hafizov', 'hash2', 'employee', 'Хафизов Айгиз', 2),
-('Vorotnikov', 'hash3', 'manager',  'Воротников Никита', 1),
-('Kuchmasova', 'hash4', 'hr', 'Кучмасова Софья', 3);
+('Kulikov', 'scrypt:32768:8:1$FIYq3w0idFEMMhm7$a87a886178f3fa07da94285a8ae878dc35831623dcd7947102e97ccdb10171620d37b1f17be7f59b1963db272cd6c07a32160d04a5d3d87ba2b6d6c8334e5b89', 'employee', 'Куликов Кирилл', 1),
+('Hafizov', 'scrypt:32768:8:1$FIYq3w0idFEMMhm7$a87a886178f3fa07da94285a8ae878dc35831623dcd7947102e97ccdb10171620d37b1f17be7f59b1963db272cd6c07a32160d04a5d3d87ba2b6d6c8334e5b89', 'employee', 'Хафизов Айгиз', 2),
+('Vorotnikov', 'scrypt:32768:8:1$FIYq3w0idFEMMhm7$a87a886178f3fa07da94285a8ae878dc35831623dcd7947102e97ccdb10171620d37b1f17be7f59b1963db272cd6c07a32160d04a5d3d87ba2b6d6c8334e5b89', 'manager',  'Воротников Никита', 1),
+('Kuchmasova', 'scrypt:32768:8:1$FIYq3w0idFEMMhm7$a87a886178f3fa07da94285a8ae878dc35831623dcd7947102e97ccdb10171620d37b1f17be7f59b1963db272cd6c07a32160d04a5d3d87ba2b6d6c8334e5b89', 'hr', 'Кучмасова Софья', 3);
 
 UPDATE departments SET manager_id = 3 WHERE id = 1;
 

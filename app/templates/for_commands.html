@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Для команд | SkillExam </title>
+    <link href="fonts.googleapis.com" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --quizlet-blue: #4255ff;
+            --quizlet-text: #2e3856;
+            --background: #f6f7fb;
+            --card-bg: #ffffff;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--background);
+            color: var(--quizlet-text);
+            line-height: 1.5;
+        }
+
+        .header-nav {
+            background-color: var(--card-bg);
+            box-shadow: var(--shadow);
+            padding: 16px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--quizlet-blue);
+            text-decoration: none;
+        }
+
+        .nav-links a {
+            color: var(--quizlet-text);
+            text-decoration: none;
+            font-weight: 600;
+            margin-left: 24px;
+            padding: 8px 12px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .nav-links a:hover {
+            background-color: var(--background);
+        }
+
+        .nav-links .signup-btn {
+            background-color: var(--quizlet-blue);
+            color: #fff;
+            padding: 8px 20px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .nav-links .signup-btn:hover {
+            background-color: #3848d9;
+        }
+
+        .main-hero {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 60px 5%;
+            max-width: 1200px;
+            margin: 0 auto;
+            min-height: calc(100vh - 80px);
+        }
+
+        .hero-text {
+            flex: 1;
+            max-width: 500px;
+        }
+
+        .hero-text h1 {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            line-height: 1.1;
+        }
+
+        .hero-text p {
+            font-size: 18px;
+            color: #6a6f8c;
+            margin-bottom: 30px;
+        }
+
+        .cta-button-large {
+            display: inline-block;
+            padding: 16px 40px;
+            background-color: var(--quizlet-blue);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 18px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(66, 85, 255, 0.3);
+        }
+
+        .cta-button-large:hover {
+            background-color: #3848d9;
+            transform: translateY(-2px);
+        }
+
+        .hero-image-placeholder img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            min-width: 400px; 
+        }
+
+        @media (max-width: 768px) {
+            .main-hero {
+                flex-direction: column;
+                text-align: center;
+                padding-top: 40px;
+            }
+            .hero-image-placeholder {
+                margin-top: 40px;
+                justify-content: center;
+            }
+        }
+        
+        @keyframes fadeIn {
+            from {opacity: 0;}
+            to {opacity: 1;}
+        }
+
+        @keyframes slideUp {
+            from {transform: translateY(50px); opacity: 0;}
+            to {transform: translateY(0); opacity: 1;}
+        }
+
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 1000; 
+            left: 0;
+            top: 0;
+            width: 100%; 
+            height: 100%; 
+            background-color: rgba(0,0,0,0.6); 
+            justify-content: center; 
+            align-items: center; 
+            animation: fadeIn 0.3s forwards;
+        }
+
+        .modal-content {
+            background-color: var(--card-bg);
+            padding: 40px 30px; 
+            border-radius: 10px;
+            width: 90%; 
+            max-width: 450px; 
+            position: relative;
+            box-shadow: var(--shadow);
+            animation: slideUp 0.3s ease-out forwards;
+        }
+
+        .close {
+            color: #aaa;
+            position: absolute;
+            top: 0px;
+            right: 15px;
+            font-size: 32px;
+            font-weight: normal; 
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: var(--quizlet-text);
+        }
+
+        .modal-nav {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 25px;
+            border-bottom: 2px solid var(--background);
+        }
+        
+        .modal-nav-item {
+            cursor: pointer;
+            padding: 10px 0;
+            font-weight: 600;
+            color: var(--quizlet-blue);
+            flex-grow: 1;
+            text-align: center;
+            border-bottom: 2px solid transparent;
+            transition: color 0.2s, border-color 0.2s;
+            border-bottom-color: var(--quizlet-blue);
+        }
+
+        .form-section {
+            display: none; 
+        }
+
+        .form-section.active {
+            display: block;
+        }
+        
+        .modal-content label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--quizlet-text);
+        }
+
+        .modal-content input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px; 
+            border: 1px solid #e0e1e6;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        
+        .modal-content input:focus {
+            outline: none;
+            border-color: var(--quizlet-blue);
+        }
+
+        .modal-content button {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--quizlet-blue);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(66, 85, 255, 0.3);
+        }
+        
+        .modal-content button:hover {
+            background-color: #3848d9;
+        }
+
+        /* --- СТИЛИ FOOTER --- */
+        .site-footer {
+            background-color: var(--card-bg); 
+            border-top: 1px solid #e0e1e6;
+            padding: 40px 5%;
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 30px;
+        }
+
+        .footer-col {
+            min-width: 150px;
+            flex: 1; 
+        }
+
+        .footer-col-info {
+            flex-basis: 250px;
+            min-width: 200px;
+        }
+
+        .footer-logo {
+            font-size: 26px;
+            margin-bottom: 10px;
+            display: inline-block;
+        }
+
+        .footer-heading {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--quizlet-text);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        .footer-description {
+            font-size: 14px;
+            color: #6a6f8c;
+            margin-bottom: 20px;
+        }
+
+        .copyright {
+            font-size: 13px;
+            color: #939bb4;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 8px;
+        }
+
+        .footer-links a {
+            color: var(--quizlet-text);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: var(--quizlet-blue);
+        }
+        
+        @media (max-width: 768px) {
+            .footer-container {
+                flex-direction: column;
+                gap: 20px;
+            }
+        }
+
+        .error-message-box {
+            display: none;
+            background-color: #fff2f0;
+            border: 1px solid #ffccc7;
+            border-radius: 6px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            color: #ff4d4f;
+            font-size: 14px;
+            align-items: center;
+            gap: 10px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <header class="header-nav">
+        <a href="/" class="logo">SkillExam</a>
+        <nav class="nav-links">
+            <a href="#">Особенности</a>
+            <a href="{{ url_for('main.commands') }}">Для команд</a>
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('main.dashboard') }}" class="signup-btn">Мой Дашборд</a>
+            {% else %}
+                <a href="#" class="signup-btn open-modal-btn" data-mode="login">Вход</a>
+            {% endif %}
+        </nav>
+    </header>
+
+    <main class="container py-5">
+        <!-- Заголовок с описанием проблемы -->
+        <div class="text-center mb-5">
+            <h1 class="display-4 fw-bold mb-3">SkillExam: Решение для IT-компаний</h1>
+            <p class="lead text-muted mb-4">
+                Преодолейте проблему отслеживания компетенций сотрудников с помощью современной платформы
+            </p>
+        </div>
+
+        <!-- Проблематика -->
+        <section class="mb-5">
+            <div class="card border-danger shadow">
+                <div class="card-header bg-danger text-white">
+                    <h3 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Проблематика</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="d-flex">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-chart-line text-danger fa-2x me-3"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h5>Руководители не знают актуальный уровень навыков</h5>
+                                    <p class="text-muted">Сложно планировать обучение и распределять задачи по проектам</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-file-excel text-danger fa-2x me-3"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h5>Excel-таблицы устаревают и теряются</h5>
+                                    <p class="text-muted">Не дают наглядной картины, требуют ручного обновления</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-users text-danger fa-2x me-3"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h5>HR тратит часы на ручной сбор данных</h5>
+                                    <p class="text-muted">Особенно перед аттестациями и performance review</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-brain text-danger fa-2x me-3"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h5>Отсутствие централизованной системы</h5>
+                                    <p class="text-muted">Данные разрознены, нет единого источника правды</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Решение -->
+        <section class="mb-5">
+            <h2 class="text-center mb-4">Наше решение</h2>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-3">
+                                <i class="fas fa-database fa-3x text-primary"></i>
+                            </div>
+                            <h4 class="card-title">Локальная БД</h4>
+                            <p class="card-text">PostgreSQL для надёжного хранения всех данных о навыках сотрудников</p>
+                            <ul class="list-unstyled text-start mt-3">
+                                <li><i class="fas fa-check text-success me-2"></i>5 нормализованных таблиц</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Связи Many-to-Many</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Полная история изменений</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-3">
+                                <i class="fas fa-chart-pie fa-3x text-success"></i>
+                            </div>
+                            <h4 class="card-title">Визуализация данных</h4>
+                            <p class="card-text">Chart.js для создания наглядных радарных диаграмм и графиков</p>
+                            <ul class="list-unstyled text-start mt-3">
+                                <li><i class="fas fa-check text-success me-2"></i>Радарные диаграммы профилей</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Сравнение сотрудников</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Динамические отчёты</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-3">
+                                <i class="fas fa-user-shield fa-3x text-info"></i>
+                            </div>
+                            <h4 class="card-title">Ролевая модель</h4>
+                            <p class="card-text">Три уровня доступа с соответствующими правами и функциями</p>
+                            <ul class="list-unstyled text-start mt-3">
+                                <li><i class="fas fa-check text-success me-2"></i>Сотрудник: самооценка</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Руководитель: контроль</li>
+                                <li><i class="fas fa-check text-success me-2"></i>HR: управление</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Функционал по ролям -->
+        <section class="mb-5">
+            <h2 class="text-center mb-4">Функционал по ролям</h2>
+            
+            <!-- Сотрудник -->
+            <div class="card mb-4 shadow">
+                <div class="card-header bg-primary text-white d-flex align-items-center">
+                    <i class="fas fa-user fa-2x me-3"></i>
+                    <div>
+                        <h3 class="mb-0">Сотрудник</h3>
+                        <p class="mb-0">Самооценка и просмотр профиля</p>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start">
+                                <i class="fas fa-sign-in-alt text-primary me-3 mt-1"></i>
+                                <div>
+                                    <h5>Авторизация</h5>
+                                    <p class="text-muted mb-0">Вход по логину и паролю с шифрованием</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start">
+                                <i class="fas fa-list text-primary me-3 mt-1"></i>
+                                <div>
+                                    <h5>Просмотр навыков</h5>
+                                    <p class="text-muted mb-0">По категориям: языки программирования, фреймворки, soft skills</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start">
+                                <i class="fas fa-star text-primary me-3 mt-1"></i>
+                                <div>
+                                    <h5>Самооценка</h5>
+                                    <p class="text-muted mb-0">По шкале 1-5 баллов по каждому навыку</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start">
+                                <i class="fas fa-chart-radar text-primary me-3 mt-1"></i>
+                                <div>
+                                    <h5>Профиль компетенций</h5>
+                                    <p class="text-muted mb-0">Радарная диаграмма на основе самооценки</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Руководитель -->
+            <div class="card mb-4 shadow">
+                <div class="card-header bg-success text-white d-flex align-items-center">
+                    <i class="fas fa-user-tie fa-2x me-3"></i>
+                    <div>
+                        <h3 class="mb-0">Руководитель</h3>
+                        <p class="mb-0">Управление оценками команды</p>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-start">
+                                <i class="fas fa-users text-success me-3 mt-1"></i>
+                                <div>
+                                    <h5>Просмотр команды</h5>
+                                    <p class="text-muted mb-0">Профили сотрудников своего отдела</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-start">
+                                <i class="fas fa-edit text-success me-3 mt-1"></i>
+                                <div>
+                                    <h5>Корректировка оценок</h5>
+                                    <p class="text-muted mb-0">Подтверждение или изменение самооценок</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-start">
+                                <i class="fas fa-balance-scale text-success me-3 mt-1"></i>
+                                <div>
+                                    <h5>Сравнение сотрудников</h5>
+                                    <p class="text-muted mb-0">Наглядное сравнение навыков нескольких сотрудников</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12 mt-3">
+                            <div class="d-flex align-items-start">
+                                <i class="fas fa-search text-success me-3 mt-1"></i>
+                                <div>
+                                    <h5>Поиск по навыкам</h5>
+                                    <p class="text-muted mb-0">Найти сотрудников с нужным уровнем навыка (например, Python 4+)</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- HR/Администратор -->
+            <div class="card shadow">
+                <div class="card-header bg-dark text-white d-flex align-items-center">
+                    <i class="fas fa-user-cog fa-2x me-3"></i>
+                    <div>
+                        <h3 class="mb-0">HR</h3>
+                        <p class="mb-0">Полный контроль и аналитика</p>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-start">
+                                <i class="fas fa-book text-dark me-3 mt-1"></i>
+                                <div>
+                                    <h5>Управление справочником</h5>
+                                    <p class="text-muted mb-0">Добавление и редактирование навыков и категорий</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-start">
+                                <i class="fas fa-chart-bar text-dark me-3 mt-1"></i>
+                                <div>
+                                    <h5>Сводные отчёты</h5>
+                                    <p class="text-muted mb-0">Анализ по отделам и компании в целом</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-start">
+                                <i class="fas fa-file-export text-dark me-3 mt-1"></i>
+                                <div>
+                                    <h5>Экспорт данных</h5>
+                                    <p class="text-muted mb-0">Выгрузка в CSV для внешнего анализа</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Технологический стек -->
+        <section class="mb-5">
+            <h2 class="text-center mb-4">Технологический стек</h2>
+            <div class="row g-4">
+                <div class="col-md-3 col-6">
+                    <div class="card text-center h-100 border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <i class="fab fa-python fa-3x text-primary"></i>
+                            </div>
+                            <h6>Backend</h6>
+                            <p class="small text-muted mb-0">Python + Flask</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="card text-center h-100 border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <i class="fas fa-database fa-3x text-success"></i>
+                            </div>
+                            <h6>База данных</h6>
+                            <p class="small text-muted mb-0">PostgreSQL</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="card text-center h-100 border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <i class="fab fa-html5 fa-3x text-warning"></i>
+                            </div>
+                            <h6>Frontend</h6>
+                            <p class="small text-muted mb-0">HTML + CSS + Bootstrap + Chart.js</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="card text-center h-100 border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <i class="fab fa-docker fa-3x text-info"></i>
+                            </div>
+                            <h6>Контейнеризация</h6>
+                            <p class="small text-muted mb-0">Docker + Docker Compose</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-col footer-col-info">
+                <a href="#" class="logo footer-logo">SkillExam</a>
+                <p class="footer-description">
+                    Платформа для оценки навыков IT-команд, планирования обучения и эффективного управления ресурсами.
+                </p>
+                <p class="copyright">
+                    &copy; 2025 SkillExam. Права не защищены бегите.
+                </p>
+            </div>
+
+            <div class="footer-col">
+                <h4 class="footer-heading">Продукт</h4>
+                <ul class="footer-links">
+                    <li><a href="#">Особенности</a></li>
+                    <li><a href="{{ url_for('main.commands') }}">Для команд</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4 class="footer-heading">Ресурсы</h4>
+                <ul class="footer-links">
+                    <li><a href="#">Контакты</a></li>
+                    <li><a href="#">О компании</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4 class="footer-heading">Право</h4>
+                <ul class="footer-links">
+                    <li><a href="#">Политика конфиденциальности</a></li>
+                    <li><a href="#">Условия использования</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+    
+    <div id="registrationModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+
+            <div class="modal-nav">
+                <div class="modal-nav-item" data-target="login-form">Вход в систему</div>
+            </div>
+
+            <div id="login-form" class="form-section">
+                <form id="log-form" action="{{ url_for('main.login') }}" method="post">
+                    {{ form.hidden_tag() }} 
+                    
+                    <label for="login-username">{{ form.login.label }}</label>
+                    {{ form.login(class="form-control", id="login-username", required=True) }}
+
+                    <label for="login-password">{{ form.password.label }}</label>
+                    {{ form.password(class="form-control", id="login-password", required=True) }}
+
+                    <div id="login-error-message" class="error-message-box">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span><strong>Вы ввели неверные данные для входа. Повторите попытку.</strong></span>
+                    </div>
+                    
+                    <button type="submit">Войти</button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        var modal = document.getElementById("registrationModal");
+        var openModalBtns = document.querySelectorAll(".open-modal-btn");
+        var closeBtn = document.querySelector(".close");
+
+        function openModal(event) {
+            event.preventDefault(); 
+            document.getElementById('login-form').classList.add('active');
+            modal.style.display = "flex";
+        }
+
+        function closeModal() {
+            modal.style.display = "none";
+        }
+
+        openModalBtns.forEach(button => {
+            button.addEventListener('click', openModal);
+        });
+
+        closeBtn.addEventListener('click', closeModal);
+
+        // Раньше в приложении можно было выбрать регистрацию и логин, но регистрация была убрана, а без этой строчки код почему-то работает не корректно(постоянно ошибка сети)
+        navItems.forEach(item => {
+            item.addEventListener('click', function() {
+                const targetId = this.getAttribute('data-target');
+                const mode = targetId.includes('register') ? 'register' : 'login';
+                setModalMode(mode);
+            });
+        });
+
+        window.onclick = function(event) {
+          if (event.target == modal) {
+            closeModal();
+          }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginForm = document.getElementById('log-form');
+            const loginErrorMessage = document.getElementById('login-error-message');
+            
+            if (loginForm) {
+                loginForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    loginErrorMessage.style.display = 'none';
+                    
+                    const formData = new FormData(this);
+                    const data = Object.fromEntries(formData);
+                    
+                    try {
+                        const response = await fetch(this.action, { 
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(data)
+                        });
+                        
+                        const result = await response.json();
+                        
+                        if (response.ok && result.success) {
+                            window.location.href = result.redirect_url || '/dashboard'; 
+                        } else {
+                            loginErrorMessage.style.display = 'flex'; 
+                            
+                            let errorMessageText = 'Произошла ошибка при входе. Повторите попытку.';
+                            if (result.message) {
+                                errorMessageText = result.message;
+                            } else if (result.errors) {
+                                errorMessageText = 'Проверьте введенные данные.';
+                            }
+                            loginErrorMessage.querySelector('span:last-child').innerHTML = `<strong>${errorMessageText}</strong>`;
+                            
+                            if (result.errors && result.errors.login) {
+                                document.getElementById('login-username').style.borderColor = '#f44336';
+                            }
+                            if (result.errors && result.errors.password) {
+                                document.getElementById('login-password').style.borderColor = '#f44336';
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Ошибка:', error);
+                        loginErrorMessage.querySelector('span:last-child').innerHTML = '<strong>Ошибка сети. Пожалуйста, попробуйте позже.</strong>';
+                        loginErrorMessage.style.display = 'flex';
+                    }
+                });
+                
+                const loginInput = document.getElementById('login-username');
+                const passwordInput = document.getElementById('login-password');
+                
+                loginInput.addEventListener('input', function() {
+                    this.style.borderColor = '#e0e1e6';
+                    loginErrorMessage.style.display = 'none';
+                });
+                
+                passwordInput.addEventListener('input', function() {
+                    this.style.borderColor = '#e0e1e6';
+                    loginErrorMessage.style.display = 'none';
+                });
+
+                document.getElementById('login-form').classList.add('active');
+            }
+        });
+
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

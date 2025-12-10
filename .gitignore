@@ -7,3 +7,4 @@ __pycache__
 # Изолированное окружение
 venv/
 
+test.html

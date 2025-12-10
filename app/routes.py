@@ -1,9 +1,8 @@
-from flask import render_template, request, redirect, url_for, jsonify, flash
+from flask import render_template, request, redirect, url_for, jsonify
 from .forms import LoginForm, RegistrationForm
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask import Blueprint
 from flask_login import login_user, current_user, login_required, logout_user
-import json
 
 from . import db
 from .models import User, Department
@@ -15,45 +14,48 @@ def index():
     login_form = LoginForm()
     return render_template('welcome_page.html', form=login_form)
 
-@bp.route('/login', methods=['GET', 'POST'])
+@bp.route('/login', methods=['POST'])
 def login():
-    form = LoginForm()
+    data = request.get_json()
 
     if current_user.is_authenticated:
             return redirect(url_for('main.dashboard'))
 
-    if form.validate_on_submit():
-        login_input = form.login.data
-        
-        user = User.query.filter(User.login.ilike(login_input)).first()
+    if not data:
+        return jsonify({
+            'success': False,
+            'message': 'Пустое тело запроса.'
+        }), 400
 
-        if user and check_password_hash(user.password_hash, form.password.data):
-            login_user(user, remember=True)
-            return redirect(url_for('main.dashboard'))
-        else:
-            return jsonify({
-                'success': False,
-                'message': 'Неверный логин или пароль.'
-            }), 401
-    
-    error_messages = {}
-    for field, errors in form.errors.items():
-        error_messages[field] = errors[0]
-        
-    return jsonify({
-        'success': False,
-        'message': 'Пожалуйста, заполните все поля.',
-        'errors': error_messages
-    }), 400
+    login_input = data.get('login')
+    password_input = data.get('password')
+
+    if not login_input or not password_input:
+        return jsonify({
+            'success': False,
+            'message': 'Необходимо ввести логин и пароль.'
+        }), 400
+
+    user = User.query.filter(User.login.ilike(login_input)).first()
+
+    if user and check_password_hash(user.password_hash, password_input):
+        login_user(user, remember=True)
+        return jsonify({
+            'success': True,
+            'redirect_url': url_for('main.dashboard')
+        }), 200 
+    else:
+        return jsonify({
+            'success': False,
+            'message': 'Неверный логин или пароль. Попробуйте ещё раз.'
+        }), 401
 
 @bp.route('/register', methods=['GET', 'POST'])
 @login_required
 def register():
     if current_user.role not in ['admin', 'hr', 'manager']:
-        return jsonify({
-            'success': False,
-            'message': 'У вас нет прав для добавления пользователей'
-        }), 403
+        # Заместо возврата. Добавить ввывод в виде выдвигающейся шторки success: false, message: "У вас нету прав на добавление пользователя"
+        return render_template(url_for('main.dashboard'))
 
     if request.is_json:
         data = request.get_json()
@@ -103,50 +105,11 @@ def register():
     
     form = RegistrationForm(current_user=current_user, department_name=current_user_department_name)
     
-    if form.validate_on_submit():
-        new_login = form.login.data
-        raw_password = form.password_hash.data
-
-        if User.query.filter(User.login.ilike(new_login)).first():
-            return jsonify({
-                'success': False,
-                'message': 'Пользователь с таким логином уже существует.'
-            }), 409
-
-        hashed_password = generate_password_hash(raw_password)
-
-        new_user = User(
-            login=new_login,
-            password_hash=hashed_password,
-            role=form.role.data,
-            full_name=form.full_name.data,
-            department_id=form.department_id.data
-        )
-        
-        db.session.add(new_user)
-        try:
-            db.session.commit()
-            return jsonify({'success': True, 'message': 'Регистрация прошла успешно.'}), 201
-        except Exception as e:
-            db.session.rollback()
-            return jsonify({'success': False, 'message': f'Ошибка базы данных: {e}'}), 500
-    
-    if request.method == 'POST':
-        error_messages = {field: errors[0] for field, errors in form.errors.items()}
-        return jsonify({
-            'success': False,
-            'message': 'Некорректные данные формы.',
-            'errors': error_messages
-        }), 400
-    
     return render_template('registry.html', form=form, current_user=current_user, current_user_department_name=current_user_department_name)
 
 @bp.route('/departments')
 @login_required
 def get_departments():
-    if current_user.role not in ['admin', 'hr']:
-        return jsonify({'success': False, 'message': 'Доступ запрещен'}), 403
-    
     try:
         departments = Department.query.order_by(Department.name).all()
         departments_list = [{'id': dept.id, 'name': dept.name} for dept in departments]
@@ -175,3 +138,13 @@ def dashboard():
 def logout():
     logout_user()
     return redirect(url_for('main.index'))
+
+@bp.route('/for_commands')
+def commands():
+    login_form = LoginForm()
+    return render_template('for_commands.html', form=login_form)
+
+@bp.route('/contacts')
+def contacts():
+    login_form = LoginForm()
+    return render_template('contacts.html', form=login_form)

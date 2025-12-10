@@ -359,6 +359,36 @@
         .department-info i {
             color: #4255ff;
         }
+
+        /* Общие стили для кнопок (для примера) */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+
+        /* Стили для кнопки "Выйти" */
+        .btn-danger {
+            background-color: #dc3545; /* Красный */
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d; 
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -391,11 +421,6 @@
                         </a>
                     </div>
                 </div>   
-               
-            {% else %}
-                <a href="#" class="signup-btn open-modal-btn" data-mode="login">Вход</a>
-                <a href="#" class="signup-btn open-modal-btn" data-mode="register" 
-                   style="background-color: #28a745;">Регистрация</a>
             {% endif %}
         </nav>
     </header>
@@ -405,24 +430,8 @@
         <p>Вы успешно вошли в систему.</p>
         
         <div class="user-management-panel" style="margin-top: 2rem;">
-            {% if current_user.is_authenticated %}
-                {% if current_user.role == 'admin' %}
-                <div class="admin-buttons" style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                    <a href="{{ url_for('main.register') }}" class="btn btn-success" 
-                       style="padding: 0.75rem 1.5rem; background-color: #28a745; color: white; text-decoration: none; border-radius: 5px;">
-                        <i class="fas fa-user-plus"></i> Добавить пользователя
-                    </a>
-                    <a href="{{ url_for('main.user_list') }}" class="btn btn-info"
-                       style="padding: 0.75rem 1.5rem; background-color: #17a2b8; color: white; text-decoration: none; border-radius: 5px;">
-                        <i class="fas fa-users"></i> Список пользователей
-                    </a>
-                    <a href="{{ url_for('main.edit_permissions') }}" class="btn btn-warning"
-                       style="padding: 0.75rem 1.5rem; background-color: #ffc107; color: #212529; text-decoration: none; border-radius: 5px;">
-                        <i class="fas fa-user-cog"></i> Управление правами
-                    </a>
-                </div>
-                
-                {% elif current_user.role == 'hr' %}
+            {% if current_user.is_authenticated %}                                
+                {% if current_user.role == 'hr' %}
                 <div class="hr-buttons" style="display: flex; gap: 1rem; flex-wrap: wrap;">
                     <button class="open-add-user-modal btn btn-success"
                             data-role="hr"
@@ -445,6 +454,19 @@
             {% endif %}
         </div>
     </main>
+
+    <div id="logoutConfirmationModal" class="modal-overlay"> 
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 id="logoutModalTitle">Вы уверены, что хотите выйти из системы?</h2>
+                <button class="modal-close" id="closeLogoutModal">&times;</button>
+            </div>
+            <div class="modal-footer">
+                <button id="cancelLogoutBtn" class="btn btn-secondary">Отмена</button>
+                <button id="confirmLogoutBtn" class="btn btn-primary btn-danger">Выйти</button>
+            </div>
+        </div>
+    </div>
 
     <div class="modal-overlay" id="addUserModal">
         <div class="modal-content">
@@ -532,14 +554,71 @@
                 });
             }
             
+            // --- Находим общие элементы модала выхода ---
+            const logoutConfirmationModal = document.getElementById('logoutConfirmationModal'); // Используем новый ID
+            const confirmLogoutBtn = document.getElementById('confirmLogoutBtn');
+            const cancelLogoutBtn = document.getElementById('cancelLogoutBtn');
+            const closeLogoutModal = document.getElementById('closeLogoutModal');
+
+            let pendingLogoutLink = null; // Для сохранения ссылки на "Выход"
+
+            // --- Новая/Обновленная функция для закрытия модала выхода ---
+            // Используем ту же логику, что и для closeModal, но для другого модала
+            function closeLogoutModalWindow() {
+                if (logoutConfirmationModal) {
+                    logoutConfirmationModal.classList.remove('show');
+                    document.body.style.overflow = 'auto'; 
+                }
+                pendingLogoutLink = null;
+            }
+
+
+            // --- 1. Обработка клика по ссылке "Выход" ---
             const logoutLinks = document.querySelectorAll('a[href*="logout"]');
             logoutLinks.forEach(link => {
                 link.addEventListener('click', function(e) {
-                    if (!confirm('Вы уверены, что хотите выйти?')) {
-                        e.preventDefault();
+                    e.preventDefault();
+                    pendingLogoutLink = this; // Сохраняем ссылку, которую нужно активировать
+
+                    // Используем класс 'show', который уже стилизован в CSS
+                    if (logoutConfirmationModal) {
+                        logoutConfirmationModal.classList.add('show');
+                        document.body.style.overflow = 'hidden';
                     }
                 });
             });
+
+
+            // --- 2. Обработка кнопок внутри модала выхода ---
+
+            // Подтверждение
+            if (confirmLogoutBtn) {
+                confirmLogoutBtn.addEventListener('click', function() {
+                    if (pendingLogoutLink) {
+                        // Переходим по сохраненной ссылке
+                        window.location.href = pendingLogoutLink.href;
+                    }
+                    closeLogoutModalWindow();
+                });
+            }
+
+            // Отмена или закрытие
+            if (cancelLogoutBtn) {
+                cancelLogoutBtn.addEventListener('click', closeLogoutModalWindow);
+            }
+            if (closeLogoutModal) {
+                closeLogoutModal.addEventListener('click', closeLogoutModalWindow);
+            }
+
+            // Закрытие по клику на оверлей
+            if (logoutConfirmationModal) {
+                logoutConfirmationModal.addEventListener('click', function(e) {
+                    if (e.target === logoutConfirmationModal) {
+                        closeLogoutModalWindow();
+                    }
+                });
+            }
+
 
             const modal = document.getElementById('addUserModal');
             const openModalButtons = document.querySelectorAll('.open-add-user-modal');
@@ -621,10 +700,19 @@
                 resetForm();
             });
 
-            modal.addEventListener('click', function(e) {
+            modal.addEventListener('pointerdown', function(e) {
                 if (e.target === modal) {
+                    modal._clickedOnOverlay = true;
+                } else {
+                    modal._clickedOnOverlay = false;
+                }
+            });
+
+            modal.addEventListener('pointerup', function(e) {
+                if (modal._clickedOnOverlay && e.target === modal) {
                     closeModal();
                 }
+                modal._clickedOnOverlay = false;
             });
 
             function setupModal() {
@@ -670,7 +758,6 @@
                         }
                     } else {
                         console.error('Ошибка загрузки отделов:', result.message);
-                        // Показываем сообщение об ошибке
                         formNotice.innerHTML = '<strong>Ошибка:</strong> Не удалось загрузить список отделов';
                         formNotice.style.borderLeftColor = '#f44336';
                         formNotice.style.backgroundColor = '#ffebee';
@@ -758,7 +845,7 @@
                     const result = await response.json();
                     
                     if (result.success) {
-                        alert('Пользователь успешно добавлен!');
+                        alert('Пользователь успешно добавлен!');    // тоже добавить шторку
                         resetForm(); 
                         closeModal();
                     } else {
@@ -785,16 +872,8 @@
                 }
             });
 
-            // Обработка изменения роли (дополнительная валидация)
-            roleSelect.addEventListener('change', function() {
-                if (this.value === 'manager' && currentUserRole === 'hr') {
-                    formNotice.innerHTML = '<strong>Внимание:</strong> При добавлении руководителя убедитесь, что у отдела еще нет руководителя';
-                }
-            });
-
-            // Сохраняем данные формы при изменении полей
             document.getElementById('addUserForm').addEventListener('input', function(e) {
-                if (e.target.type !== 'password') { // Не сохраняем пароль
+                if (e.target.type !== 'password') { 
                     saveFormData();
                 }
             });
