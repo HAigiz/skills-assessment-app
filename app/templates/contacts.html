@@ -4,349 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Контакты | SkillExam</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
     <link href="fonts.googleapis.com" rel="stylesheet">
-    <style>
-        :root {
-            --quizlet-blue: #4255ff;
-            --quizlet-text: #2e3856;
-            --background: #f6f7fb;
-            --card-bg: #ffffff;
-            --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: 'Roboto', sans-serif;
-            background-color: var(--background);
-            color: var(--quizlet-text);
-            line-height: 1.5;
-        }
-
-        .header-nav {
-            background-color: var(--card-bg);
-            box-shadow: var(--shadow);
-            padding: 16px 5%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            font-size: 24px;
-            font-weight: 800;
-            color: var(--quizlet-blue);
-            text-decoration: none;
-        }
-
-        .nav-links a {
-            color: var(--quizlet-text);
-            text-decoration: none;
-            font-weight: 600;
-            margin-left: 24px;
-            padding: 8px 12px;
-            border-radius: 4px;
-            transition: background-color 0.2s;
-        }
-
-        .nav-links a:hover {
-            background-color: var(--background);
-        }
-
-        .nav-links .signup-btn {
-            background-color: var(--quizlet-blue);
-            color: #fff;
-            padding: 8px 20px;
-            border-radius: 6px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        .nav-links .signup-btn:hover {
-            background-color: #3848d9;
-        }
-
-        .main-hero {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 60px 5%;
-            max-width: 1200px;
-            margin: 0 auto;
-            min-height: calc(100vh - 80px);
-        }
-
-        .hero-text {
-            flex: 1;
-            max-width: 500px;
-        }
-
-        .hero-text h1 {
-            font-size: 48px;
-            font-weight: 800;
-            margin-bottom: 20px;
-            line-height: 1.1;
-        }
-
-        .hero-text p {
-            font-size: 18px;
-            color: #6a6f8c;
-            margin-bottom: 30px;
-        }
-
-        .cta-button-large {
-            display: inline-block;
-            padding: 16px 40px;
-            background-color: var(--quizlet-blue);
-            color: #fff;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 18px;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-            border: none;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(66, 85, 255, 0.3);
-        }
-
-        .cta-button-large:hover {
-            background-color: #3848d9;
-            transform: translateY(-2px);
-        }
-
-        .hero-image-placeholder img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 12px;
-            box-shadow: var(--shadow);
-            min-width: 400px; 
-        }
-
-        @media (max-width: 768px) {
-            .main-hero {
-                flex-direction: column;
-                text-align: center;
-                padding-top: 40px;
-            }
-            .hero-image-placeholder {
-                margin-top: 40px;
-                justify-content: center;
-            }
-        }
-        
-        @keyframes fadeIn {
-            from {opacity: 0;}
-            to {opacity: 1;}
-        }
-
-        @keyframes slideUp {
-            from {transform: translateY(50px); opacity: 0;}
-            to {transform: translateY(0); opacity: 1;}
-        }
-
-        .modal {
-            display: none; 
-            position: fixed; 
-            z-index: 1000; 
-            left: 0;
-            top: 0;
-            width: 100%; 
-            height: 100%; 
-            background-color: rgba(0,0,0,0.6); 
-            justify-content: center; 
-            align-items: center; 
-            animation: fadeIn 0.3s forwards;
-        }
-
-        .modal-content {
-            background-color: var(--card-bg);
-            padding: 40px 30px; 
-            border-radius: 10px;
-            width: 90%; 
-            max-width: 450px; 
-            position: relative;
-            box-shadow: var(--shadow);
-            animation: slideUp 0.3s ease-out forwards;
-        }
-
-        .close {
-            color: #aaa;
-            position: absolute;
-            top: 0px;
-            right: 15px;
-            font-size: 32px;
-            font-weight: normal; 
-            cursor: pointer;
-        }
-
-        .close:hover,
-        .close:focus {
-            color: var(--quizlet-text);
-        }
-
-        .modal-nav {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 25px;
-            border-bottom: 2px solid var(--background);
-        }
-        
-        .modal-nav-item {
-            cursor: pointer;
-            padding: 10px 0;
-            font-weight: 600;
-            color: var(--quizlet-blue);
-            flex-grow: 1;
-            text-align: center;
-            border-bottom: 2px solid transparent;
-            transition: color 0.2s, border-color 0.2s;
-            border-bottom-color: var(--quizlet-blue);
-        }
-
-        .form-section {
-            display: none; 
-        }
-
-        .form-section.active {
-            display: block;
-        }
-        
-        .modal-content label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
-            font-size: 14px;
-            color: var(--quizlet-text);
-        }
-
-        .modal-content input {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 20px; 
-            border: 1px solid #e0e1e6;
-            border-radius: 6px;
-            box-sizing: border-box;
-            font-size: 16px;
-        }
-        
-        .modal-content input:focus {
-            outline: none;
-            border-color: var(--quizlet-blue);
-        }
-
-        .modal-content button {
-            width: 100%;
-            padding: 14px;
-            background-color: var(--quizlet-blue);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            box-shadow: 0 4px 15px rgba(66, 85, 255, 0.3);
-        }
-        
-        .modal-content button:hover {
-            background-color: #3848d9;
-        }
-
-        /* --- СТИЛИ FOOTER --- */
-        .site-footer {
-            background-color: var(--card-bg); 
-            border-top: 1px solid #e0e1e6;
-            padding: 40px 5%;
-        }
-
-        .footer-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            gap: 30px;
-        }
-
-        .footer-col {
-            min-width: 150px;
-            flex: 1; 
-        }
-
-        .footer-col-info {
-            flex-basis: 250px;
-            min-width: 200px;
-        }
-
-        .footer-logo {
-            font-size: 26px;
-            margin-bottom: 10px;
-            display: inline-block;
-        }
-
-        .footer-heading {
-            font-size: 16px;
-            font-weight: 700;
-            color: var(--quizlet-text);
-            margin-bottom: 15px;
-            text-transform: uppercase;
-        }
-
-        .footer-description {
-            font-size: 14px;
-            color: #6a6f8c;
-            margin-bottom: 20px;
-        }
-
-        .copyright {
-            font-size: 13px;
-            color: #939bb4;
-        }
-
-        .footer-links {
-            list-style: none;
-        }
-
-        .footer-links li {
-            margin-bottom: 8px;
-        }
-
-        .footer-links a {
-            color: var(--quizlet-text);
-            text-decoration: none;
-            font-size: 14px;
-            transition: color 0.2s;
-        }
-
-        .footer-links a:hover {
-            color: var(--quizlet-blue);
-        }
-        
-        @media (max-width: 768px) {
-            .footer-container {
-                flex-direction: column;
-                gap: 20px;
-            }
-        }
-
-        .error-message-box {
-            display: none;
-            background-color: #fff2f0;
-            border: 1px solid #ffccc7;
-            border-radius: 6px;
-            padding: 12px 16px;
-            margin-bottom: 20px;
-            color: #ff4d4f;
-            font-size: 14px;
-            align-items: center;
-            gap: 10px;
-        }
-
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
-
     <header class="header-nav">
         <a href="/" class="logo">SkillExam</a>
         <nav class="nav-links">
@@ -360,51 +23,148 @@
         </nav>
     </header>
 
-    <main>
-        <section>
-            <h2>Контактная информация</h2>
-            <!-- Использование тега <address> для семантической разметки контактных данных -->
-            <address>
-                <p><strong>Название организации:</strong> ООО "Пример"</p>
-                <p><strong>Адрес:</strong> <span itemprop="streetAddress">ул. Примерная, 1,</span> <span itemprop="addressLocality">г. Салават,</span> <span itemprop="postalCode">453250</span></p>
-                <p><strong>Телефон:</strong> <a href="tel:+71234567890">+7 (123) 456-78-90</a></p>
-                <p><strong>Email:</strong> <a href="mailto:info@example.com">info@example.com</a></p>
-            </address>
+    <main class="contact-section">
+        <div class="container py-5">
+            <div class="row mb-5">
+                <div class="col-12">
+                    <h1 class="section-title">Контакты</h1>
+                </div>
+            </div>
             
-            <h3>Время работы</h3>
-            <ul>
-                <li>Понедельник - Пятница: 9:00 - 18:00</li>
-                <li>Суббота, Воскресенье: Выходные</li>
-            </ul>
-
-            <!-- Ссылка на карту (можно вставить iframe с Google Maps) -->
-            <h3>Мы на карте</h3>
-            <p>
-                <a href="maps.google.com" target="_blank" rel="noopener noreferrer">Посмотреть на Google Maps</a>
-            </p>
-        </section>
-
-        <section>
-            <h2>Форма обратной связи</h2>
-            <!-- Простая форма обратной связи. Атрибут action должен указывать на серверный скрипт (например, PHP), который обработает данные -->
-            <form action="submit_form.php" method="POST">
-                <div>
-                    <label for="name">Ваше имя:</label>
-                    <input type="text" id="name" name="name" required>
+            <div class="row g-4 mb-5">
+                <div class="col-lg-6">
+                    <div class="contact-card p-4 p-md-5">
+                        <div class="contact-icon">
+                            <i class="bi bi-building"></i>
+                        </div>
+                        
+                        <div class="contact-info">
+                            <h3>Контактная информация</h3>
+                            
+                            <ul class="contact-details">
+                                <li>
+                                    <i class="bi bi-building fs-5"></i>
+                                    <div>
+                                        <strong>Компания:</strong><br>
+                                        ООО "Никита Воротников"
+                                    </div>
+                                </li>
+                                <li>
+                                    <i class="bi bi-geo-alt fs-5"></i>
+                                    <div>
+                                        <strong>Адрес:</strong><br>
+                                        пр. Олимпийский, 1, пгт. Сириус, 354349
+                                    </div>
+                                </li>
+                                <li>
+                                    <i class="bi bi-telephone fs-5"></i>
+                                    <div>
+                                        <strong>Телефон:</strong><br>
+                                        <a href="tel:+71234567890" class="text-decoration-none">+7 (123) 456-78-90</a>
+                                    </div>
+                                </li>
+                                <li>
+                                    <i class="bi bi-envelope fs-5"></i>
+                                    <div>
+                                        <strong>Email:</strong><br>
+                                        <a href="mailto:skillexamru@gmail.com" class="text-decoration-none">skillexamru@gmail.com</a>
+                                    </div>
+                                </li>
+                            </ul>
+                            
+                            <div class="work-hours">
+                                <h5><i class="bi bi-clock me-2"></i>Время работы</h5>
+                                <ul class="list-unstyled mb-0">
+                                    <li><i class="bi bi-check-circle-fill text-success me-2"></i>Пн - Пт: 9:00 - 18:00</li>
+                                    <li><i class="bi bi-x-circle-fill text-danger me-2"></i>Сб, Вс: Выходные</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div>
-                    <label for="email">Ваш Email:</label>
-                    <input type="email" id="email" name="email" required>
+                
+                <div class="col-lg-6">
+                    <div class="form-card p-4 p-md-5">
+                        <div class="contact-icon">
+                            <i class="bi bi-chat-left-text"></i>
+                        </div>
+                        
+                        <h3>Форма обратной связи</h3>
+                        
+                        <form action="submit_form.php" method="POST">
+                            <div class="mb-4">
+                                <label for="name" class="form-label">Ваше имя</label>
+                                <input type="text" class="form-control" id="name" name="name" required placeholder="Иван Иванов">
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label for="email" class="form-label">Ваш Email</label>
+                                <input type="email" class="form-control" id="email" name="email" required placeholder="example@mail.ru">
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label for="phone" class="form-label">Телефон (необязательно)</label>
+                                <input type="tel" class="form-control" id="phone" name="phone" placeholder="+7 (XXX) XXX-XX-XX">
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label for="subject" class="form-label">Тема обращения</label>
+                                <select class="form-select" id="subject" name="subject">
+                                    <option value="general">Общий вопрос</option>
+                                    <option value="support">Техническая поддержка</option>
+                                    <option value="cooperation">Сотрудничество</option>
+                                    <option value="feedback">Обратная связь</option>
+                                </select>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label for="message" class="form-label">Сообщение</label>
+                                <textarea class="form-control" id="message" name="message" rows="4" required placeholder="Опишите ваш вопрос или предложение..."></textarea>
+                            </div>
+                            
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="bi bi-send me-2"></i>Отправить сообщение
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-                <div>
-                    <label for="message">Сообщение:</label>
-                    <textarea id="message" name="message" rows="5" required></textarea>
+            </div>
+            
+            <div class="row map-container">
+                <div class="col-12">
+                    <div class="map-card">
+                        <div class="map-wrapper">
+                            <iframe 
+                                src="https://yandex.ru/map-widget/v1/?um=constructor%3Aa74b786b9ab56f64f18452e4a8603cae5e4b94c10cbf8d5436f1dd009352d133&amp;source=constructor"
+                                frameborder="0"
+                                allowfullscreen="true">
+                            </iframe>
+                            
+                            <div class="map-overlay">
+                                <h5><i class="bi bi-geo-alt-fill text-primary me-2"></i>Университет Сириус</h5>
+                                <p>пр. Олимпийский, 1, пгт. Сириус</p>
+                            </div>
+                        </div>
+                        
+                        <div class="p-4">
+                            <div class="row align-items-center">
+                                <div class="col-md-6">
+                                    <h5 class="mb-2"><i class="bi bi-info-circle me-2"></i>Как добраться</h5>
+                                    <p class="text-muted mb-0">Мы находимся в образовательном центре "Сириус" на Олимпийском проспекте.</p>
+                                </div>
+                                <div class="col-md-6 text-md-end mt-3 mt-md-0">
+                                    <a href="https://yandex.ru/maps/?ll=39.951070%2C43.414696&mode=routes&rtext=~43.414737%2C39.950696&rtt=mt&ruri=~&z=16.4" target="_blank" class="btn btn-outline-primary">
+                                        <i class="bi bi-compass me-2"></i>Построить маршрут
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div>
-                    <button type="submit">Отправить сообщение</button>
-                </div>
-            </form>
-        </section>
+            </div>
+        </div>
     </main>
 
     <footer class="site-footer">
@@ -430,7 +190,7 @@
             <div class="footer-col">
                 <h4 class="footer-heading">Ресурсы</h4>
                 <ul class="footer-links">
-                    <li><a href="{{ url_for('main.commands') }}">Контакты</a></li>
+                    <li><a href="{{ url_for('main.contacts') }}">Контакты</a></li>
                     <li><a href="#">О компании</a></li>
                 </ul>
             </div>
@@ -445,141 +205,8 @@
         </div>
     </footer>
 
-    <div id="registrationModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-
-            <div class="modal-nav">
-                <div class="modal-nav-item" data-target="login-form">Вход в систему</div>
-            </div>
-
-            <div id="login-form" class="form-section">
-                <form id="log-form" action="{{ url_for('main.login') }}" method="post">
-                    {{ form.hidden_tag() }} 
-                    
-                    <label for="login-username">{{ form.login.label }}</label>
-                    {{ form.login(class="form-control", id="login-username", required=True) }}
-
-                    <label for="login-password">{{ form.password.label }}</label>
-                    {{ form.password(class="form-control", id="login-password", required=True) }}
-
-                    <div id="login-error-message" class="error-message-box">
-                        <i class="fas fa-exclamation-circle"></i>
-                        <span><strong>Вы ввели неверные данные для входа. Повторите попытку.</strong></span>
-                    </div>
-                    
-                    <button type="submit">Войти</button>
-                </form>
-            </div>
-
-        </div>
-    </div>
-
-    <script>
-        var modal = document.getElementById("registrationModal");
-        var openModalBtns = document.querySelectorAll(".open-modal-btn");
-        var closeBtn = document.querySelector(".close");
-
-        function openModal(event) {
-            event.preventDefault(); 
-            document.getElementById('login-form').classList.add('active');
-            modal.style.display = "flex";
-        }
-
-        function closeModal() {
-            modal.style.display = "none";
-        }
-
-        openModalBtns.forEach(button => {
-            button.addEventListener('click', openModal);
-        });
-
-        closeBtn.addEventListener('click', closeModal);
-
-        // Раньше в приложении можно было выбрать регистрацию и логин, но регистрация была убрана, а без этой строчки код почему-то работает не корректно(постоянно ошибка сети)
-        navItems.forEach(item => {
-            item.addEventListener('click', function() {
-                const targetId = this.getAttribute('data-target');
-                const mode = targetId.includes('register') ? 'register' : 'login';
-                setModalMode(mode);
-            });
-        });
-
-        window.onclick = function(event) {
-          if (event.target == modal) {
-            closeModal();
-          }
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const loginForm = document.getElementById('log-form');
-            const loginErrorMessage = document.getElementById('login-error-message');
-            
-            if (loginForm) {
-                loginForm.addEventListener('submit', async function(e) {
-                    e.preventDefault();
-                    
-                    loginErrorMessage.style.display = 'none';
-                    
-                    const formData = new FormData(this);
-                    const data = Object.fromEntries(formData);
-                    
-                    try {
-                        const response = await fetch(this.action, { 
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify(data)
-                        });
-                        
-                        const result = await response.json();
-                        
-                        if (response.ok && result.success) {
-                            window.location.href = result.redirect_url || '/dashboard'; 
-                        } else {
-                            loginErrorMessage.style.display = 'flex'; 
-                            
-                            let errorMessageText = 'Произошла ошибка при входе. Повторите попытку.';
-                            if (result.message) {
-                                errorMessageText = result.message;
-                            } else if (result.errors) {
-                                errorMessageText = 'Проверьте введенные данные.';
-                            }
-                            loginErrorMessage.querySelector('span:last-child').innerHTML = `<strong>${errorMessageText}</strong>`;
-                            
-                            if (result.errors && result.errors.login) {
-                                document.getElementById('login-username').style.borderColor = '#f44336';
-                            }
-                            if (result.errors && result.errors.password) {
-                                document.getElementById('login-password').style.borderColor = '#f44336';
-                            }
-                        }
-                    } catch (error) {
-                        console.error('Ошибка:', error);
-                        loginErrorMessage.querySelector('span:last-child').innerHTML = '<strong>Ошибка сети. Пожалуйста, попробуйте позже.</strong>';
-                        loginErrorMessage.style.display = 'flex';
-                    }
-                });
-                
-                const loginInput = document.getElementById('login-username');
-                const passwordInput = document.getElementById('login-password');
-                
-                loginInput.addEventListener('input', function() {
-                    this.style.borderColor = '#e0e1e6';
-                    loginErrorMessage.style.display = 'none';
-                });
-                
-                passwordInput.addEventListener('input', function() {
-                    this.style.borderColor = '#e0e1e6';
-                    loginErrorMessage.style.display = 'none';
-                });
-
-                document.getElementById('login-form').classList.add('active');
-            }
-        });
-
-    </script>
+    <script src="{{ url_for('static', filename='js/welcome_page.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 </html>

@@ -8,7 +8,7 @@ migrate = Migrate()
 login_manager = LoginManager()
 
 def create_app():
-    app = Flask(__name__)
+    app = Flask(__name__, template_folder='./templates', static_folder='./static')
     app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://NV:NVCASE2@postgres:5432/RTK_DB'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SECRET_KEY'] = 'NJNJ43232ojfds./*rewr--+78f4sd'

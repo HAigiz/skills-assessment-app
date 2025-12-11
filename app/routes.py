@@ -148,3 +148,8 @@ def commands():
 def contacts():
     login_form = LoginForm()
     return render_template('contacts.html', form=login_form)
+
+@bp.route('/profile')
+@login_required
+def profile():
+    return render_template('profile.html')
