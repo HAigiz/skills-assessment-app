@@ -1,132 +1,42 @@
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Profile page loaded');
     
-    // Инициализация звездных рейтингов
-    initializeStarRatings();
-    
-    // Инициализация графика навыков
+    // Инициализация графика навыков (предполагает, что данные уже встроены в HTML-элемент)
+    // В реальной жизни, возможно, лучше загружать данные для Chart.js отдельным API-запросом
+    // Но для простоты оставим как есть, просто вызовем инициализацию
     initializeSkillsChart();
-    
-    // Загрузка данных профиля
-    loadProfileData();
 });
 
-function initializeStarRatings() {
-    console.log('Initializing star ratings...');
-    
-    // Обработка кликов по звездам
-    document.querySelectorAll('.star-rating').forEach(rating => {
-        const stars = rating.querySelectorAll('.star');
-        const skillId = rating.dataset.skillId;
-        
-        stars.forEach(star => {
-            // Удаляем старые обработчики
-            star.removeEventListener('click', handleStarClick);
-            star.removeEventListener('mouseover', handleStarHover);
-            star.removeEventListener('mouseout', handleStarOut);
-            
-            // Добавляем новые обработчики
-            star.addEventListener('click', function(e) {
-                e.stopPropagation();
-                const score = parseInt(this.dataset.value);
-                console.log(`Rating skill ${skillId} with score ${score}`);
-                rateSkill(skillId, score);
-            });
-            
-            star.addEventListener('mouseover', function() {
-                const hoverScore = parseInt(this.dataset.value);
-                highlightStars(rating, hoverScore);
-            });
-            
-            star.addEventListener('mouseout', function() {
-                const currentScore = getCurrentScore(skillId);
-                highlightStars(rating, currentScore);
-            });
-        });
-        
-        // Восстанавливаем текущую оценку
-        const currentScore = getCurrentScore(skillId);
-        highlightStars(rating, currentScore);
-    });
-}
+// --- API И ВЗАИМОДЕЙСТВИЕ С СЕРВЕРОМ ---
 
-function handleStarClick(e) {
-    e.stopPropagation();
-    const star = e.target;
-    const rating = star.closest('.star-rating');
-    const skillId = rating.dataset.skillId;
-    const score = parseInt(star.dataset.value);
-    
-    console.log(`Rating skill ${skillId} with score ${score}`);
-    rateSkill(skillId, score);
-}
-
-function handleStarHover(e) {
-    const star = e.target;
-    const rating = star.closest('.star-rating');
-    const hoverScore = parseInt(star.dataset.value);
-    highlightStars(rating, hoverScore);
-}
-
-function handleStarOut(e) {
-    const star = e.target;
-    const rating = star.closest('.star-rating');
-    const skillId = rating.dataset.skillId;
-    const currentScore = getCurrentScore(skillId);
-    highlightStars(rating, currentScore);
-}
-
-function getCurrentScore(skillId) {
-    // Пытаемся получить текущую оценку из data-атрибута
-    const rating = document.querySelector(`.star-rating[data-skill-id="${skillId}"]`);
-    if (!rating) return 0;
-    
-    // Проверяем data-current-score
-    if (rating.dataset.currentScore) {
-        return parseInt(rating.dataset.currentScore);
-    }
-    
-    // Ищем активную звезду
-    const activeStar = rating.querySelector('.star.active');
-    return activeStar ? parseInt(activeStar.dataset.value) : 0;
-}
-
-function highlightStars(rating, score) {
-    const stars = rating.querySelectorAll('.star');
-    stars.forEach(star => {
-        const starValue = parseInt(star.dataset.value);
-        star.classList.remove('active', 'hover');
-        
-        if (starValue <= score) {
-            star.classList.add('active');
-        }
-    });
-}
-
+/**
+ * Отправляет оценку навыка на сервер
+ * @param {number} skillId - ID оцениваемого навыка
+ * @param {number} score - Оценка (1-5)
+ */
 function rateSkill(skillId, score) {
     console.log(`Sending rating for skill ${skillId}: ${score}`);
     
-    // Визуальная обратная связь
-    const rating = document.querySelector(`.star-rating[data-skill-id="${skillId}"]`);
-    if (rating) {
-        highlightStars(rating, score);
-    }
-    
-    // Отправка на сервер
-    fetch('/api/assess-skill', {
+    // 1. Обновляем визуальное состояние кнопок сразу (оптимистичное обновление)
+    updateButtonVisuals(skillId, score);
+
+    // 2. Отправка на сервер
+    fetch(SKILL_RATE_URL, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Accept': 'application/json'
         },
         body: JSON.stringify({
-            skill_id: parseInt(skillId),
+            skill_id: skillId,
             score: score
         })
     })
     .then(response => {
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            // Если HTTP-статус не 200, пытаемся прочитать сообщение об ошибке
+            return response.json().then(errorData => {
+                throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+            });
         }
         return response.json();
     })
@@ -136,111 +46,160 @@ function rateSkill(skillId, score) {
         if (data.success) {
             showToast('Оценка успешно сохранена!', 'success');
             
-            // Сохраняем текущую оценку в data-атрибут
-            if (rating) {
-                rating.dataset.currentScore = score;
-            }
+            // Обновляем значок с оценкой
+            updateScoreBadge(skillId, data.new_score);
             
-            // Обновляем отображение оценки
-            updateScoreDisplay(skillId, score);
-            
-            // Обновляем график через 500мс
+            // Обновляем график
             setTimeout(() => {
+                // Уничтожаем старый график, если он есть
                 if (window.skillsChart) {
                     window.skillsChart.destroy();
                 }
                 initializeSkillsChart();
-            }, 500);
+            }, 300);
         } else {
             showToast(data.message || 'Ошибка при сохранении', 'error');
-            // Восстанавливаем предыдущую оценку
-            const prevScore = data.previous_score || getCurrentScore(skillId);
-            if (rating) {
-                highlightStars(rating, prevScore);
-                rating.dataset.currentScore = prevScore;
-            }
+            // ОТКАТ: Если была ошибка, восстанавливаем предыдущую визуализацию
+            const previousScore = data.previous_score || findCurrentScoreInDOM(skillId);
+            updateButtonVisuals(skillId, previousScore);
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        showToast('Ошибка сети. Пожалуйста, попробуйте позже.', 'error');
-        // Восстанавливаем предыдущую оценку
-        const prevScore = getCurrentScore(skillId);
-        if (rating) {
-            highlightStars(rating, prevScore);
+        showToast(`Ошибка сети: ${error.message || 'Пожалуйста, попробуйте позже.'}`, 'error');
+        // В случае сетевой ошибки, откатываем визуализацию (ищем текущую оценку)
+        const previousScore = findCurrentScoreInDOM(skillId);
+        updateButtonVisuals(skillId, previousScore);
+    });
+}
+
+// --- ФУНКЦИИ ОБНОВЛЕНИЯ DOM ---
+
+/**
+ * Обновляет значок самооценки для навыка.
+ * @param {number} skillId - ID навыка.
+ * @param {number} score - Новая оценка (1-5).
+ */
+function updateScoreBadge(skillId, score) {
+    const item = document.querySelector(`.skill-item[data-skill-id="${skillId}"]`);
+    if (!item) return;
+
+    let badge = item.querySelector('.score-badge.score-self');
+    
+    if (score > 0) {
+        if (!badge) {
+            // Если значка нет, создаем его
+            badge = document.createElement('div');
+            badge.className = 'score-badge score-self';
+            badge.title = 'Самооценка';
+            const ratingContainer = item.querySelector('.skill-rating');
+            if (ratingContainer) {
+                // Вставляем значок перед блоком кнопок, чтобы сохранить порядок: [Самооценка] [Оценка менеджера] [Кнопки]
+                const scoreButtons = item.querySelector('.score-buttons');
+                ratingContainer.insertBefore(badge, scoreButtons);
+            }
+        }
+        badge.textContent = score;
+    } else if (badge) {
+        // Если оценка 0, удаляем значок
+        badge.remove();
+    }
+}
+
+/**
+ * Обновляет классы 'active' для кнопок оценки.
+ * @param {number} skillId - ID навыка.
+ * @param {number} score - Активная оценка.
+ */
+function updateButtonVisuals(skillId, score) {
+    const item = document.querySelector(`.skill-item[data-skill-id="${skillId}"]`);
+    if (!item) return;
+
+    item.querySelectorAll('.score-btn').forEach(button => {
+        const buttonScore = parseInt(button.dataset.score);
+        button.classList.remove('active');
+        if (buttonScore === score) {
+            button.classList.add('active');
         }
     });
 }
 
-function updateScoreDisplay(skillId, score) {
-    const scoreElement = document.querySelector(`.score-display[data-skill-id="${skillId}"]`);
-    if (scoreElement) {
-        scoreElement.textContent = score;
-        scoreElement.className = `score-display score-${getScoreClass(score)}`;
-    }
+/**
+ * Находит текущую оценку из DOM.
+ * @param {number} skillId - ID навыка.
+ * @returns {number} - Текущая оценка или 0.
+ */
+function findCurrentScoreInDOM(skillId) {
+    const activeBtn = document.querySelector(`.skill-item[data-skill-id="${skillId}"] .score-btn.active`);
+    return activeBtn ? parseInt(activeBtn.dataset.score) : 0;
 }
 
-function getScoreClass(score) {
-    if (score >= 4) return 'excellent';
-    if (score >= 3) return 'good';
-    if (score >= 2) return 'average';
-    return 'poor';
-}
+// --- LOGIC FOR CHART.JS (Оставлено как в вашем коде, но с поправками) ---
+
+let skillsChart = null;
 
 function initializeSkillsChart() {
     console.log('Initializing skills chart...');
     
-    const chartCanvas = document.getElementById('skillsChart');
-    if (!chartCanvas) {
-        console.log('Skills chart canvas not found');
-        return;
-    }
+    // Вместо чтения из data-атрибутов, которые не обновляются динамически,
+    // в реальном приложении вы должны сделать API-вызов для получения актуальных данных:
+    // fetch('/api/user_skill_data').then(res => res.json()).then(skillsData => { ... })
     
-    const ctx = chartCanvas.getContext('2d');
-    const skillsData = JSON.parse(chartCanvas.dataset.skills || '[]');
+    // Для этого примера, давайте предположим, что мы можем получить текущие оценки из DOM:
+    const skillsData = getSkillsDataFromDOM();
     
-    console.log('Skills data for chart:', skillsData);
+    const chartCanvas = document.getElementById('skillsRadarChart');
+    const loadingElement = document.getElementById('chartLoading');
+    const chartContainer = document.getElementById('chartContainer');
+    const noDataElement = document.getElementById('noDataMessage');
     
+    if (!chartCanvas) return; // Убедиться, что canvas существует
+    
+    // Скрываем все и показываем загрузку, пока не определились
+    loadingElement.style.display = 'block';
+    chartContainer.style.display = 'none';
+    noDataElement.style.display = 'none';
+
     if (skillsData.length === 0) {
-        console.log('No skills data available');
-        const loadingElement = document.getElementById('chartLoading');
-        const noDataElement = document.getElementById('noDataMessage');
-        
-        if (loadingElement) loadingElement.style.display = 'none';
-        if (noDataElement) noDataElement.style.display = 'block';
+        loadingElement.style.display = 'none';
+        noDataElement.style.display = 'block';
         return;
     }
     
-    // Подготавливаем данные для графика
+    // Подготовка данных
     const labels = skillsData.map(skill => skill.name);
     const selfScores = skillsData.map(skill => skill.self_score || 0);
-    const finalScores = skillsData.map(skill => skill.final_score || skill.self_score || 0);
+    const managerScores = skillsData.map(skill => skill.manager_score || 0);
+    
+    const ctx = chartCanvas.getContext('2d');
     
     // Уничтожаем предыдущий график, если он существует
-    if (window.skillsChart) {
-        window.skillsChart.destroy();
+    if (window.skillsChartInstance) {
+        window.skillsChartInstance.destroy();
     }
     
-    window.skillsChart = new Chart(ctx, {
+    window.skillsChartInstance = new Chart(ctx, {
         type: 'radar',
         data: {
             labels: labels,
             datasets: [
                 {
-                    label: 'Моя оценка',
+                    label: 'Самооценка',
                     data: selfScores,
-                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    pointBackgroundColor: 'rgba(54, 162, 235, 1)',
+                    // Используем цвета из CSS: #667eea (Self)
+                    backgroundColor: 'rgba(102, 126, 234, 0.2)',
+                    borderColor: 'rgba(102, 126, 234, 1)',
+                    pointBackgroundColor: 'rgba(102, 126, 234, 1)',
                     borderWidth: 2,
                     pointRadius: 4
                 },
                 {
-                    label: 'Итоговая оценка',
-                    data: finalScores,
-                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                    borderColor: 'rgba(255, 99, 132, 1)',
-                    pointBackgroundColor: 'rgba(255, 99, 132, 1)',
+                    label: 'Оценка руководителя',
+                    data: managerScores,
+                    // Используем цвета из CSS: #764ba2 (Manager)
+                    backgroundColor: 'rgba(118, 75, 162, 0.2)',
+                    borderColor: 'rgba(118, 75, 162, 1)',
+                    pointBackgroundColor: 'rgba(118, 75, 162, 1)',
                     borderWidth: 2,
                     pointRadius: 4
                 }
@@ -256,25 +215,22 @@ function initializeSkillsChart() {
                     min: 0,
                     ticks: {
                         stepSize: 1,
+                        backdropColor: 'transparent',
                         callback: function(value) {
-                            if (value === 0) return '0';
-                            if (value === 1) return '1\nНачальный';
-                            if (value === 2) return '2\nБазовый';
-                            if (value === 3) return '3\nСредний';
-                            if (value === 4) return '4\nПродвинутый';
-                            if (value === 5) return '5\nЭксперт';
-                            return value;
+                             if (value === 0) return '';
+                             if (value === 1) return 'Начальный';
+                             if (value === 2) return 'Базовый';
+                             if (value === 3) return 'Средний';
+                             if (value === 4) return 'Продвинутый';
+                             if (value === 5) return 'Эксперт';
+                             return value;
                         }
                     }
                 }
             },
             plugins: {
                 legend: {
-                    position: 'bottom',
-                    labels: {
-                        padding: 20,
-                        usePointStyle: true
-                    }
+                    display: false // Скрываем легенду Chart.js, используем кастомную HTML-легенду
                 },
                 tooltip: {
                     callbacks: {
@@ -298,18 +254,35 @@ function initializeSkillsChart() {
     });
     
     // Скрываем индикатор загрузки и показываем график
-    const loadingElement = document.getElementById('chartLoading');
-    const noDataElement = document.getElementById('noDataMessage');
-    
-    if (loadingElement) loadingElement.style.display = 'none';
-    if (noDataElement) noDataElement.style.display = 'none';
-    chartCanvas.style.display = 'block';
+    loadingElement.style.display = 'none';
+    chartContainer.style.display = 'block';
 }
 
-function loadProfileData() {
-    // Загружаем дополнительные данные профиля если нужно
-    console.log('Loading profile data...');
+/**
+ * Извлекает данные о навыках и их оценках из DOM для графика.
+ * @returns {Array} - Список объектов навыков с оценками.
+ */
+function getSkillsDataFromDOM() {
+    const skillsData = [];
+    document.querySelectorAll('.skill-item').forEach(item => {
+        const skillName = item.querySelector('.skill-name').textContent.trim();
+        const selfBadge = item.querySelector('.score-badge.score-self');
+        const managerBadge = item.querySelector('.score-badge.score-manager');
+        
+        const selfScore = selfBadge ? parseInt(selfBadge.textContent.trim()) : 0;
+        const managerScore = managerBadge ? parseInt(managerBadge.textContent.trim()) : 0;
+
+        skillsData.push({
+            name: skillName,
+            self_score: selfScore,
+            manager_score: managerScore,
+        });
+    });
+    return skillsData;
 }
+
+
+// --- TOAST NOTIFICATION (Оставлено как в вашем коде) ---
 
 function showToast(message, type = 'info') {
     // Проверяем, есть ли уже тост с таким сообщением
@@ -321,31 +294,30 @@ function showToast(message, type = 'info') {
     }
     
     const toast = document.createElement('div');
-    toast.className = `toast toast-${type}`;
+    // Используем уже определенный в стилях класс, но с поправкой на цвет
+    const bgColor = type === 'success' ? '#4caf50' : type === 'error' ? '#f44336' : '#3b82f6';
+    const iconClass = type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle';
+
+    toast.className = `toast ${type === 'error' ? 'error' : ''}`;
     toast.style.cssText = `
         position: fixed;
         top: 20px;
         right: 20px;
-        background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};
+        background: ${bgColor};
         color: white;
-        padding: 12px 20px;
-        border-radius: 8px;
+        padding: 1rem 1.5rem;
+        border-radius: 5px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 10000;
         display: flex;
         align-items: center;
-        justify-content: space-between;
-        z-index: 9999;
+        gap: 1rem;
         animation: slideIn 0.3s ease;
     `;
     
     toast.innerHTML = `
-        <div style="display: flex; align-items: center;">
-            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'} me-2"></i>
-            <span>${message}</span>
-        </div>
-        <button onclick="this.parentElement.remove()" style="background: none; border: none; color: white; cursor: pointer; margin-left: 10px;">
-            <i class="fas fa-times"></i>
-        </button>
+        <i class="fas fa-${iconClass}"></i>
+        <span id="toastMessage">${message}</span>
     `;
     
     document.body.appendChild(toast);
@@ -356,70 +328,3 @@ function showToast(message, type = 'info') {
         }
     }, 3000);
 }
-
-// Добавляем CSS анимацию
-const style = document.createElement('style');
-style.textContent = `
-@keyframes slideIn {
-    from {
-        transform: translateX(100%);
-        opacity: 0;
-    }
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
-}
-
-/* Стили для звездных рейтингов */
-.star-rating {
-    display: inline-flex;
-    gap: 2px;
-}
-
-.star {
-    cursor: pointer;
-    color: #ddd;
-    font-size: 1.5rem;
-    transition: color 0.2s;
-}
-
-.star:hover,
-.star.hover {
-    color: #ffc107;
-}
-
-.star.active {
-    color: #ffc107;
-}
-
-/* Стили для отображения оценок */
-.score-display {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 12px;
-    font-weight: bold;
-    font-size: 0.9rem;
-}
-
-.score-excellent {
-    background-color: #d4edda;
-    color: #155724;
-}
-
-.score-good {
-    background-color: #d1ecf1;
-    color: #0c5460;
-}
-
-.score-average {
-    background-color: #fff3cd;
-    color: #856404;
-}
-
-.score-poor {
-    background-color: #f8d7da;
-    color: #721c24;
-}
-`;
-document.head.appendChild(style);

@@ -3,9 +3,11 @@ from .forms import LoginForm, RegistrationForm
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask import Blueprint
 from flask_login import login_user, current_user, login_required, logout_user
+from datetime import datetime
+from sqlalchemy.exc import IntegrityError
 
 from . import db
-from .models import User, Department
+from .models import *
 
 bp = Blueprint('main', __name__)
 
@@ -99,7 +101,6 @@ def register():
                 'message': f'Ошибка базы данных: {str(e)}'
             }), 500
     
-    # GET запрос или не-JSON запрос
     current_user_department_name = None
     if current_user.role == 'manager':
         department = Department.query.get(current_user.department_id)
@@ -159,29 +160,78 @@ def profile():
 
 @bp.route('/about')
 def about():
-    """Страница 'О компании'"""
     login_form = LoginForm()
     return render_template('about.html', form=login_form)
 
 @bp.route('/confidential')
 def confidential():
-    """Страница 'Политика конфиденциальности'"""
     login_form = LoginForm()
     return render_template('confidential.html', form=login_form)
 
 @bp.route('/terms')
 def terms():
-    """Страница 'Условия использования'"""
     login_form = LoginForm()
     return render_template('terms.html', form=login_form)
 
 @bp.route('/features')
 def features():
-    """Страница 'Особенности'"""
     login_form = LoginForm()
     return render_template('features.html', form=login_form)
 
 @bp.route('/privacy')
 def privacy():
-    """Страница 'Политика конфиденциальности' (альтернативная ссылка)"""
     return redirect(url_for('main.confidential'))
+
+@bp.route('/skill_rate', methods=['POST'])
+@login_required
+def skill_rate():
+
+    data = request.get_json()
+
+    try:
+        skill_id = int(data.get('skill_id'))
+        score = int(data.get('score'))
+        user_id = current_user.id
+
+        assessment = SkillAssessment.query.filter_by(
+            user_id=user_id, 
+            skill_id=skill_id
+        ).first()
+
+        previous_score = None 
+
+        if assessment:
+            previous_score = assessment.self_score
+            assessment.self_score = score
+            assessment.updated_at = datetime.utcnow()
+        else:
+            assessment = SkillAssessment(
+                user_id=user_id,
+                skill_id=skill_id,
+                self_score=score,
+                assessed_at=datetime.utcnow()
+            )
+            db.session.add(assessment)
+
+        db.session.commit()
+
+        return jsonify({
+            'success': True, 
+            'message': 'Самооценка успешно сохранена!', 
+            'new_score': score,
+            'previous_score': previous_score
+        }), 200
+    
+    except ValueError:
+        db.session.rollback() # Откат в случае ошибки конвертации
+        return jsonify({'success': False, 'message': 'Неверный формат ID навыка или оценки'}), 400
+    except IntegrityError:
+        db.session.rollback() # Откат в случае ошибки базы данных (например, уникальный ключ)
+        return jsonify({'success': False, 'message': 'Ошибка базы данных при сохранении оценки'}), 500
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error during skill rating: {e}")
+        return jsonify({'success': False, 'message': f'Непредвиденная ошибка: {str(e)}'}), 500
+
+
+

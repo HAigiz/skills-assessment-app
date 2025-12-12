@@ -42,7 +42,7 @@ def create_app():
     app.register_blueprint(user_bp, url_prefix='/user')
     app.register_blueprint(skill_bp, url_prefix='/skill')
     app.register_blueprint(hr_bp, url_prefix='/hr')
-    app.register_blueprint(main_bp)  # без префикса - основные маршруты
+    app.register_blueprint(main_bp, url_prefix='/')
     
     # обработка ошибок
     @app.errorhandler(404)
@@ -58,7 +58,4 @@ def create_app():
         db.create_all()
 
     return app
-
-    from .routes.api_routes import api as api_bp
-    app.register_blueprint(api_bp, url_prefix='/api')
     

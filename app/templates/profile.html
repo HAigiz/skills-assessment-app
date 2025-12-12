@@ -274,7 +274,6 @@
             </div>
             <div class="user-info">
                 <h1>{{ user.full_name }}</h1>
-                <p style="margin: 0.2rem 0; opacity: 0.9;">{{ user.login }}</p>
                 <div class="role-badge">
                     {% if user.role == 'admin' %}Администратор
                     {% elif user.role == 'hr' %}HR
@@ -327,9 +326,7 @@
                                 {% endif %}
                                 <div class="score-buttons">
                                     {% for i in range(1, 6) %}
-                                    <button class="score-btn {% if skill.self_score == i %}active{% endif %}" 
-                                            data-score="{{ i }}"
-                                            onclick="rateSkill({{ skill.id }}, {{ i }})">
+                                    <button class="score-btn {% if skill.self_score == i %}active{% endif %}" data-score="{{ i }}"onclick="rateSkill({{ skill.id }}, {{ i }})">
                                         {{ i }}
                                     </button>
                                     {% endfor %}
@@ -399,5 +396,8 @@
 {% endblock %}
 
 {% block extra_js %}
+<script>
+    const SKILL_RATE_URL = "{{ url_for('main.skill_rate') }}";
+</script>
 <script src="{{ url_for('static', filename='js/profile.js') }}"></script>
 {% endblock %}

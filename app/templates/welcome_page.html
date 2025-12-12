@@ -78,7 +78,7 @@
             </div>
 
             <div id="login-form" class="form-section">
-                <form id="log-form" action="{{ url_for('auth.login') }}" method="post">
+                <form id="log-form" action="{{ url_for('main.login') }}" method="post">
                     {{ form.hidden_tag() }} 
                     
                     <label for="login-username">{{ form.login.label }}</label>
