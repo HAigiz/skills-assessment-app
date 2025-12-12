@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Добавить пользователя | SkillExam{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-user-plus me-2"></i>Добавить нового пользователя</h4>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-4">Форма добавления пользователя доступна через кнопку "Добавить пользователя" на дашборде.</p>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Для добавления пользователя:
+                        <ul class="mb-0 mt-2">
+                            <li>Перейдите на ваш дашборд</li>
+                            <li>Нажмите кнопку "Добавить пользователя"</li>
+                            <li>Заполните форму с данными нового пользователя</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <a href="{{ url_for('user.dashboard') }}" class="btn btn-primary">
+                            <i class="fas fa-arrow-left me-2"></i>Вернуться на дашборд
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

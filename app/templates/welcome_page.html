@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Главная страница | SkillExam</title>
-    <link href="fonts.googleapis.com" rel="stylesheet">
+    <link href="https://fonts.googleapis.com" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body> 
@@ -14,7 +14,7 @@
             <a href="#">Особенности</a>
             <a href="{{ url_for('main.commands') }}">Для команд</a>
             {% if current_user.is_authenticated %}
-                <a href="{{ url_for('main.dashboard') }}" class="signup-btn">Мой Дашборд</a>
+                <a href="{{ url_for('user.dashboard') }}" class="signup-btn">Мой Дашборд</a>
             {% else %}
                 <a href="#" class="signup-btn open-modal-btn" data-mode="login">Вход</a>
             {% endif %}
@@ -29,7 +29,7 @@
             </p>
         </div>
         <div class="hero-image-placeholder">
-            <img src="via.placeholder.com" alt="Иллюстрация панели инструментов">
+            <img src="https://via.placeholder.com" alt="Иллюстрация панели инструментов">
         </div>
     </main>
 
@@ -45,31 +45,29 @@
                 </p>
             </div>
 
-            <div class="footer-col">
-                <h4 class="footer-heading">Продукт</h4>
+        <div class="footer-col">
+            <h4 class="footer-heading">Продукт</h4>
                 <ul class="footer-links">
-                    <li><a href="#">Особенности</a></li>
+                    <li><a href="{{ url_for('main.features') }}">Особенности</a></li>
                     <li><a href="{{ url_for('main.commands') }}">Для команд</a></li>
                 </ul>
             </div>
 
-            <div class="footer-col">
-                <h4 class="footer-heading">Ресурсы</h4>
+        <div class="footer-col">
+            <h4 class="footer-heading">Компания</h4>
                 <ul class="footer-links">
                     <li><a href="{{ url_for('main.contacts') }}">Контакты</a></li>
-                    <li><a href="#">О компании</a></li>
+                    <li><a href="{{ url_for('main.about') }}">О компании</a></li>
                 </ul>
             </div>
 
-            <div class="footer-col">
-                <h4 class="footer-heading">Право</h4>
+        <div class="footer-col">
+            <h4 class="footer-heading">Документы</h4>
                 <ul class="footer-links">
-                    <li><a href="#">Политика конфиденциальности</a></li>
-                    <li><a href="#">Условия использования</a></li>
+                    <li><a href="{{ url_for('main.confidential') }}">Политика конфиденциальности</a></li>
+                    <li><a href="{{ url_for('main.terms') }}">Условия использования</a></li>
                 </ul>
             </div>
-        </div>
-    </footer>
     
     <div id="registrationModal" class="modal">
         <div class="modal-content">
@@ -80,7 +78,7 @@
             </div>
 
             <div id="login-form" class="form-section">
-                <form id="log-form" action="{{ url_for('main.login') }}" method="post">
+                <form id="log-form" action="{{ url_for('auth.login') }}" method="post">
                     {{ form.hidden_tag() }} 
                     
                     <label for="login-username">{{ form.login.label }}</label>

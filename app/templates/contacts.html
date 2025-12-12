@@ -6,17 +6,21 @@
     <title>Контакты | SkillExam</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
-    <link href="fonts.googleapis.com" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700href="fonts.googleapis.com"display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
     <header class="header-nav">
         <a href="/" class="logo">SkillExam</a>
         <nav class="nav-links">
-            <a href="#">Особенности</a>
-            <a href="{{ url_for('main.commands') }}">Для команд</a>
+             <a href="{{ url_for('main.features') }}">Особенности</a>
+             <a href="{{ url_for('main.commands') }}">Для команд</a>
             {% if current_user.is_authenticated %}
-                <a href="{{ url_for('main.dashboard') }}" class="signup-btn">Мой Дашборд</a>
+                {% if current_user.role in ['employee', 'manager'] %}
+                    <a href="{{ url_for('user.dashboard') }}" class="signup-btn">Мой Дашборд</a>
+                {% elif current_user.role in ['hr', 'admin'] %}
+                    <a href="{{ url_for('hr.hr_dashboard') }}" class="signup-btn">Мой Дашборд</a>
+                {% endif %}
             {% else %}
                 <a href="#" class="signup-btn open-modal-btn" data-mode="login">Вход</a>
             {% endif %}
@@ -60,14 +64,14 @@
                                     <i class="bi bi-telephone fs-5"></i>
                                     <div>
                                         <strong>Телефон:</strong><br>
-                                        <a href="tel:+71234567890" class="text-decoration-none">+7 (123) 456-78-90</a>
+                                        <a href="tel:+71234567890" class="text-decoration-none">+7 (999) 653-23-05</a>
                                     </div>
                                 </li>
                                 <li>
                                     <i class="bi bi-envelope fs-5"></i>
                                     <div>
                                         <strong>Email:</strong><br>
-                                        <a href="mailto:skillexamru@gmail.com" class="text-decoration-none">skillexamru@gmail.com</a>
+                                        <a href="mailto:skillexamru@gmail.com" class="text-decoration-none">sma1kyyy001@gmail.com</a>
                                     </div>
                                 </li>
                             </ul>
@@ -179,27 +183,27 @@
                 </p>
             </div>
 
-            <div class="footer-col">
-                <h4 class="footer-heading">Продукт</h4>
+        <div class="footer-col">
+            <h4 class="footer-heading">Продукт</h4>
                 <ul class="footer-links">
-                    <li><a href="#">Особенности</a></li>
+                    <li><a href="{{ url_for('main.features') }}">Особенности</a></li>
                     <li><a href="{{ url_for('main.commands') }}">Для команд</a></li>
                 </ul>
             </div>
 
-            <div class="footer-col">
-                <h4 class="footer-heading">Ресурсы</h4>
+        <div class="footer-col">
+            <h4 class="footer-heading">Компания</h4>
                 <ul class="footer-links">
                     <li><a href="{{ url_for('main.contacts') }}">Контакты</a></li>
-                    <li><a href="#">О компании</a></li>
+                    <li><a href="{{ url_for('main.about') }}">О компании</a></li>
                 </ul>
             </div>
 
-            <div class="footer-col">
-                <h4 class="footer-heading">Право</h4>
+        <div class="footer-col">
+            <h4 class="footer-heading">Документы</h4>
                 <ul class="footer-links">
-                    <li><a href="#">Политика конфиденциальности</a></li>
-                    <li><a href="#">Условия использования</a></li>
+                    <li><a href="{{ url_for('main.confidential') }}">Политика конфиденциальности</a></li>
+                    <li><a href="{{ url_for('main.terms') }}">Условия использования</a></li>
                 </ul>
             </div>
         </div>

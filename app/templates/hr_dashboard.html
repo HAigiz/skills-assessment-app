@@ -1,0 +1,519 @@
+{% extends "base.html" %}
+
+{% block title %}HR Аналитика | SkillExam{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Заголовок -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h2 mb-0"><i class="fas fa-chart-bar me-2"></i>HR Аналитика</h1>
+                    <p class="text-muted mb-0">Статистика по навыкам сотрудников компании</p>
+                </div>
+                <div>
+                    <button class="btn btn-outline-primary" onclick="location.reload()">
+                        <i class="fas fa-sync-alt me-1"></i> Обновить
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Статистика в карточках -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Всего сотрудников
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.total_users|default(0) }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-users fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Средняя оценка
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ "%.1f"|format(stats.avg_score|default(0)) }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-star fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Всего навыков
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.total_skills|default(0) }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-code fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Оцененных навыков
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.assessed_skills|default(0) }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Графики -->
+    <div class="row">
+        <div class="col-xl-6 col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-chart-pie me-2"></i>Распределение по ролям
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="rolesChart" height="250"></canvas>
+                    </div>
+                    {% if not roles_stats or roles_stats|length == 0 %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-chart-pie fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">Нет данных о распределении по ролям</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-6 col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-chart-bar me-2"></i>Оценки по отделам
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="departmentsChart" height="250"></canvas>
+                    </div>
+                    {% if not departments_stats or departments_stats|length == 0 %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-chart-bar fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">Нет данных об оценках по отделам</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Таблица с данными -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-table me-2"></i>Детальная статистика по отделам
+                    </h6>
+                </div>
+                <div class="card-body">
+                    {% if departments_stats and departments_stats|length > 0 %}
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Отдел</th>
+                                    <th>Кол-во сотрудников</th>
+                                    <th>Средняя оценка</th>
+                                    <th>Прогресс</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for dept in departments_stats %}
+                                <tr>
+                                    <td><strong>{{ dept.department|default('Без отдела') }}</strong></td>
+                                    <td>{{ dept.count|default(0) }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="progress flex-grow-1 me-2" style="height: 8px;">
+                                                <div class="progress-bar 
+                                                    {% if dept.avg_score|default(0) >= 4 %}bg-success
+                                                    {% elif dept.avg_score|default(0) >= 3 %}bg-info
+                                                    {% elif dept.avg_score|default(0) >= 2 %}bg-warning
+                                                    {% else %}bg-danger{% endif %}" 
+                                                    style="width: {{ (dept.avg_score|default(0) / 5 * 100) }}%">
+                                                </div>
+                                            </div>
+                                            <span class="font-weight-bold">{{ "%.1f"|format(dept.avg_score|default(0)) }}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% set progress = (dept.avg_score|default(0) / 5 * 100) %}
+                                        {% if progress >= 80 %}
+                                            <span class="badge bg-success">Отлично</span>
+                                        {% elif progress >= 60 %}
+                                            <span class="badge bg-info">Хорошо</span>
+                                        {% elif progress >= 40 %}
+                                            <span class="badge bg-warning">Удовлетворительно</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Требует внимания</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-database fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">Нет данных для отображения</p>
+                        <a href="{{ url_for('main.register') }}" class="btn btn-primary mt-2">
+                            <i class="fas fa-user-plus me-2"></i>Добавить сотрудников
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.card {
+    border: none;
+    border-radius: 10px;
+}
+.chart-container {
+    position: relative;
+    height: 250px;
+    width: 100%;
+}
+.progress {
+    border-radius: 10px;
+    background-color: #eaecf4;
+}
+.progress-bar {
+    border-radius: 10px;
+}
+.border-left-primary {
+    border-left: 0.25rem solid #4e73df !important;
+}
+.border-left-success {
+    border-left: 0.25rem solid #1cc88a !important;
+}
+.border-left-info {
+    border-left: 0.25rem solid #36b9cc !important;
+}
+.border-left-warning {
+    border-left: 0.25rem solid #f6c23e !important;
+}
+.dropdown-menu {
+    border: none;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+let rolesChart = null;
+let departmentsChart = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('HR Dashboard loaded');
+    
+    // Инициализация графиков
+    initCharts();
+    
+    // Настройка обработчиков событий
+    setupEventHandlers();
+});
+
+function initCharts() {
+    // Данные из шаблона
+    const rolesData = {{ roles_stats|tojson|safe if roles_stats else '[]' }};
+    const departmentsData = {{ departments_stats|tojson|safe if departments_stats else '[]' }};
+    
+    console.log('Roles data:', rolesData);
+    console.log('Departments data:', departmentsData);
+    
+    // График распределения по ролям
+    if (rolesData && rolesData.length > 0) {
+        initRolesChart(rolesData);
+    } else {
+        console.log('No roles data available');
+        document.getElementById('rolesChart').style.display = 'none';
+    }
+    
+    // График оценок по отделам
+    if (departmentsData && departmentsData.length > 0) {
+        initDepartmentsChart(departmentsData);
+    } else {
+        console.log('No departments data available');
+        document.getElementById('departmentsChart').style.display = 'none';
+    }
+}
+
+function initRolesChart(rolesData) {
+    const ctx = document.getElementById('rolesChart');
+    if (!ctx) {
+        console.error('Roles chart canvas not found');
+        return;
+    }
+    
+    // Уничтожаем предыдущий график, если он существует
+    if (rolesChart) {
+        rolesChart.destroy();
+    }
+    
+    // Подготавливаем данные
+    const labels = rolesData.map(item => {
+        const roleNames = {
+            'admin': 'Администратор',
+            'hr': 'HR',
+            'manager': 'Руководитель',
+            'employee': 'Сотрудник'
+        };
+        return roleNames[item.role] || item.role;
+    });
+    
+    const data = rolesData.map(item => item.count || 0);
+    const backgroundColors = [
+        '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#6c757d'
+    ];
+    
+    rolesChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: backgroundColors.slice(0, data.length),
+                borderWidth: 1,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: {
+                        padding: 20,
+                        usePointStyle: true,
+                        font: {
+                            size: 12
+                        }
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.raw || 0;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = Math.round((value / total) * 100);
+                            return `${label}: ${value} чел. (${percentage}%)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+function initDepartmentsChart(departmentsData) {
+    const ctx = document.getElementById('departmentsChart');
+    if (!ctx) {
+        console.error('Departments chart canvas not found');
+        return;
+    }
+    
+    // Уничтожаем предыдущий график, если он существует
+    if (departmentsChart) {
+        departmentsChart.destroy();
+    }
+    
+    // Подготавливаем данные
+    const labels = departmentsData.map(item => item.department || 'Без отдела');
+    const data = departmentsData.map(item => item.avg_score || 0);
+    
+    // Создаем градиентные цвета
+    const gradient = ctx.getContext('2d').createLinearGradient(0, 0, 0, 400);
+    gradient.addColorStop(0, 'rgba(78, 115, 223, 0.9)');
+    gradient.addColorStop(1, 'rgba(78, 115, 223, 0.1)');
+    
+    departmentsChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Средняя оценка',
+                data: data,
+                backgroundColor: gradient,
+                borderColor: 'rgba(78, 115, 223, 1)',
+                borderWidth: 1,
+                borderRadius: 5,
+                borderSkipped: false,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 5,
+                    ticks: {
+                        stepSize: 1,
+                        callback: function(value) {
+                            if (value === 0) return '0';
+                            if (value === 1) return '1\nНачальный';
+                            if (value === 2) return '2\nБазовый';
+                            if (value === 3) return '3\nСредний';
+                            if (value === 4) return '4\nПродвинутый';
+                            if (value === 5) return '5\nЭксперт';
+                            return value;
+                        }
+                    },
+                    grid: {
+                        drawBorder: false
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const value = context.raw || 0;
+                            let level = '';
+                            
+                            if (value <= 1) level = 'Начальный';
+                            else if (value <= 2) level = 'Базовый';
+                            else if (value <= 3) level = 'Средний';
+                            else if (value <= 4) level = 'Продвинутый';
+                            else level = 'Эксперт';
+                            
+                            return `Оценка: ${value.toFixed(1)} (${level})`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+function setupEventHandlers() {
+    // Кнопка обновления данных
+    const refreshBtn = document.querySelector('button[onclick="location.reload()"]');
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', function() {
+            this.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Обновление...';
+            this.disabled = true;
+        });
+    }
+}
+
+// Функция для показа уведомлений
+function showToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        z-index: 9999;
+        animation: slideIn 0.3s ease;
+    `;
+    
+    toast.innerHTML = `
+        <div style="display: flex; align-items: center;">
+            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'} me-2"></i>
+            <span>${message}</span>
+        </div>
+        <button onclick="this.parentElement.remove()" style="background: none; border: none; color: white; cursor: pointer; margin-left: 10px;">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+    
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        if (toast.parentElement) {
+            toast.remove();
+        }
+    }, 3000);
+}
+
+// Добавляем CSS анимацию
+const style = document.createElement('style');
+style.textContent = `
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+`;
+document.head.appendChild(style);
+</script>
+{% endblock %}

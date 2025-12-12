@@ -93,24 +93,31 @@ services:
     volumes:
       - .:/app
       - ./migrations:/app/migrations
+      - ./app/routes:/app/app/routes
+      - ./app/utils:/app/app/utils
+      - ./app/static/js:/app/app/static/js
+      - ./app/templates:/app/app/templates
     ports:
       - "5000:5000"
     depends_on:
       postgres:
         condition: service_healthy
     command: >
-      sh -c "echo 'Waiting for database...' &&
-              sleep 5 &&
-              if flask db init ; then
-                echo 'Migration not found' &&
-                flask db migrate -m 'Initial migrate' &&
-                flask db upgrade &&
-                flask db stamp head &&
-                flask run --host=0.0.0.0
-              else
-                echo 'Migration exists'
-                flask run --host=0.0.0.0
-              fi"
+       sh -c "echo 'Waiting for database...' &&
+            sleep 5 &&
+            if flask db init ; then
+              echo 'Migration not found' &&
+              flask db migrate -m 'Initial migrate' &&
+              flask db upgrade &&
+              flask db stamp head &&
+              flask run --host=0.0.0.0
+            else
+              echo 'Migration exists'
+              # Автоматическое создание миграции для новых полей
+              flask db migrate -m 'Add timestamps and assessment history' 2>/dev/null || true &&
+              flask db upgrade &&
+              flask run --host=0.0.0.0
+            fi"
     restart: unless-stopped
     networks:
       - app-network

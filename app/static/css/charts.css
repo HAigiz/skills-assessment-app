@@ -1,0 +1,139 @@
+/* Дополнительные стили для графиков и визуализации */
+
+/* Анимации для графиков */
+@keyframes chartFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.chart-container canvas {
+    animation: chartFadeIn 0.5s ease-out;
+}
+
+/* Стили для легенды графиков */
+.chart-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 1rem;
+    justify-content: center;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.legend-color {
+    width: 15px;
+    height: 15px;
+    border-radius: 3px;
+}
+
+/* Кастомные tooltips для Chart.js */
+.chartjs-tooltip {
+    background: rgba(0, 0, 0, 0.8) !important;
+    border-radius: 5px !important;
+    padding: 0.5rem 1rem !important;
+    color: white !important;
+    font-size: 0.9rem !important;
+    border: none !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+.chartjs-tooltip-key {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    margin-right: 0.5rem;
+    border-radius: 2px;
+}
+
+/* Адаптивность графиков */
+@media (max-width: 768px) {
+    .chart-container {
+        height: 300px !important;
+    }
+    
+    .chart-legend {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+    }
+}
+
+/* Стили для радарных диаграмм */
+.radar-chart-container {
+    position: relative;
+}
+
+.radar-chart-info {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: white;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    font-size: 0.8rem;
+    color: #666;
+    z-index: 10;
+}
+
+/* Стили для графиков сравнения */
+.comparison-chart {
+    position: relative;
+}
+
+.comparison-legend {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    z-index: 10;
+}
+
+/* Анимация загрузки для графиков */
+.chart-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #666;
+}
+
+.chart-loading i {
+    font-size: 2rem;
+    margin-right: 1rem;
+    color: #667eea;
+}
+
+/* Стили для пустых графиков */
+.chart-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #999;
+    text-align: center;
+    padding: 2rem;
+}
+
+.chart-empty i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}

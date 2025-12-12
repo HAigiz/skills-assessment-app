@@ -1,0 +1,471 @@
+{% extends "base.html" %}
+
+{% block title %}Управление навыками | SkillExam{% endblock %}
+
+{% block extra_css %}
+<style>
+.skills-management {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.management-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.categories-section {
+    background: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+}
+
+.category-item {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid #eaeaea;
+}
+
+.category-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.category-name {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #333;
+}
+
+.category-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.skills-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+}
+
+.skill-card {
+    background: white;
+    border: 1px solid #eaeaea;
+    border-radius: 8px;
+    padding: 1rem;
+    transition: all 0.3s;
+}
+
+.skill-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+}
+
+.skill-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 0.5rem;
+}
+
+.skill-name {
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: #333;
+}
+
+.skill-actions {
+    display: flex;
+    gap: 0.3rem;
+}
+
+.action-btn {
+    width: 30px;
+    height: 30px;
+    border: none;
+    border-radius: 4px;
+    background: #f5f5f5;
+    color: #666;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.action-btn:hover {
+    background: #e9ecef;
+    color: #333;
+}
+
+.action-btn.edit:hover {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.action-btn.delete:hover {
+    background: #ffebee;
+    color: #d32f2f;
+}
+
+.skill-description {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    min-height: 40px;
+}
+
+.skill-stats {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: #999;
+}
+
+.add-section {
+    background: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #333;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+.form-group textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: #666;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    color: #ccc;
+    margin-bottom: 1rem;
+}
+
+/* Модальные окна */
+.skill-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 10000;
+    align-items: center;
+    justify-content: center;
+}
+
+.skill-modal.show {
+    display: flex;
+}
+
+.modal-content-skill {
+    background: white;
+    width: 90%;
+    max-width: 500px;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.modal-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    margin: 0;
+}
+
+.close-modal {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.5rem;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.modal-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+.confirmation-modal .modal-content-skill {
+    max-width: 400px;
+}
+
+.confirmation-text {
+    text-align: center;
+    padding: 2rem;
+}
+
+.confirmation-text i {
+    font-size: 3rem;
+    color: #f44336;
+    margin-bottom: 1rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="skills-management">
+    <div class="management-header">
+        <div>
+            <h1>Управление навыками</h1>
+            <p class="text-muted">Редактирование справочника навыков и категорий</p>
+        </div>
+        <button class="btn btn-primary" onclick="showAddSkillModal()">
+            <i class="fas fa-plus me-2"></i>Добавить навык
+        </button>
+    </div>
+
+    <div class="add-section">
+        <h3><i class="fas fa-search me-2"></i>Поиск сотрудников по навыку</h3>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="skillSearch">Навык</label>
+                <input type="text" id="skillSearch" placeholder="Например: Python, JavaScript, Communication..." 
+                       list="skillSuggestions">
+                <datalist id="skillSuggestions">
+                    {% for category, skills in categories.items() %}
+                        {% for skill in skills %}
+                        <option value="{{ skill.name }}">{{ skill.category }}: {{ skill.name }}</option>
+                        {% endfor %}
+                    {% endfor %}
+                </datalist>
+            </div>
+            <div class="form-group">
+                <label for="minScore">Минимальный уровень</label>
+                <select id="minScore">
+                    <option value="1">1 - Начальный</option>
+                    <option value="2">2 - Базовый</option>
+                    <option value="3" selected>3 - Средний</option>
+                    <option value="4">4 - Продвинутый</option>
+                    <option value="5">5 - Эксперт</option>
+                </select>
+            </div>
+        </div>
+        <button class="btn btn-primary" onclick="searchBySkill()">
+            <i class="fas fa-search me-2"></i>Найти сотрудников
+        </button>
+        
+        <div id="searchResults" style="margin-top: 1.5rem; display: none;">
+            <div id="resultsContainer"></div>
+        </div>
+    </div>
+
+    {% if categories %}
+        {% for category, skills in categories.items() %}
+        <div class="categories-section">
+            <div class="category-item">
+                <div class="category-header">
+                    <div class="category-name">{{ category }}</div>
+                    <div class="category-actions">
+                        <button class="action-btn edit" onclick="editCategory('{{ category }}')" title="Редактировать категорию">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="skills-list">
+                    {% for skill in skills %}
+                    <div class="skill-card" data-skill-id="{{ skill.id }}">
+                        <div class="skill-header">
+                            <div class="skill-name">{{ skill.name }}</div>
+                            <div class="skill-actions">
+                                <button class="action-btn edit" onclick="editSkill({{ skill.id }})" title="Редактировать">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="action-btn delete" onclick="confirmDeleteSkill({{ skill.id }}, '{{ skill.name }}')" title="Удалить">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        {% if skill.description %}
+                        <div class="skill-description">{{ skill.description }}</div>
+                        {% endif %}
+                        
+                        <div class="skill-stats">
+                            <span>ID: {{ skill.id }}</span>
+                            <span>
+                                {% set assessment_count = skill.assessments|length if skill.assessments else 0 %}
+                                {{ assessment_count }} оценок
+                            </span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-state">
+            <i class="fas fa-cogs"></i>
+            <h3>Нет навыков в системе</h3>
+            <p>Добавьте первый навык, чтобы начать работу</p>
+            <button class="btn btn-primary mt-3" onclick="showAddSkillModal()">
+                <i class="fas fa-plus me-2"></i>Добавить навык
+            </button>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Модальное окно добавления/редактирования навыка -->
+<div id="skillModal" class="skill-modal">
+    <div class="modal-content-skill">
+        <div class="modal-header">
+            <h3 id="modalSkillTitle">Добавить навык</h3>
+            <button class="close-modal" onclick="closeSkillModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="skillForm">
+                <div class="form-group">
+                    <label for="skillName">Название навыка *</label>
+                    <input type="text" id="skillName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="skillCategory">Категория *</label>
+                    <input type="text" id="skillCategory" list="categoryList" required>
+                    <datalist id="categoryList">
+                        {% for category in categories.keys() %}
+                        <option value="{{ category }}">{{ category }}</option>
+                        {% endfor %}
+                    </datalist>
+                </div>
+                
+                <div class="form-group">
+                    <label for="skillDescription">Описание</label>
+                    <textarea id="skillDescription" placeholder="Краткое описание навыка..."></textarea>
+                </div>
+                
+                <input type="hidden" id="skillId">
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeSkillModal()">Отмена</button>
+            <button id="saveSkillBtn" class="btn btn-primary" onclick="saveSkill()">Сохранить</button>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно подтверждения удаления -->
+<div id="deleteModal" class="skill-modal confirmation-modal">
+    <div class="modal-content-skill">
+        <div class="modal-header">
+            <h3>Подтверждение удаления</h3>
+            <button class="close-modal" onclick="closeDeleteModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="confirmation-text">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h4 id="deleteSkillName">Вы уверены?</h4>
+                <p id="deleteMessage">Это действие нельзя отменить.</p>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeDeleteModal()">Отмена</button>
+            <button id="confirmDeleteBtn" class="btn btn-danger" onclick="deleteSkill()">Удалить</button>
+        </div>
+    </div>
+</div>
+
+<!-- Результаты поиска -->
+<div id="searchModal" class="skill-modal">
+    <div class="modal-content-skill" style="max-width: 700px; max-height: 80vh;">
+        <div class="modal-header">
+            <h3 id="searchResultsTitle">Результаты поиска</h3>
+            <button class="close-modal" onclick="closeSearchModal()">&times;</button>
+        </div>
+        <div class="modal-body" style="overflow-y: auto;">
+            <div id="searchResultsContent"></div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeSearchModal()">Закрыть</button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast уведомления -->
+<div id="skillToast" class="toast" style="display: none;">
+    <i class="fas fa-check-circle"></i>
+    <span id="skillToastMessage">Действие выполнено успешно</span>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/skill_management.js') }}"></script>
+{% endblock %}

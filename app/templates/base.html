@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SkillExam{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    {% block extra_css %}{% endblock %}
+    <style>
+    .user-dropdown {
+        position: relative;
+        display: inline-block;
+    }
+    
+    .user-menu-btn {
+        background: none;
+        border: none;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        padding: 5px 10px;
+        border-radius: 5px;
+        transition: background-color 0.2s;
+    }
+    
+    .user-menu-btn:hover {
+        background-color: #f5f5f5;
+    }
+    
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        background-color: #4e73df;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        margin-right: 10px;
+    }
+    
+    .user-details {
+        text-align: right;
+    }
+    
+    .user-name {
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+    
+    .role-badge {
+        font-size: 0.8rem;
+        color: #6c757d;
+    }
+    
+    .modal-adduser {
+        display: none;
+        position: fixed;
+        z-index: 9999;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.4);
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .modal-adduser.show {
+        display: flex;
+    }
+    
+    .modal-adduser-content {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        width: 90%;
+        max-width: 400px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+    
+    .modal-adduser-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #dee2e6;
+    }
+    
+    .modal-adduser-header h4 {
+        margin: 0;
+        color: #333;
+    }
+    
+    .modal-adduser-close {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        color: #6c757d;
+        cursor: pointer;
+        padding: 0;
+        line-height: 1;
+    }
+    
+    .modal-adduser-close:hover {
+        color: #333;
+    }
+    
+    .modal-adduser-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 20px;
+    }
+    
+    .btn-danger {
+        background-color: #dc3545;
+        border-color: #dc3545;
+    }
+    
+    .btn-danger:hover {
+        background-color: #c82333;
+        border-color: #bd2130;
+    }
+    
+    /* Стили для футера */
+    .site-footer {
+        background-color: #f8f9fa;
+        padding: 40px 0 20px;
+        margin-top: auto;
+    }
+    
+    .footer-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 30px;
+    }
+    
+    .footer-col {
+        margin-bottom: 20px;
+    }
+    
+    .footer-col-info {
+        grid-column: span 2;
+    }
+    
+    @media (max-width: 768px) {
+        .footer-col-info {
+            grid-column: span 1;
+        }
+    }
+    
+    .footer-logo {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #4e73df;
+        text-decoration: none;
+        margin-bottom: 15px;
+        display: inline-block;
+    }
+    
+    .footer-description {
+        color: #6c757d;
+        line-height: 1.6;
+        margin-bottom: 15px;
+    }
+    
+    .copyright {
+        color: #adb5bd;
+        font-size: 0.9rem;
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid #e9ecef;
+    }
+    
+    .footer-heading {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 15px;
+    }
+    
+    .footer-links {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .footer-links li {
+        margin-bottom: 10px;
+    }
+    
+    .footer-links a {
+        color: #6c757d;
+        text-decoration: none;
+        transition: color 0.2s;
+        font-size: 0.95rem;
+    }
+    
+    .footer-links a:hover {
+        color: #4e73df;
+        text-decoration: underline;
+    }
+    
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 9998;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+    }
+    
+    .modal-content {
+        background-color: #fff;
+        margin: 5% auto;
+        padding: 0;
+        width: 90%;
+        max-width: 500px;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    
+    .close {
+        position: absolute;
+        right: 15px;
+        top: 15px;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: #6c757d;
+    }
+    
+    .close:hover {
+        color: #333;
+    }
+    </style>
+</head>
+<body>
+    {% block header %}
+    <header class="header-nav" style="padding-bottom: 8px; padding-top: 8px;">
+        <a href="{{ url_for('main.index') }}" class="logo">SkillExam</a>
+        <nav class="nav-links">
+            {% if current_user.is_authenticated %}
+                <div class="user-dropdown">
+                    <button class="user-menu-btn">
+                        <div class="user-avatar">
+                            {{ current_user.full_name.split()[0][0] if current_user.full_name and current_user.full_name.split() else 'U' }}
+                        </div>
+                        <div class="user-details" style="text-align: right;">
+                            <div class="user-name">{{ current_user.full_name }}</div>
+                            <div class="role-badge">
+                                {% if current_user.role == 'admin' %}Администратор
+                                {% elif current_user.role == 'hr' %}HR
+                                {% elif current_user.role == 'manager' %}Руководитель
+                                {% elif current_user.role == 'employee' %}Сотрудник
+                                {% endif %}
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-down" style="margin-left: 0.5rem;"></i>
+                    </button>
+                    <div class="dropdown-menu" id="userDropdown" style="display: none;">
+                        <a href="{{ url_for('user.profile') }}" class="dropdown-item">
+                            <i class="fas fa-user"></i> Профиль
+                        </a>
+                        
+                        {% if current_user.role == 'employee' or current_user.role == 'manager' %}
+                        <a href="{{ url_for('user.dashboard') }}" class="dropdown-item">
+                            <i class="fas fa-tachometer-alt"></i> Мой Дашборд
+                        </a>
+                        {% endif %}
+                        
+                        {% if current_user.role == 'manager' %}
+                        <a href="{{ url_for('user.my_team') }}" class="dropdown-item">
+                            <i class="fas fa-users"></i> Моя команда
+                        </a>
+                        {% endif %}
+                        
+                        {% if current_user.role in ['hr', 'admin'] %}
+                        <a href="{{ url_for('hr.hr_dashboard') }}" class="dropdown-item">
+                            <i class="fas fa-chart-bar"></i> HR Аналитика
+                        </a>
+                        <a href="{{ url_for('skill.skill_management') }}" class="dropdown-item">
+                            <i class="fas fa-cogs"></i> Управление навыками
+                        </a>
+                        {% endif %}
+                        
+                        <div class="dropdown-divider"></div>
+                        
+                        <a href="{{ url_for('auth.logout') }}" class="dropdown-item logout">
+                            <i class="fas fa-sign-out-alt"></i> Выйти
+                        </a>
+                    </div>
+                </div>   
+            {% else %}
+                <a href="{{ url_for('main.features') }}">Особенности</a>
+                <a href="{{ url_for('main.commands') }}">Для команд</a>
+                <a href="{{ url_for('main.contacts') }}">Контакты</a>
+                <a href="#" class="signup-btn open-modal-btn" data-mode="login">Вход</a>
+            {% endif %}
+        </nav>
+    </header>
+    {% endblock %}
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    {% block footer %}
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-col footer-col-info">
+                <a href="{{ url_for('main.index') }}" class="logo footer-logo">SkillExam</a>
+                <p class="footer-description">
+                    Платформа для оценки навыков IT-команд, планирования обучения и эффективного управления ресурсами.
+                </p>
+                <p class="copyright">
+                    &copy; 2025 SkillExam. Все права защищены.
+                </p>
+            </div>
+
+            <div class="footer-col">
+                <h4 class="footer-heading">Навигация</h4>
+                <ul class="footer-links">
+                    <li><a href="{{ url_for('main.index') }}">Главная</a></li>
+                    <li><a href="{{ url_for('main.features') }}">Особенности</a></li>
+                    <li><a href="{{ url_for('main.commands') }}">Для команд</a></li>
+                    <li><a href="{{ url_for('main.contacts') }}">Контакты</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4 class="footer-heading">Платформа</h4>
+                <ul class="footer-links">
+                    {% if current_user.is_authenticated %}
+                        <li><a href="{{ url_for('user.dashboard') }}">Дашборд</a></li>
+                        <li><a href="{{ url_for('user.profile') }}">Профиль</a></li>
+                        {% if current_user.role in ['hr', 'admin'] %}
+                            <li><a href="{{ url_for('hr.hr_dashboard') }}">HR Аналитика</a></li>
+                        {% endif %}
+                    {% else %}
+                        <li><a href="#" class="open-modal-btn" data-mode="login">Вход в систему</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4 class="footer-heading">Документы</h4>
+                <ul class="footer-links">
+                    <li><a href="{{ url_for('main.about') }}">О компании</a></li>
+                    <li><a href="{{ url_for('main.confidential') }}">Политика конфиденциальности</a></li>
+                    <li><a href="{{ url_for('main.terms') }}">Пользовательское соглашение</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+    {% endblock %}
+
+    <div id="registrationModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div class="modal-nav">
+                <div class="modal-nav-item" data-target="login-form">Вход в систему</div>
+            </div>
+            <div id="login-form" class="form-section">
+                {% if form %}
+                <form id="log-form" action="{{ url_for('auth.login') }}" method="post">
+                    {{ form.hidden_tag() }}
+                    
+                    <label for="login-username">{{ form.login.label }}</label>
+                    {{ form.login(class="form-control", id="login-username", required=True) }}
+
+                    <label for="login-password">{{ form.password.label }}</label>
+                    {{ form.password(class="form-control", id="login-password", required=True) }}
+
+                    <div id="login-error-message" class="error-message-box" style="display: none;">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span><strong>Вы ввели неверные данные для входа. Повторите попытку.</strong></span>
+                    </div>
+                    
+                    <button type="submit">Войти</button>
+                </form>
+                {% else %}
+                <p>Форма входа недоступна. Пожалуйста, перейдите на <a href="/">главную страницу</a>.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div id="logoutConfirmationModal" class="modal-adduser"> 
+        <div class="modal-adduser-content">
+            <div class="modal-adduser-header">
+                <h4 id="logoutModalTitle">Вы уверены, что хотите выйти из системы?</h4>
+                <button class="modal-adduser-close" id="closeLogoutModal">&times;</button>
+            </div>
+            <div class="modal-adduser-footer">
+                <button id="cancelLogoutBtn" class="btn btn-secondary">Отмена</button>
+                <button id="confirmLogoutBtn" class="btn btn-primary btn-danger">Выйти</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/welcome_page.js') }}"></script>
+    
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Base template loaded');
+        const userMenuBtn = document.querySelector('.user-menu-btn');
+        const userDropdown = document.getElementById('userDropdown');
+        
+        if (userMenuBtn && userDropdown) {
+            userMenuBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                userDropdown.style.display = userDropdown.style.display === 'block' ? 'none' : 'block';
+            });
+            
+            // Закрытие меню при клике вне его
+            document.addEventListener('click', function(e) {
+                if (!userDropdown.contains(e.target) && !userMenuBtn.contains(e.target)) {
+                    userDropdown.style.display = 'none';
+                }
+            });
+        }
+        
+        const logoutConfirmationModal = document.getElementById('logoutConfirmationModal');
+        const confirmLogoutBtn = document.getElementById('confirmLogoutBtn');
+        const cancelLogoutBtn = document.getElementById('cancelLogoutBtn');
+        const closeLogoutModal = document.getElementById('closeLogoutModal');
+        
+        let pendingLogoutLink = null;
+        
+        function closeLogoutModalWindow() {
+            if (logoutConfirmationModal) {
+                logoutConfirmationModal.style.display = 'none';
+            }
+            pendingLogoutLink = null;
+        }
+        
+        // Обработка клика по ссылке "Выход"
+        const logoutLinks = document.querySelectorAll('.dropdown-item.logout');
+        logoutLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                pendingLogoutLink = this;
+                
+                if (logoutConfirmationModal) {
+                    logoutConfirmationModal.style.display = 'flex';
+                }
+            });
+        });
+        
+        // Подтверждение выхода
+        if (confirmLogoutBtn) {
+            confirmLogoutBtn.addEventListener('click', function() {
+                if (pendingLogoutLink) {
+                    window.location.href = pendingLogoutLink.href;
+                }
+                closeLogoutModalWindow();
+            });
+        }
+        
+        // Отмена выхода
+        if (cancelLogoutBtn) {
+            cancelLogoutBtn.addEventListener('click', closeLogoutModalWindow);
+        }
+        
+        if (closeLogoutModal) {
+            closeLogoutModal.addEventListener('click', closeLogoutModalWindow);
+        }
+        
+        // Закрытие по клику на оверлей
+        if (logoutConfirmationModal) {
+            logoutConfirmationModal.addEventListener('click', function(e) {
+                if (e.target === logoutConfirmationModal) {
+                    closeLogoutModalWindow();
+                }
+            });
+        }
+        
+        const openModalBtns = document.querySelectorAll('.open-modal-btn');
+        const registrationModal = document.getElementById('registrationModal');
+        
+        if (registrationModal) {
+            const closeBtn = registrationModal.querySelector('.close');
+            
+            openModalBtns.forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    registrationModal.style.display = 'block';
+                });
+            });
+            
+            if (closeBtn) {
+                closeBtn.addEventListener('click', function() {
+                    registrationModal.style.display = 'none';
+                });
+            }
+            
+            // Закрытие при клике вне модального окна
+            registrationModal.addEventListener('click', function(e) {
+                if (e.target === registrationModal) {
+                    registrationModal.style.display = 'none';
+                }
+            });
+            
+            // Закрытие при нажатии ESC
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    if (registrationModal.style.display === 'block') {
+                        registrationModal.style.display = 'none';
+                    }
+                    if (logoutConfirmationModal && logoutConfirmationModal.style.display === 'flex') {
+                        logoutConfirmationModal.style.display = 'none';
+                    }
+                }
+            });
+            
+            // Обработка ошибок входа
+            const loginForm = document.getElementById('log-form');
+            if (loginForm) {
+                loginForm.addEventListener('submit', function(e) {
+                    const errorMessage = document.getElementById('login-error-message');
+                    if (errorMessage) {
+                        errorMessage.style.display = 'none';
+                    }
+                });
+                
+                // Показываем ошибку, если есть в URL
+                if (window.location.search.includes('error=login')) {
+                    const errorMessage = document.getElementById('login-error-message');
+                    if (errorMessage) {
+                        errorMessage.style.display = 'block';
+                    }
+                }
+            }
+        }
+        
+        // ========== Глобальная функция для уведомлений ==========
+        window.showToast = function(message, type = 'info') {
+            // Удаляем старые тосты
+            const oldToasts = document.querySelectorAll('.custom-toast');
+            oldToasts.forEach(toast => {
+                if (toast.parentNode) {
+                    toast.parentNode.removeChild(toast);
+                }
+            });
+            
+            const toast = document.createElement('div');
+            toast.className = `custom-toast toast-${type}`;
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : type === 'warning' ? '#f59e0b' : '#3b82f6'};
+                color: white;
+                padding: 12px 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                z-index: 9999;
+                animation: slideIn 0.3s ease;
+                max-width: 400px;
+                word-break: break-word;
+            `;
+            
+            const icon = type === 'success' ? 'check-circle' : 
+                        type === 'error' ? 'exclamation-circle' : 
+                        type === 'warning' ? 'exclamation-triangle' : 'info-circle';
+            
+            toast.innerHTML = `
+                <div style="display: flex; align-items: center; flex-grow: 1;">
+                    <i class="fas fa-${icon} me-2" style="flex-shrink: 0;"></i>
+                    <span style="flex-grow: 1;">${message}</span>
+                </div>
+                <button onclick="this.parentElement.remove()" style="background: none; border: none; color: white; cursor: pointer; margin-left: 10px; flex-shrink: 0;">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            // Автоматическое удаление через 5 секунд
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.remove();
+                }
+            }, 5000);
+            
+            // Добавляем стили для анимации
+            if (!document.getElementById('toast-styles')) {
+                const style = document.createElement('style');
+                style.id = 'toast-styles';
+                style.textContent = `
+                    @keyframes slideIn {
+                        from {
+                            transform: translateX(100%);
+                            opacity: 0;
+                        }
+                        to {
+                            transform: translateX(0);
+                            opacity: 1;
+                        }
+                    }
+                    @keyframes slideOut {
+                        from {
+                            transform: translateX(0);
+                            opacity: 1;
+                        }
+                        to {
+                            transform: translateX(100%);
+                            opacity: 0;
+                        }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        };
+    });
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

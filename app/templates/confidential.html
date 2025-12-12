@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Политика конфиденциальности | SkillExam</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <header class="header-nav">
+        <a href="/" class="logo">SkillExam</a>
+        <nav class="nav-links">
+            <a href="{{ url_for('main.features') }}">Особенности</a>
+            <a href="{{ url_for('main.commands') }}">Для команд</a>
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('user.dashboard') }}" class="signup-btn">Мой Дашборд</a>
+            {% else %}
+                <a href="#" class="signup-btn open-modal-btn" data-mode="login">Вход</a>
+            {% endif %}
+        </nav>
+    </header>
+
+    <main class="container py-5">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="mb-4">Политика конфиденциальности</h1>
+                <p class="text-muted">Последнее обновление: 12 декабря 2025 г.</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-10 mx-auto">
+                <div class="card shadow-sm">
+                    <div class="card-body p-4 p-md-5">
+                        <div class="mb-5">
+                            <h4 class="mb-3">1. Общие положения</h4>
+                            <p>
+                                Настоящая Политика конфиденциальности описывает, как SkillExam собирает, использует, хранит и защищает 
+                                информацию о пользователях платформы. Используя наш сервис, вы соглашаетесь с условиями данной политики.
+                            </p>
+                        </div>
+
+                        <div class="mb-5">
+                            <h4 class="mb-3">2. Собираемая информация</h4>
+                            <p>Мы собираем следующие типы информации:</p>
+                            <ul>
+                                <li><strong>Персональные данные:</strong> имя, фамилия, должность, email, телефон</li>
+                                <li><strong>Профессиональные данные:</strong> навыки, оценки, история оценок, результаты тестирования</li>
+                                <li><strong>Технические данные:</strong> IP-адрес, тип браузера, операционная система, данные о посещениях</li>
+                                <li><strong>Данные об использовании:</strong> история действий в системе, предпочтения, настройки</li>
+                            </ul>
+                        </div>
+
+                        <div class="mb-5">
+                            <h4 class="mb-3">3. Использование информации</h4>
+                            <p>Собранная информация используется для:</p>
+                            <ul>
+                                <li>Предоставления и улучшения услуг платформы</li>
+                                <li>Формирования отчетов и аналитики по навыкам сотрудников</li>
+                                <li>Создания индивидуальных планов развития</li>
+                                <li>Обеспечения безопасности системы и данных</li>
+                                <li>Коммуникации с пользователями по вопросам использования сервиса</li>
+                            </ul>
+                        </div>
+
+                        <div class="mb-5">
+                            <h4 class="mb-3">4. Защита данных</h4>
+                            <p>
+                                Мы применяем следующие меры безопасности для защиты ваших данных:
+                            </p>
+                            <ul>
+                                <li>Шифрование данных при передаче (SSL/TLS)</li>
+                                <li>Хеширование паролей с использованием современных алгоритмов</li>
+                                <li>Регулярное обновление систем безопасности</li>
+                                <li>Ограниченный доступ к персональным данным только для уполномоченного персонала</li>
+                                <li>Регулярное резервное копирование данных</li>
+                            </ul>
+                        </div>
+
+                        <div class="mb-5">
+                            <h4 class="mb-3">5. Хранение данных</h4>
+                            <p>
+                                Ваши данные хранятся на защищенных серверах, расположенных на территории Российской Федерации. 
+                                Мы храним данные в течение срока, необходимого для целей их обработки, или в соответствии с требованиями законодательства.
+                            </p>
+                        </div>
+
+                        <div class="mb-5">
+                            <h4 class="mb-3">6. Права пользователей</h4>
+                            <p>Вы имеете право:</p>
+                            <ul>
+                                <li>Получать информацию о том, какие ваши данные мы обрабатываем</li>
+                                <li>Требовать исправления неточных или неполных данных</li>
+                                <li>Требовать удаления ваших персональных данных в предусмотренных законом случаях</li>
+                                <li>Возражать против обработки ваших данных</li>
+                                <li>Отозвать согласие на обработку персональных данных</li>
+                            </ul>
+                        </div>
+
+                        <div class="mb-5">
+                            <h4 class="mb-3">7. Контакты</h4>
+                            <p>
+                                По всем вопросам, связанным с обработкой персональных данных, вы можете обращаться:
+                            </p>
+                            <p>
+                                <strong>Email:</strong> sma1kyyy001@gmail.com<br>
+                                <strong>Телефон:</strong> +7 (999) 653-23-05<br>
+                                <strong>Адрес:</strong> пр. Олимпийский, 1, пгт. Сириус, 354349
+                            </p>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle me-2"></i>
+                            Используя платформу SkillExam, вы подтверждаете, что ознакомились с настоящей Политикой конфиденциальности 
+                            и соглашаетесь с условиями обработки ваших персональных данных.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-col footer-col-info">
+                <a href="/" class="logo footer-logo">SkillExam</a>
+                <p class="footer-description">
+                    Платформа для оценки навыков IT-команд, планирования обучения и эффективного управления ресурсами.
+                </p>
+                <p class="copyright">
+                    &copy; 2025 SkillExam. Права не защищены бегите.
+                </p>
+            </div>
+
+            <div class="footer-col">
+                <h4 class="footer-heading">Документы</h4>
+                <ul class="footer-links">
+                    <li><a href="{{ url_for('main.confidential') }}">Политика конфиденциальности</a></li>
+                    <li><a href="{{ url_for('main.terms') }}">Условия использования</a></li>
+                    <li><a href="{{ url_for('main.contacts') }}">Контакты</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

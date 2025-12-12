@@ -42,7 +42,7 @@ def login():
         login_user(user, remember=True)
         return jsonify({
             'success': True,
-            'redirect_url': url_for('main.dashboard')
+            'redirect_url': url_for('user.dashboard')
         }), 200 
     else:
         return jsonify({
@@ -54,10 +54,12 @@ def login():
 @login_required
 def register():
     if current_user.role not in ['admin', 'hr', 'manager']:
-        # Заместо возврата. Добавить ввывод в виде выдвигающейся шторки success: false, message: "У вас нету прав на добавление пользователя"
-        return render_template(url_for('main.dashboard'))
+        return jsonify({
+            'success': False,
+            'message': 'У вас нет прав на добавление пользователя'
+        }), 403
 
-    if request.is_json:
+    if request.method == 'POST' and request.is_json:
         data = request.get_json()
         
         if current_user.role == 'manager':
@@ -97,6 +99,7 @@ def register():
                 'message': f'Ошибка базы данных: {str(e)}'
             }), 500
     
+    # GET запрос или не-JSON запрос
     current_user_department_name = None
     if current_user.role == 'manager':
         department = Department.query.get(current_user.department_id)
@@ -153,3 +156,32 @@ def contacts():
 @login_required
 def profile():
     return render_template('profile.html')
+
+@bp.route('/about')
+def about():
+    """Страница 'О компании'"""
+    login_form = LoginForm()
+    return render_template('about.html', form=login_form)
+
+@bp.route('/confidential')
+def confidential():
+    """Страница 'Политика конфиденциальности'"""
+    login_form = LoginForm()
+    return render_template('confidential.html', form=login_form)
+
+@bp.route('/terms')
+def terms():
+    """Страница 'Условия использования'"""
+    login_form = LoginForm()
+    return render_template('terms.html', form=login_form)
+
+@bp.route('/features')
+def features():
+    """Страница 'Особенности'"""
+    login_form = LoginForm()
+    return render_template('features.html', form=login_form)
+
+@bp.route('/privacy')
+def privacy():
+    """Страница 'Политика конфиденциальности' (альтернативная ссылка)"""
+    return redirect(url_for('main.confidential'))
