@@ -1,30 +1,77 @@
+let skillsRadarChart = null;
+let chartData = null;
+
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Profile page loaded');
+    initializeSkillRating();
+    initializeRadarChart();
     
-    // Инициализация графика навыков (предполагает, что данные уже встроены в HTML-элемент)
-    // В реальной жизни, возможно, лучше загружать данные для Chart.js отдельным API-запросом
-    // Но для простоты оставим как есть, просто вызовем инициализацию
-    initializeSkillsChart();
+    // Загружаем начальные данные для графика
+    loadChartData();
 });
 
-// --- API И ВЗАИМОДЕЙСТВИЕ С СЕРВЕРОМ ---
-
-/**
- * Отправляет оценку навыка на сервер
- * @param {number} skillId - ID оцениваемого навыка
- * @param {number} score - Оценка (1-5)
- */
-function rateSkill(skillId, score) {
-    console.log(`Sending rating for skill ${skillId}: ${score}`);
+function initializeSkillRating() {
+    console.log('Initializing skill rating...');
     
-    // 1. Обновляем визуальное состояние кнопок сразу (оптимистичное обновление)
-    updateButtonVisuals(skillId, score);
+    // Обработчики для кнопок оценки
+    document.querySelectorAll('.score-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const skillItem = this.closest('.skill-item');
+            const skillId = skillItem.dataset.skillId;
+            const score = parseInt(this.dataset.score);
+            
+            // Удаляем активный класс у всех кнопок этого навыка
+            this.closest('.skill-rating').querySelectorAll('.score-btn').forEach(b => {
+                b.classList.remove('active');
+            });
+            
+            // Добавляем активный класс текущей кнопке
+            this.classList.add('active');
+            
+            // Обновляем текст уровня знания сразу (клиентская часть)
+            updateSkillLevelText(skillItem, score);
+            
+            // Сохраняем оценку
+            rateSkill(skillId, score);
+        });
+    });
+}
 
-    // 2. Отправка на сервер
+function updateSkillLevelText(skillItem, score) {
+    const skillLevelElement = skillItem.querySelector('.skill-level');
+    if (skillLevelElement) {
+        let levelText = '';
+        switch(score) {
+            case 1:
+                levelText = 'Начальный уровень';
+                break;
+            case 2:
+                levelText = 'Базовый уровень';
+                break;
+            case 3:
+                levelText = 'Средний уровень';
+                break;
+            case 4:
+                levelText = 'Продвинутый уровень';
+                break;
+            case 5:
+                levelText = 'Эксперт';
+                break;
+            default:
+                levelText = 'Не оценено';
+        }
+        skillLevelElement.textContent = levelText;
+    }
+}
+
+function rateSkill(skillId, score) {
+    console.log(`Rating skill ${skillId} with score ${score}`);
+    
     fetch(SKILL_RATE_URL, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
+            'Accept': 'application/json'
         },
         body: JSON.stringify({
             skill_id: skillId,
@@ -33,177 +80,97 @@ function rateSkill(skillId, score) {
     })
     .then(response => {
         if (!response.ok) {
-            // Если HTTP-статус не 200, пытаемся прочитать сообщение об ошибке
-            return response.json().then(errorData => {
-                throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
-            });
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
         return response.json();
     })
     .then(data => {
-        console.log('Response from server:', data);
-        
         if (data.success) {
-            showToast('Оценка успешно сохранена!', 'success');
+            // Обновляем бейдж самооценки
+            const skillItem = document.querySelector(`.skill-item[data-skill-id="${skillId}"]`);
+            const selfScoreBadge = skillItem.querySelector('.score-self');
             
-            // Обновляем значок с оценкой
-            updateScoreBadge(skillId, data.new_score);
+            if (selfScoreBadge) {
+                selfScoreBadge.textContent = score;
+            } else {
+                // Создаем новый бейдж, если его нет
+                const skillRatingDiv = skillItem.querySelector('.skill-rating');
+                const newBadge = document.createElement('div');
+                newBadge.className = 'score-badge score-self';
+                newBadge.title = 'Самооценка';
+                newBadge.textContent = score;
+                
+                // Вставляем перед кнопками
+                const scoreButtons = skillItem.querySelector('.score-buttons');
+                skillRatingDiv.insertBefore(newBadge, scoreButtons);
+            }
             
-            // Обновляем график
-            setTimeout(() => {
-                // Уничтожаем старый график, если он есть
-                if (window.skillsChart) {
-                    window.skillsChart.destroy();
-                }
-                initializeSkillsChart();
-            }, 300);
+            // Обновляем текст уровня знания (на всякий случай)
+            updateSkillLevelText(skillItem, score);
+            
+            // Показываем уведомление
+            showSuccessToast('Оценка сохранена!');
+            
+            // Обновляем данные графика
+            updateChartData(skillId, score);
+            
         } else {
-            showToast(data.message || 'Ошибка при сохранении', 'error');
-            // ОТКАТ: Если была ошибка, восстанавливаем предыдущую визуализацию
-            const previousScore = data.previous_score || findCurrentScoreInDOM(skillId);
-            updateButtonVisuals(skillId, previousScore);
+            // Находим элемент навыка
+            const skillItem = document.querySelector(`.skill-item[data-skill-id="${skillId}"]`);
+            
+            // Сбрасываем активную кнопку при ошибке
+            const activeBtn = skillItem.querySelector('.score-btn.active');
+            if (activeBtn) {
+                activeBtn.classList.remove('active');
+            }
+            
+            // Возвращаем предыдущую оценку и текст уровня
+            const selfScoreBadge = skillItem.querySelector('.score-self');
+            if (selfScoreBadge && selfScoreBadge.textContent) {
+                const previousScore = parseInt(selfScoreBadge.textContent);
+                skillItem.querySelectorAll('.score-btn').forEach(btn => {
+                    if (parseInt(btn.dataset.score) === previousScore) {
+                        btn.classList.add('active');
+                    }
+                });
+                // Возвращаем предыдущий текст уровня
+                updateSkillLevelText(skillItem, previousScore);
+            } else {
+                // Если не было предыдущей оценки, устанавливаем "Не оценено"
+                updateSkillLevelText(skillItem, 0);
+            }
+            
+            throw new Error(data.error || 'Неизвестная ошибка');
         }
     })
     .catch(error => {
-        console.error('Error:', error);
-        showToast(`Ошибка сети: ${error.message || 'Пожалуйста, попробуйте позже.'}`, 'error');
-        // В случае сетевой ошибки, откатываем визуализацию (ищем текущую оценку)
-        const previousScore = findCurrentScoreInDOM(skillId);
-        updateButtonVisuals(skillId, previousScore);
+        console.error('Error rating skill:', error);
+        showErrorToast('Ошибка при сохранении оценки. Попробуйте снова.');
     });
 }
 
-// --- ФУНКЦИИ ОБНОВЛЕНИЯ DOM ---
-
-/**
- * Обновляет значок самооценки для навыка.
- * @param {number} skillId - ID навыка.
- * @param {number} score - Новая оценка (1-5).
- */
-function updateScoreBadge(skillId, score) {
-    const item = document.querySelector(`.skill-item[data-skill-id="${skillId}"]`);
-    if (!item) return;
-
-    let badge = item.querySelector('.score-badge.score-self');
-    
-    if (score > 0) {
-        if (!badge) {
-            // Если значка нет, создаем его
-            badge = document.createElement('div');
-            badge.className = 'score-badge score-self';
-            badge.title = 'Самооценка';
-            const ratingContainer = item.querySelector('.skill-rating');
-            if (ratingContainer) {
-                // Вставляем значок перед блоком кнопок, чтобы сохранить порядок: [Самооценка] [Оценка менеджера] [Кнопки]
-                const scoreButtons = item.querySelector('.score-buttons');
-                ratingContainer.insertBefore(badge, scoreButtons);
-            }
-        }
-        badge.textContent = score;
-    } else if (badge) {
-        // Если оценка 0, удаляем значок
-        badge.remove();
-    }
-}
-
-/**
- * Обновляет классы 'active' для кнопок оценки.
- * @param {number} skillId - ID навыка.
- * @param {number} score - Активная оценка.
- */
-function updateButtonVisuals(skillId, score) {
-    const item = document.querySelector(`.skill-item[data-skill-id="${skillId}"]`);
-    if (!item) return;
-
-    item.querySelectorAll('.score-btn').forEach(button => {
-        const buttonScore = parseInt(button.dataset.score);
-        button.classList.remove('active');
-        if (buttonScore === score) {
-            button.classList.add('active');
-        }
-    });
-}
-
-/**
- * Находит текущую оценку из DOM.
- * @param {number} skillId - ID навыка.
- * @returns {number} - Текущая оценка или 0.
- */
-function findCurrentScoreInDOM(skillId) {
-    const activeBtn = document.querySelector(`.skill-item[data-skill-id="${skillId}"] .score-btn.active`);
-    return activeBtn ? parseInt(activeBtn.dataset.score) : 0;
-}
-
-// --- LOGIC FOR CHART.JS (Оставлено как в вашем коде, но с поправками) ---
-
-let skillsChart = null;
-
-function initializeSkillsChart() {
-    console.log('Initializing skills chart...');
-    
-    // Вместо чтения из data-атрибутов, которые не обновляются динамически,
-    // в реальном приложении вы должны сделать API-вызов для получения актуальных данных:
-    // fetch('/api/user_skill_data').then(res => res.json()).then(skillsData => { ... })
-    
-    // Для этого примера, давайте предположим, что мы можем получить текущие оценки из DOM:
-    const skillsData = getSkillsDataFromDOM();
+function initializeRadarChart() {
+    console.log('Initializing radar chart...');
     
     const chartCanvas = document.getElementById('skillsRadarChart');
-    const loadingElement = document.getElementById('chartLoading');
-    const chartContainer = document.getElementById('chartContainer');
-    const noDataElement = document.getElementById('noDataMessage');
-    
-    if (!chartCanvas) return; // Убедиться, что canvas существует
-    
-    // Скрываем все и показываем загрузку, пока не определились
-    loadingElement.style.display = 'block';
-    chartContainer.style.display = 'none';
-    noDataElement.style.display = 'none';
-
-    if (skillsData.length === 0) {
-        loadingElement.style.display = 'none';
-        noDataElement.style.display = 'block';
+    if (!chartCanvas) {
+        console.error('Chart canvas not found');
         return;
     }
-    
-    // Подготовка данных
-    const labels = skillsData.map(skill => skill.name);
-    const selfScores = skillsData.map(skill => skill.self_score || 0);
-    const managerScores = skillsData.map(skill => skill.manager_score || 0);
     
     const ctx = chartCanvas.getContext('2d');
     
     // Уничтожаем предыдущий график, если он существует
-    if (window.skillsChartInstance) {
-        window.skillsChartInstance.destroy();
+    if (skillsRadarChart) {
+        skillsRadarChart.destroy();
     }
     
-    window.skillsChartInstance = new Chart(ctx, {
+    // Создаем пустой график с заглушкой
+    skillsRadarChart = new Chart(ctx, {
         type: 'radar',
         data: {
-            labels: labels,
-            datasets: [
-                {
-                    label: 'Самооценка',
-                    data: selfScores,
-                    // Используем цвета из CSS: #667eea (Self)
-                    backgroundColor: 'rgba(102, 126, 234, 0.2)',
-                    borderColor: 'rgba(102, 126, 234, 1)',
-                    pointBackgroundColor: 'rgba(102, 126, 234, 1)',
-                    borderWidth: 2,
-                    pointRadius: 4
-                },
-                {
-                    label: 'Оценка руководителя',
-                    data: managerScores,
-                    // Используем цвета из CSS: #764ba2 (Manager)
-                    backgroundColor: 'rgba(118, 75, 162, 0.2)',
-                    borderColor: 'rgba(118, 75, 162, 1)',
-                    pointBackgroundColor: 'rgba(118, 75, 162, 1)',
-                    borderWidth: 2,
-                    pointRadius: 4
-                }
-            ]
+            labels: [],
+            datasets: []
         },
         options: {
             responsive: true,
@@ -212,119 +179,187 @@ function initializeSkillsChart() {
                 r: {
                     beginAtZero: true,
                     max: 5,
-                    min: 0,
                     ticks: {
                         stepSize: 1,
-                        backdropColor: 'transparent',
-                        callback: function(value) {
-                             if (value === 0) return '';
-                             if (value === 1) return 'Начальный';
-                             if (value === 2) return 'Базовый';
-                             if (value === 3) return 'Средний';
-                             if (value === 4) return 'Продвинутый';
-                             if (value === 5) return 'Эксперт';
-                             return value;
+                        backdropColor: 'transparent'
+                    },
+                    pointLabels: {
+                        font: {
+                            size: 11
                         }
+                    },
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.1)'
                     }
                 }
             },
             plugins: {
                 legend: {
-                    display: false // Скрываем легенду Chart.js, используем кастомную HTML-легенду
+                    display: false
                 },
                 tooltip: {
                     callbacks: {
                         label: function(context) {
-                            const datasetLabel = context.dataset.label;
-                            const value = context.raw;
-                            let level = '';
-                            
-                            if (value <= 1) level = 'Начальный';
-                            else if (value <= 2) level = 'Базовый';
-                            else if (value <= 3) level = 'Средний';
-                            else if (value <= 4) level = 'Продвинутый';
-                            else level = 'Эксперт';
-                            
-                            return `${datasetLabel}: ${value} (${level})`;
+                            return `${context.dataset.label}: ${context.raw}`;
                         }
                     }
                 }
             }
         }
     });
+}
+
+function loadChartData() {
+    console.log('Loading chart data...');
     
-    // Скрываем индикатор загрузки и показываем график
-    loadingElement.style.display = 'none';
-    chartContainer.style.display = 'block';
+    // Показываем загрузку
+    document.getElementById('chartLoading').style.display = 'block';
+    document.getElementById('chartContainer').style.display = 'none';
+    document.getElementById('noDataMessage').style.display = 'none';
+    
+    // Имитируем загрузку данных (в реальности здесь будет AJAX запрос)
+    setTimeout(() => {
+        updateChartFromDOM();
+    }, 500);
 }
 
-/**
- * Извлекает данные о навыках и их оценках из DOM для графика.
- * @returns {Array} - Список объектов навыков с оценками.
- */
-function getSkillsDataFromDOM() {
-    const skillsData = [];
-    document.querySelectorAll('.skill-item').forEach(item => {
-        const skillName = item.querySelector('.skill-name').textContent.trim();
-        const selfBadge = item.querySelector('.score-badge.score-self');
-        const managerBadge = item.querySelector('.score-badge.score-manager');
+function updateChartFromDOM() {
+    console.log('Updating chart from DOM...');
+    
+    // Собираем данные из DOM
+    const skills = [];
+    const selfScores = [];
+    const managerScores = [];
+    
+    document.querySelectorAll('.skill-item').forEach(skillItem => {
+        const skillId = skillItem.dataset.skillId;
+        const skillName = skillItem.querySelector('.skill-name').textContent;
         
-        const selfScore = selfBadge ? parseInt(selfBadge.textContent.trim()) : 0;
-        const managerScore = managerBadge ? parseInt(managerBadge.textContent.trim()) : 0;
-
-        skillsData.push({
-            name: skillName,
-            self_score: selfScore,
-            manager_score: managerScore,
-        });
+        // Получаем самооценку
+        const selfScoreBadge = skillItem.querySelector('.score-self');
+        const selfScore = selfScoreBadge ? parseInt(selfScoreBadge.textContent) : 0;
+        
+        // Получаем оценку руководителя
+        const managerScoreBadge = skillItem.querySelector('.score-manager');
+        const managerScore = managerScoreBadge ? parseInt(managerScoreBadge.textContent) : 0;
+        
+        if (selfScore > 0 || managerScore > 0) {
+            skills.push(skillName);
+            selfScores.push(selfScore);
+            managerScores.push(managerScore);
+        }
     });
-    return skillsData;
+    
+    if (skills.length > 0) {
+        updateChart(skills, selfScores, managerScores);
+    } else {
+        showNoDataMessage();
+    }
 }
 
-
-// --- TOAST NOTIFICATION (Оставлено как в вашем коде) ---
-
-function showToast(message, type = 'info') {
-    // Проверяем, есть ли уже тост с таким сообщением
-    const existingToasts = document.querySelectorAll('.toast');
-    for (const toast of existingToasts) {
-        if (toast.textContent.includes(message)) {
-            return; // Не показываем дубликат
-        }
+function updateChart(skills, selfScores, managerScores) {
+    console.log('Updating chart with data:', { skills, selfScores, managerScores });
+    
+    const chartCanvas = document.getElementById('skillsRadarChart');
+    if (!chartCanvas) {
+        console.error('Chart canvas not found');
+        return;
     }
     
-    const toast = document.createElement('div');
-    // Используем уже определенный в стилях класс, но с поправкой на цвет
-    const bgColor = type === 'success' ? '#4caf50' : type === 'error' ? '#f44336' : '#3b82f6';
-    const iconClass = type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle';
+    // Проверяем, есть ли данные для отображения
+    const hasSelfData = selfScores.some(score => score > 0);
+    const hasManagerData = managerScores.some(score => score > 0);
+    
+    if (!hasSelfData && !hasManagerData) {
+        showNoDataMessage();
+        return;
+    }
+    
+    const datasets = [];
+    
+    if (hasSelfData) {
+        datasets.push({
+            label: 'Самооценка',
+            data: selfScores,
+            backgroundColor: 'rgba(102, 126, 234, 0.2)',
+            borderColor: 'rgba(102, 126, 234, 0.8)',
+            pointBackgroundColor: 'rgba(102, 126, 234, 1)',
+            pointBorderColor: '#fff',
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: 'rgba(102, 126, 234, 1)',
+            borderWidth: 2,
+            pointRadius: 4
+        });
+    }
+    
+    if (hasManagerData) {
+        datasets.push({
+            label: 'Оценка руководителя',
+            data: managerScores,
+            backgroundColor: 'rgba(118, 75, 162, 0.2)',
+            borderColor: 'rgba(118, 75, 162, 0.8)',
+            pointBackgroundColor: 'rgba(118, 75, 162, 1)',
+            pointBorderColor: '#fff',
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: 'rgba(118, 75, 162, 1)',
+            borderWidth: 2,
+            pointRadius: 4
+        });
+    }
+    
+    // Обновляем график
+    skillsRadarChart.data.labels = skills;
+    skillsRadarChart.data.datasets = datasets;
+    skillsRadarChart.update();
+    
+    // Показываем график
+    document.getElementById('chartLoading').style.display = 'none';
+    document.getElementById('chartContainer').style.display = 'block';
+    document.getElementById('noDataMessage').style.display = 'none';
+}
 
-    toast.className = `toast ${type === 'error' ? 'error' : ''}`;
-    toast.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: ${bgColor};
-        color: white;
-        padding: 1rem 1.5rem;
-        border-radius: 5px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        z-index: 10000;
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        animation: slideIn 0.3s ease;
-    `;
+function updateChartData(skillId, newScore) {
+    console.log(`Updating chart data for skill ${skillId} with score ${newScore}`);
     
-    toast.innerHTML = `
-        <i class="fas fa-${iconClass}"></i>
-        <span id="toastMessage">${message}</span>
-    `;
+    // Находим элемент навыка
+    const skillItem = document.querySelector(`.skill-item[data-skill-id="${skillId}"]`);
+    if (!skillItem) {
+        console.error(`Skill item ${skillId} not found`);
+        return;
+    }
     
-    document.body.appendChild(toast);
+    const skillName = skillItem.querySelector('.skill-name').textContent;
     
-    setTimeout(() => {
-        if (toast.parentElement) {
-            toast.remove();
-        }
-    }, 3000);
+    // Обновляем данные графика из DOM
+    updateChartFromDOM();
+}
+
+function showNoDataMessage() {
+    console.log('No data for chart, showing message');
+    
+    document.getElementById('chartLoading').style.display = 'none';
+    document.getElementById('chartContainer').style.display = 'none';
+    document.getElementById('noDataMessage').style.display = 'block';
+}
+
+function showSuccessToast(message) {
+    // Используем глобальную функцию из base.html
+    if (typeof window.showToast === 'function') {
+        window.showToast(message, 'success');
+    } else {
+        // Fallback если функция не определена
+        console.log('Success:', message);
+        alert(message);
+    }
+}
+
+function showErrorToast(message) {
+    // Используем глобальную функцию из base.html
+    if (typeof window.showToast === 'function') {
+        window.showToast(message, 'error');
+    } else {
+        // Fallback если функция не определена
+        console.error('Error:', message);
+        alert('Ошибка: ' + message);
+    }
 }

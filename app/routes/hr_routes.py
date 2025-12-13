@@ -6,9 +6,9 @@ from sqlalchemy import func, and_
 
 bp = Blueprint('hr', __name__)
 
-@bp.route('/hr-dashboard')
+@bp.route('/analytics')
 @login_required
-def hr_dashboard():
+def hr_analytics():
     """Главная страница HR аналитики"""
     #права доступа
     if current_user.role not in ['hr', 'admin']:
@@ -99,17 +99,17 @@ def hr_dashboard():
             })
 
         return render_template(
-            'hr_dashboard.html',
+            'hr_analytics.html',
             stats=stats,
             roles_stats=roles_stats,
             departments_stats=departments_stats
         )
         
     except Exception as e:
-        print(f"❌ Ошибка в hr_dashboard: {str(e)}")
+        print(f"❌ Ошибка в hr_analytics: {str(e)}")
         #возвращаем шаблон с пустыми данными
         return render_template(
-            'hr_dashboard.html',
+            'hr_analytics.html',
             stats={
                 'total_users': 0,
                 'avg_score': 0,

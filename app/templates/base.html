@@ -8,247 +8,201 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     {% block extra_css %}{% endblock %}
     <style>
-    .user-dropdown {
-        position: relative;
-        display: inline-block;
-    }
-    
-    .user-menu-btn {
-        background: none;
-        border: none;
-        display: flex;
-        align-items: center;
-        cursor: pointer;
-        padding: 5px 10px;
-        border-radius: 5px;
-        transition: background-color 0.2s;
-    }
-    
-    .user-menu-btn:hover {
-        background-color: #f5f5f5;
-    }
-    
-    .user-avatar {
-        width: 40px;
-        height: 40px;
-        background-color: #4e73df;
-        color: white;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-        margin-right: 10px;
-    }
-    
-    .user-details {
-        text-align: right;
-    }
-    
-    .user-name {
-        font-weight: 500;
-        font-size: 0.9rem;
-    }
-    
-    .role-badge {
-        font-size: 0.8rem;
-        color: #6c757d;
-    }
-    
-    .modal-adduser {
-        display: none;
-        position: fixed;
-        z-index: 9999;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0,0,0,0.4);
-        align-items: center;
-        justify-content: center;
-    }
-    
-    .modal-adduser.show {
-        display: flex;
-    }
-    
-    .modal-adduser-content {
-        background-color: #fff;
-        padding: 20px;
-        border-radius: 10px;
-        width: 90%;
-        max-width: 400px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-    }
-    
-    .modal-adduser-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-        padding-bottom: 15px;
-        border-bottom: 1px solid #dee2e6;
-    }
-    
-    .modal-adduser-header h4 {
-        margin: 0;
-        color: #333;
-    }
-    
-    .modal-adduser-close {
-        background: none;
-        border: none;
-        font-size: 1.5rem;
-        color: #6c757d;
-        cursor: pointer;
-        padding: 0;
-        line-height: 1;
-    }
-    
-    .modal-adduser-close:hover {
-        color: #333;
-    }
-    
-    .modal-adduser-footer {
-        display: flex;
-        justify-content: flex-end;
-        gap: 10px;
-        margin-top: 20px;
-    }
-    
-    .btn-danger {
-        background-color: #dc3545;
-        border-color: #dc3545;
-    }
-    
-    .btn-danger:hover {
-        background-color: #c82333;
-        border-color: #bd2130;
-    }
-    
-    /* Стили для футера */
-    .site-footer {
-        background-color: #f8f9fa;
-        padding: 40px 0 20px;
-        margin-top: auto;
-    }
-    
-    .footer-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 0 20px;
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 30px;
-    }
-    
-    .footer-col {
-        margin-bottom: 20px;
-    }
-    
-    .footer-col-info {
-        grid-column: span 2;
-    }
-    
-    @media (max-width: 768px) {
-        .footer-col-info {
-            grid-column: span 1;
+        .modal-adduser {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4);
+            align-items: center;
+            justify-content: center;
         }
-    }
-    
-    .footer-logo {
-        font-size: 1.8rem;
-        font-weight: 700;
-        color: #4e73df;
-        text-decoration: none;
-        margin-bottom: 15px;
-        display: inline-block;
-    }
-    
-    .footer-description {
-        color: #6c757d;
-        line-height: 1.6;
-        margin-bottom: 15px;
-    }
-    
-    .copyright {
-        color: #adb5bd;
-        font-size: 0.9rem;
-        margin-top: 20px;
-        padding-top: 20px;
-        border-top: 1px solid #e9ecef;
-    }
-    
-    .footer-heading {
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: #495057;
-        margin-bottom: 15px;
-    }
-    
-    .footer-links {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    }
-    
-    .footer-links li {
-        margin-bottom: 10px;
-    }
-    
-    .footer-links a {
-        color: #6c757d;
-        text-decoration: none;
-        transition: color 0.2s;
-        font-size: 0.95rem;
-    }
-    
-    .footer-links a:hover {
-        color: #4e73df;
-        text-decoration: underline;
-    }
-    
-    .modal {
-        display: none;
-        position: fixed;
-        z-index: 9998;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0,0,0,0.5);
-    }
-    
-    .modal-content {
-        background-color: #fff;
-        margin: 5% auto;
-        padding: 0;
-        width: 90%;
-        max-width: 500px;
-        border-radius: 10px;
-        overflow: hidden;
-    }
-    
-    .close {
-        position: absolute;
-        right: 15px;
-        top: 15px;
-        font-size: 1.5rem;
-        cursor: pointer;
-        color: #6c757d;
-    }
-    
-    .close:hover {
-        color: #333;
-    }
+        
+        .modal-adduser.show {
+            display: flex;
+        }
+        
+        .modal-adduser-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+        
+        .modal-adduser-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .modal-adduser-header h4 {
+            margin: 0;
+            color: #333;
+        }
+        
+        .modal-adduser-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #6c757d;
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
+        }
+        
+        .modal-adduser-close:hover {
+            color: #333;
+        }
+        
+        .modal-adduser-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .btn-danger {
+            background-color: #dc3545;
+            border-color: #dc3545;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c82333;
+            border-color: #bd2130;
+        }
+        
+        /* Стили для футера */
+        .site-footer {
+            background-color: #f8f9fa;
+            padding: 40px 0 20px;
+            margin-top: auto;
+        }
+        
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+        
+        .footer-col {
+            margin-bottom: 20px;
+        }
+        
+        .footer-col-info {
+            grid-column: span 2;
+        }
+        
+        @media (max-width: 768px) {
+            .footer-col-info {
+                grid-column: span 1;
+            }
+        }
+        
+        .footer-logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #4e73df;
+            text-decoration: none;
+            margin-bottom: 15px;
+            display: inline-block;
+        }
+        
+        .footer-description {
+            color: #6c757d;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        .copyright {
+            color: #adb5bd;
+            font-size: 0.9rem;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        .footer-heading {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 15px;
+        }
+        
+        .footer-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .footer-links li {
+            margin-bottom: 10px;
+        }
+        
+        .footer-links a {
+            color: #6c757d;
+            text-decoration: none;
+            transition: color 0.2s;
+            font-size: 0.95rem;
+        }
+        
+        .footer-links a:hover {
+            color: #4e73df;
+            text-decoration: underline;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 9998;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal-content {
+            background-color: #fff;
+            margin: 5% auto;
+            padding: 0;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .close {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6c757d;
+        }
+        
+        .close:hover {
+            color: #333;
+        }
     </style>
 </head>
 <body>
     {% block header %}
     <header class="header-nav" style="padding-bottom: 8px; padding-top: 8px;">
-        <a href="{{ url_for('main.index') }}" class="logo">SkillExam</a>
+        <a href="/" class="logo">SkillExam</a>
         <nav class="nav-links">
             {% if current_user.is_authenticated %}
                 <div class="user-dropdown">
@@ -256,7 +210,7 @@
                         <div class="user-avatar">
                             {{ current_user.full_name.split()[0][0] if current_user.full_name and current_user.full_name.split() else 'U' }}
                         </div>
-                        <div class="user-details" style="text-align: right;">
+                        <div class="user-details">
                             <div class="user-name">{{ current_user.full_name }}</div>
                             <div class="role-badge">
                                 {% if current_user.role == 'admin' %}Администратор
@@ -268,7 +222,7 @@
                         </div>
                         <i class="fas fa-chevron-down" style="margin-left: 0.5rem;"></i>
                     </button>
-                    <div class="dropdown-menu" id="userDropdown" style="display: none;">
+                    <div class="dropdown-menu" id="userDropdown">
                         <a href="{{ url_for('user.profile') }}" class="dropdown-item">
                             <i class="fas fa-user"></i> Профиль
                         </a>
@@ -286,7 +240,7 @@
                         {% endif %}
                         
                         {% if current_user.role in ['hr', 'admin'] %}
-                        <a href="{{ url_for('hr.hr_dashboard') }}" class="dropdown-item">
+                        <a href="{{ url_for('hr.hr_analytics') }}" class="dropdown-item">
                             <i class="fas fa-chart-bar"></i> HR Аналитика
                         </a>
                         <a href="{{ url_for('skill.skill_management') }}" class="dropdown-item">
@@ -345,7 +299,7 @@
                         <li><a href="{{ url_for('user.dashboard') }}">Дашборд</a></li>
                         <li><a href="{{ url_for('user.profile') }}">Профиль</a></li>
                         {% if current_user.role in ['hr', 'admin'] %}
-                            <li><a href="{{ url_for('hr.hr_dashboard') }}">HR Аналитика</a></li>
+                            <li><a href="{{ url_for('hr.hr_analytics') }}">HR Аналитика</a></li>
                         {% endif %}
                     {% else %}
                         <li><a href="#" class="open-modal-btn" data-mode="login">Вход в систему</a></li>
@@ -404,14 +358,15 @@
             </div>
             <div class="modal-adduser-footer">
                 <button id="cancelLogoutBtn" class="btn btn-secondary">Отмена</button>
-                <button id="confirmLogoutBtn" class="btn btn-primary btn-danger">Выйти</button>
+                <button id="confirmLogoutBtn" class="btn btn-danger">Выйти</button>
             </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ url_for('static', filename='js/welcome_page.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
     
     <script>
     document.addEventListener('DOMContentLoaded', function() {

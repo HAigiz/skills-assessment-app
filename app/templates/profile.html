@@ -122,6 +122,15 @@
     margin-bottom: 0.2rem;
 }
 
+/* Добавлен стиль для уровня знания */
+.skill-level {
+    font-size: 0.85rem;
+    color: #1976d2;
+    margin-bottom: 0.2rem;
+    font-style: italic;
+    min-height: 1.2rem;
+}
+
 .skill-description {
     font-size: 0.9rem;
     color: #666;
@@ -293,8 +302,8 @@
 
     <div class="skills-container">
         <div class="skills-categories">
-            <h2 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
-                <i class="fas fa-star"></i> Мои навыки
+            <h2 style="display: flex; align-items: center; margin-bottom: 24px;">
+                <i class="fas"></i> Мои навыки
             </h2>
             
             {% if skills_by_category %}
@@ -309,6 +318,28 @@
                         <div class="skill-item" data-skill-id="{{ skill.id }}">
                             <div class="skill-info">
                                 <div class="skill-name">{{ skill.name }}</div>
+                                <!-- Добавлен блок для отображения уровня знания -->
+                                <div class="skill-level">
+                                    {% if skill.self_score %}
+                                        {% if skill.self_score == None %}
+                                            Уровень не указан
+                                        {% elif skill.self_score == 1 %}
+                                            Начальный уровень
+                                        {% elif skill.self_score == 2 %}
+                                            Базовый уровень
+                                        {% elif skill.self_score == 3 %}
+                                            Средний уровень
+                                        {% elif skill.self_score == 4 %}
+                                            Продвинутый уровень
+                                        {% elif skill.self_score == 5 %}
+                                            Эксперт
+                                        {% else %}
+                                            Не оценено
+                                        {% endif %}
+                                    {% else %}
+                                        Не оценено
+                                    {% endif %}
+                                </div>
                                 {% if skill.description %}
                                 <div class="skill-description">{{ skill.description }}</div>
                                 {% endif %}
@@ -326,7 +357,7 @@
                                 {% endif %}
                                 <div class="score-buttons">
                                     {% for i in range(1, 6) %}
-                                    <button class="score-btn {% if skill.self_score == i %}active{% endif %}" data-score="{{ i }}"onclick="rateSkill({{ skill.id }}, {{ i }})">
+                                    <button class="score-btn {% if skill.self_score == i %}active{% endif %}" data-score="{{ i }}">
                                         {{ i }}
                                     </button>
                                     {% endfor %}
@@ -344,11 +375,12 @@
                     <p>Навыки еще не добавлены в систему</p>
                 </div>
             {% endif %}
+
             
-            <div class="mt-4 text-muted" style="font-size: 0.9rem;">
-                <i class="fas fa-info-circle"></i> 
-                Нажмите на цифру от 1 до 5, чтобы оценить навык. 1 - начальный уровень, 5 - эксперт.
+            <div class="mt-4 text-muted" style="font-size: 0.9rem; margin-left: 10px;">
+                <i class="fas fa-info-circle"></i> Нажмите на цифру от 1 до 5, чтобы оценить навык. 1 - начальный уровень, 5 - эксперт.
             </div>
+
         </div>
 
         <div class="skills-chart">
@@ -397,7 +429,8 @@
 
 {% block extra_js %}
 <script>
-    const SKILL_RATE_URL = "{{ url_for('main.skill_rate') }}";
+    const SKILL_RATE_URL = "{{ url_for('user.assess_skill') }}";
 </script>
 <script src="{{ url_for('static', filename='js/profile.js') }}"></script>
+<script src="{{ url_for('static', filename='js/welcome_page.js') }}"></script>
 {% endblock %}
