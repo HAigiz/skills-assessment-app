@@ -775,17 +775,6 @@ body {
     border: none;
 }
 
-.map-overlay {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    background: white;
-    padding: 15px 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    z-index: 1000;
-}
-
 .map-overlay h5 {
     margin: 0;
     color: #2d3748;
@@ -1187,12 +1176,13 @@ body {
 
 .map-overlay {
     position: absolute;
-    bottom: 20px;
     left: 20px;
+    top: 20px;
     background: white;
     padding: 1rem 1.5rem;
     border-radius: 10px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    z-index: 1000;
 }
 
 /* Стили для страниц документов */

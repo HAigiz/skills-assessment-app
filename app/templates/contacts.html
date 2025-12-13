@@ -19,7 +19,7 @@
                 {% if current_user.role in ['employee', 'manager'] %}
                     <a href="{{ url_for('user.dashboard') }}" class="signup-btn">Мой Дашборд</a>
                 {% elif current_user.role in ['hr', 'admin'] %}
-                    <a href="{{ url_for('hr.hr_dashboard') }}" class="signup-btn">Мой Дашборд</a>
+                    <a href="{{ url_for('hr.hr_analytics') }}" class="signup-btn">Мой Дашборд</a>
                 {% endif %}
             {% else %}
                 <a href="#" class="signup-btn open-modal-btn" data-mode="login">Вход</a>
