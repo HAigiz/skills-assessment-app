@@ -1,4 +1,4 @@
-from flask import render_template, request, jsonify, Blueprint
+from flask import render_template, request, jsonify, Blueprint, redirect, flash, url_for
 from flask_login import login_required, current_user
 from werkzeug.security import generate_password_hash
 from .. import db
@@ -39,6 +39,179 @@ def dashboard():
                           current_user=current_user, 
                           department=department,
                           stats=stats)
+
+@bp.route('/employee/<int:user_id>')
+@login_required
+def view_employee_profile(user_id):
+    """Просмотр профиля сотрудника руководителем"""
+    if current_user.role != 'manager':
+        flash('Доступ запрещен. Только для руководителей.', 'error')
+        return redirect(url_for('user.dashboard'))
+    
+    # Получаем сотрудника
+    employee = User.query.get_or_404(user_id)
+    
+    # Проверяем, что сотрудник из того же отдела
+    if employee.department_id != current_user.department_id:
+        flash('Вы можете просматривать только сотрудников своего отдела', 'error')
+        return redirect(url_for('user.my_team'))
+    
+    # Получаем навыки с оценками
+    skills_with_assessments = db.session.query(
+        Skill,
+        SkillAssessment.self_score,
+        SkillAssessment.manager_score,
+        SkillAssessment.assessed_at
+    ).outerjoin(
+        SkillAssessment, 
+        (SkillAssessment.skill_id == Skill.id) & 
+        (SkillAssessment.user_id == user_id)
+    ).order_by(Skill.category, Skill.name).all()
+    
+    # Группируем навыки по категориям
+    skills_by_category = {}
+    for skill, self_score, manager_score, assessed_at in skills_with_assessments:
+        if skill.category not in skills_by_category:
+            skills_by_category[skill.category] = []
+        skills_by_category[skill.category].append({
+            'id': skill.id,
+            'name': skill.name,
+            'description': skill.description,
+            'self_score': self_score,
+            'manager_score': manager_score,
+            'assessed_at': assessed_at
+        })
+    
+    # Статистика
+    assessments = SkillAssessment.query.filter_by(user_id=user_id).all()
+    total_assessed_skills = len(assessments)
+    
+    # Средние оценки
+    self_scores = [a.self_score for a in assessments if a.self_score]
+    manager_scores = [a.manager_score for a in assessments if a.manager_score]
+    
+    average_self_score = round(sum(self_scores) / len(self_scores), 1) if self_scores else None
+    average_manager_score = round(sum(manager_scores) / len(manager_scores), 1) if manager_scores else None
+    
+    return render_template('employee_profile.html',
+                          user=employee,
+                          skills_by_category=skills_by_category,
+                          total_assessed_skills=total_assessed_skills,
+                          average_self_score=average_self_score,
+                          average_manager_score=average_manager_score,
+                          current_user=current_user)
+
+@bp.route('/api/employee/<int:user_id>/skills-data')
+@login_required
+def get_employee_skills_data(user_id):
+    """API для получения данных навыков сотрудника для графика"""
+    if current_user.role != 'manager':
+        return jsonify({'success': False, 'message': 'Доступ запрещен'}), 403
+    
+    employee = User.query.get_or_404(user_id)
+    
+    # Проверка доступа
+    if employee.department_id != current_user.department_id:
+        return jsonify({'success': False, 'message': 'Доступ запрещен'}), 403
+    
+    # Получаем данные навыков (получаем объекты Skill)
+    results = db.session.query(
+        Skill,  # Получаем весь объект Skill
+        SkillAssessment.self_score,
+        SkillAssessment.manager_score
+    ).outerjoin(
+        SkillAssessment, 
+        (SkillAssessment.skill_id == Skill.id) & 
+        (SkillAssessment.user_id == user_id)
+    ).order_by(Skill.name).all()
+    
+    chart_data = {
+        'labels': [skill.name for skill, self_score, manager_score in results],
+        'self_scores': [self_score or 0 for skill, self_score, manager_score in results],
+        'manager_scores': [manager_score or 0 for skill, self_score, manager_score in results]
+    }
+    
+    return jsonify({
+        'success': True,
+        'chart_data': chart_data
+    })
+
+@bp.route('/api/assess-employee-skill', methods=['POST'])
+@login_required
+def assess_employee_skill():
+    """API для оценки навыков сотрудника руководителем"""
+    if current_user.role != 'manager':
+        return jsonify({'success': False, 'message': 'Доступ запрещен'}), 403
+    
+    data = request.get_json()
+    
+    if not data:
+        return jsonify({'success': False, 'message': 'Нет данных'}), 400
+    
+    employee_id = data.get('employee_id')
+    skill_id = data.get('skill_id')
+    manager_score = data.get('manager_score')
+    
+    if not all([employee_id, skill_id, manager_score is not None]):
+        return jsonify({'success': False, 'message': 'Не указаны все параметры'}), 400
+    
+    # Проверяем, что сотрудник из того же отдела
+    employee = User.query.get(employee_id)
+    if not employee:
+        return jsonify({'success': False, 'message': 'Сотрудник не найден'}), 404
+    
+    if employee.department_id != current_user.department_id:
+        return jsonify({'success': False, 'message': 'Доступ запрещен'}), 403
+    
+    try:
+        score_int = int(manager_score)
+        if not (1 <= score_int <= 5):
+            return jsonify({'success': False, 'message': 'Оценка должна быть от 1 до 5'}), 400
+    except (ValueError, TypeError):
+        return jsonify({'success': False, 'message': 'Некорректная оценка'}), 400
+    
+    # Проверяем существование навыка
+    skill = Skill.query.get(skill_id)
+    if not skill:
+        return jsonify({'success': False, 'message': 'Навык не найден'}), 404
+    
+    # Ищем существующую оценку
+    assessment = SkillAssessment.query.filter_by(
+        user_id=employee_id,
+        skill_id=skill_id
+    ).first()
+    
+    if assessment:
+        # Обновляем оценку руководителя
+        assessment.manager_score = score_int
+        assessment.manager_assessed_at = db.func.now()
+    else:
+        # Создаем новую запись с оценкой руководителя
+        assessment = SkillAssessment(
+            user_id=employee_id,
+            skill_id=skill_id,
+            manager_score=score_int,
+            manager_assessed_at=db.func.now()
+        )
+        db.session.add(assessment)
+    
+    try:
+        db.session.commit()
+        return jsonify({
+            'success': True,
+            'message': 'Оценка руководителя сохранена',
+            'assessment': {
+                'skill_id': skill_id,
+                'skill_name': skill.name,
+                'manager_score': score_int
+            }
+        })
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            'success': False,
+            'message': f'Ошибка при сохранении: {str(e)}'
+        }), 500
 
 @bp.route('/profile')
 @login_required
@@ -120,49 +293,6 @@ def my_team():
     return render_template('my_team.html',
                           current_user=current_user,
                           team_members=members_data)
-
-@bp.route('/api/user/<int:user_id>/skills')
-@login_required
-def get_user_skills(user_id):
-    """API для получения навыков пользователя (для графика)"""
-    user = User.query.get_or_404(user_id)
-    
-    #проверка доступности
-    if current_user.role == 'employee' and current_user.id != user_id:
-        return jsonify({'success': False, 'message': 'Доступ запрещен'}), 403
-    
-    if current_user.role == 'manager' and current_user.department_id != user.department_id:
-        return jsonify({'success': False, 'message': 'Доступ запрещен'}), 403
-    
-    skills = db.session.query(
-        Skill.name,
-        Skill.category,
-        SkillAssessment.self_score,
-        SkillAssessment.manager_score
-    ).outerjoin(
-        SkillAssessment, 
-        (SkillAssessment.skill_id == Skill.id) & 
-        (SkillAssessment.user_id == user_id)
-    ).order_by(Skill.category, Skill.name).all()
-    
-    #график данных
-    chart_data = {
-        'labels': [skill.name for skill, category, self_score, manager_score in skills],
-        'categories': [category for skill, category, self_score, manager_score in skills],
-        'self_scores': [self_score or 0 for skill, category, self_score, manager_score in skills],
-        'manager_scores': [manager_score or 0 for skill, category, self_score, manager_score in skills],
-        'final_scores': [manager_score or self_score or 0 for skill, category, self_score, manager_score in skills]
-    }
-    
-    return jsonify({
-        'success': True,
-        'user': {
-            'id': user.id,
-            'full_name': user.full_name,
-            'role': user.role
-        },
-        'chart_data': chart_data
-    })
     
 @bp.route('/api/dashboard/stats')
 @login_required

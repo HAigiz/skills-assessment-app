@@ -344,6 +344,72 @@
         </button>
     </div>
 
+    <div id="addUserModal" class="modal-adduser">
+        <div class="modal-adduser-content">
+            <div class="modal-adduser-header">
+                <h2 id="modaladduserTitle">Добавить пользователя</h2>
+                <button class="modal-adduser-close" id="closeadduserModal">&times;</button>
+            </div>
+            <div class="modal-adduser-body">
+                <div class="form-notice" id="formNotice">
+                </div>
+                
+                <form id="addUserForm">
+                    <div class="form-field">
+                        <label for="full_name">Полное имя *</label>
+                        <input type="text" id="full_name" name="full_name" required>
+                        <div class="error-message" id="full_name_error"></div>
+                    </div>
+                    
+                    <div class="form-field">
+                        <label for="login">Логин *</label>
+                        <input type="text" id="login" name="login" required>
+                        <div class="error-message" id="login_error"></div>
+                    </div>
+                    
+                    <div class="form-field">
+                        <label for="password">Пароль *</label>
+                        <input type="password" id="password" name="password" required>
+                        <div class="error-message" id="password_error"></div>
+                    </div>
+                    
+                    <div class="form-field">
+                        <label for="role">Роль *</label>
+                        <select id="role" name="role" required>
+                            <option value="">Выберите роль</option>
+                            <option value="employee">Сотрудник</option>
+                            <option value="manager">Руководитель</option>
+                            <option value="hr">HR</option>
+                        </select>
+                        <div class="error-message" id="role_error"></div>
+                    </div>
+                    
+                    <div class="form-field" id="departmentField">
+                        <label for="department_id">Отдел *</label>
+                        <select id="department_id" name="department_id" required>
+                            <option value="">Выберите отдел</option>
+                        </select>
+                        <div class="error-message" id="department_id_error"></div>
+                    </div>
+                    
+                    <div class="form-field" id="managerDepartmentInfo" style="display: none;">
+                        <label>Отдел</label>
+                        <input type="text" id="manager_department_display" class="disabled-field" disabled>
+                        <div class="department-info">
+                            <i class="fas fa-info-circle"></i>
+                            <span>Руководитель может добавлять сотрудников только в свой отдел</span>
+                        </div>
+                        <input type="hidden" id="manager_department_id" name="department_id">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-adduser-footer">
+                <button type="button" class="btn btn-secondary" id="cancelBtn">Отмена</button>
+                <button type="button" class="btn btn-primary" id="submitBtn">Добавить</button>
+            </div>
+        </div>
+    </div>
+
     <div class="team-stats">
         <div class="stat-card-team">
             <i class="fas fa-users"></i>
@@ -368,7 +434,7 @@
                     0
                 {% endif %}
             </h3>
-            <p>Средняя оценка</p>
+            <p>Средняя самооценка</p>
         </div>
     </div>
 
@@ -389,7 +455,7 @@
             <div class="member-stats">
                 <div class="stat-item">
                     <div class="stat-value">{{ member.assessments_count }}</div>
-                    <div class="stat-label">Навыков оценено</div>
+                    <div class="stat-label">Оцененных навыков</div>
                 </div>
                 <div class="stat-item">
                     <div class="stat-value">
@@ -404,12 +470,10 @@
             </div>
             
             <div class="member-actions">
-                <a href="{{ url_for('user.profile') }}?user_id={{ member.id }}" class="btn-view">
-                    <i class="fas fa-eye"></i> Профиль
+                <!-- Замените ссылку на новую -->
+                <a href="{{ url_for('user.view_employee_profile', user_id=member.id) }}" class="btn-view">
+                    <i class="fas fa-eye"></i> Посмотреть профиль сотрудника
                 </a>
-                <button class="btn-assess" onclick="openAssessmentModal({{ member.id }}, '{{ member.full_name }}')">
-                    <i class="fas fa-edit"></i> Оценить
-                </button>
             </div>
         </div>
         {% endfor %}

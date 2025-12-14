@@ -1,0 +1,537 @@
+{% extends "base.html" %}
+
+{% block title %}Профиль сотрудника: {{ user.full_name }} | SkillExam{% endblock %}
+
+{% block extra_css %}
+<style>
+.profile-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.profile-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 15px;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.user-avatar-large {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: white;
+    color: #667eea;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    font-weight: bold;
+    margin-right: 1.5rem;
+}
+
+.user-info h1 {
+    margin: 0;
+    font-size: 1.8rem;
+}
+
+.user-info .role-badge {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 0.3rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    display: inline-block;
+    margin-top: 0.5rem;
+}
+
+.back-button {
+    margin-bottom: 1.5rem;
+}
+
+.skills-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+@media (max-width: 992px) {
+    .skills-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+.skills-categories {
+    background: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.skills-chart {
+    background: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.category-card {
+    margin-bottom: 1.5rem;
+    border: 1px solid #eaeaea;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.category-header {
+    background: #f8f9fa;
+    padding: 1rem;
+    font-weight: bold;
+    border-bottom: 1px solid #eaeaea;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.category-header i {
+    color: #667eea;
+}
+
+.skills-list {
+    padding: 1rem;
+}
+
+.skill-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem 0;
+    border-bottom: 1px solid #f5f5f5;
+}
+
+.skill-item:last-child {
+    border-bottom: none;
+}
+
+.skill-info {
+    flex: 1;
+}
+
+.skill-name {
+    font-weight: 500;
+    margin-bottom: 0.2rem;
+}
+
+.skill-level {
+    font-size: 0.85rem;
+    color: #1976d2;
+    margin-bottom: 0.2rem;
+    font-style: italic;
+    min-height: 1.2rem;
+}
+
+.skill-description {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.skill-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.score-badge {
+    min-width: 40px;
+    text-align: center;
+    padding: 0.3rem 0.6rem;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+.score-self {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.score-manager {
+    background: #cac8ec;
+    color: #7255b1;
+}
+
+.score-buttons {
+    display: flex;
+    gap: 0.3rem;
+}
+
+.score-btn {
+    width: 30px;
+    height: 30px;
+    border: 1px solid #ddd;
+    background: white;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+
+.score-btn:hover {
+    background: #f5f5f5;
+}
+
+.score-btn.active {
+    background: #7255b1;
+    color: white;
+    border-color: #cac8ec;
+}
+
+.assessment-notice {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 5px;
+    padding: 0.5rem 1rem;
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    color: #856404;
+}
+
+.chart-container {
+    position: relative;
+    height: 400px;
+    width: 100%;
+}
+
+.chart-legend {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.legend-color {
+    width: 15px;
+    height: 15px;
+    border-radius: 3px;
+}
+
+.legend-self {
+    background-color: rgba(102, 126, 234, 0.7);
+}
+
+.legend-manager {
+    background-color: rgba(118, 75, 162, 0.7);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: #666;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: #ccc;
+}
+
+.loading {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+}
+
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #4caf50;
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: 5px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.toast.error {
+    background: #f44336;
+}
+
+.profile-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card-profile {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #667eea;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.alert-message {
+    --bg-color: #fffde7; /* Светло-желтый/кремовый фон */
+    --text-color: #fbc02d; /* Темно-желтый текст */
+    --border-color: #ffeb3b; /* Желтая полоса */
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    padding-left: 24px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-right: 20px;
+    margin-bottom: 32px;
+    border-radius: 10px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <div class="back-button">
+        <a href="{{ url_for('user.my_team') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Назад к команде
+        </a>
+    </div>
+
+    <!-- Заголовок профиля -->
+    <div class="profile-header">
+        <div style="display: flex; align-items: center;">
+            <div class="user-avatar-large">
+                {{ user.full_name.split()[0][0] if user.full_name else 'U' }}
+            </div>
+            <div class="user-info">
+                <h1>{{ user.full_name }}</h1>
+                <div class="role-badge">
+                    Сотрудник
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="text-end">
+                <div style="font-size: 0.9rem; opacity: 0.8;">Отдел:</div>
+                <div style="font-weight: bold;">{{ user.department.name if user.department else 'Не назначен' }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="profile-stats">
+        <div class="stat-card-profile">
+            <div class="stat-value">{{ total_assessed_skills }}</div>
+            <div class="stat-label">Оцененных навыков</div>
+        </div>
+        <div class="stat-card-profile">
+            <div class="stat-value">
+                {% if average_self_score != None %}
+                    {{ average_self_score|default('0.0') }}
+                {% else %}
+                    -
+                {% endif %}
+                </div>
+            <div class="stat-label">Средняя самооценка</div>
+        </div>
+        <div class="stat-card-profile">
+            <div class="stat-value">
+                {% if average_manager_score != None %}
+                    {{ average_manager_score|default('0.0') }}
+                {% else %}
+                    -
+                {% endif %}
+                </div>
+            <div class="stat-label">Средняя оценка руководителя</div>
+        </div>
+    </div>
+
+    {% if average_self_score == None %}
+    <div class="alert-message">
+        <i class="fa-solid fa-circle-info icon"></i>
+        <span style="padding-left: 10px;">Сотруднику необходимо оценить свои навыки! Без этого вы не сможете сохранить оценку руководителя.</span>
+    </div>
+    {% endif %}
+
+    <div class="skills-container">
+        <div class="skills-categories">
+            <h2 style="display: flex; align-items: center; margin-bottom: 24px;">
+                <i class="fas"></i> Оценка навыков сотрудника
+            </h2>
+            
+            {% if skills_by_category %}
+                {% for category, skills in skills_by_category.items() %}
+                <div class="category-card">
+                    <div class="category-header">
+                        <span>{{ category }}</span>
+                        <i class="fas fa-{{ 'code' if 'programming' in category.lower() else 'users' if 'soft' in category.lower() else 'cogs' }}"></i>
+                    </div>
+                    <div class="skills-list">
+                        {% for skill in skills %}
+                        <div class="skill-item" data-skill-id="{{ skill.id }}">
+                            <div class="skill-info">
+                                <div class="skill-name">{{ skill.name }}</div>
+                                <div class="skill-level">
+                                    {% if skill.manager_score %}
+                                        {% if skill.manager_score == 1 %}
+                                            Начальный уровень
+                                        {% elif skill.manager_score == 2 %}
+                                            Базовый уровень
+                                        {% elif skill.manager_score == 3 %}
+                                            Средний уровень
+                                        {% elif skill.manager_score == 4 %}
+                                            Продвинутый уровень
+                                        {% elif skill.manager_score == 5 %}
+                                            Эксперт
+                                        {% endif %}
+                                    {% elif skill.self_score %}
+                                        {% if skill.self_score == 1 %}
+                                            Начальный уровень (самооценка)
+                                        {% elif skill.self_score == 2 %}
+                                            Базовый уровень (самооценка)
+                                        {% elif skill.self_score == 3 %}
+                                            Средний уровень (самооценка)
+                                        {% elif skill.self_score == 4 %}
+                                            Продвинутый уровень (самооценка)
+                                        {% elif skill.self_score == 5 %}
+                                            Эксперт (самооценка)
+                                        {% endif %}
+                                    {% else %}
+                                        Не оценено
+                                    {% endif %}
+                                </div>
+                                {% if skill.description %}
+                                <div class="skill-description">{{ skill.description }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="skill-rating">
+                                {% if skill.self_score %}
+                                <div class="score-badge score-self" title="Самооценка сотрудника">
+                                    {{ skill.self_score }}
+                                </div>
+                                {% endif %}
+                                {% if skill.manager_score %}
+                                <div class="score-badge score-manager" title="Ваша оценка">
+                                    {{ skill.manager_score }}
+                                </div>
+                                {% endif %}
+                                <div class="score-buttons">
+                                    {% for i in range(1, 6) %}
+                                    <button class="score-btn {% if skill.manager_score == i %}active{% endif %}" 
+                                            data-score="{{ i }}"
+                                            title="Оценить как руководитель">
+                                        {{ i }}
+                                    </button>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-clipboard-list"></i>
+                    <h3>Нет навыков для оценки</h3>
+                    <p>Навыки еще не добавлены в систему</p>
+                </div>
+            {% endif %}
+
+            <div class="mt-4 text-muted" style="font-size: 0.9rem; margin-left: 10px;">
+                <i class="fas fa-info-circle"></i> Нажмите на цифру от 1 до 5, чтобы оценить навык сотрудника.
+            </div>
+        </div>
+
+        <div class="skills-chart">
+            <h2 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-chart-radar"></i> Сравнение оценок
+            </h2>
+            
+            <div id="chartLoading" class="loading">
+                <i class="fas fa-spinner fa-spin"></i> Загрузка графика...
+            </div>
+            
+            <div id="chartContainer" style="display: none;">
+                <div class="chart-container">
+                    <canvas id="skillsRadarChart"></canvas>
+                </div>
+                <div class="chart-legend">
+                    <div class="legend-item">
+                        <div class="legend-color legend-self"></div>
+                        <span>Самооценка сотрудника</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color legend-manager"></div>
+                        <span>Ваша оценка</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="noDataMessage" class="empty-state" style="display: none;">
+                <i class="fas fa-chart-line"></i>
+                <h3>Нет данных для графика</h3>
+                <p>Оцените несколько навыков, чтобы увидеть сравнение</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="successToast" class="toast" style="display: none;">
+    <i class="fas fa-check-circle"></i>
+    <span id="toastMessage">Оценка сохранена!</span>
+</div>
+
+<div id="errorToast" class="toast error" style="display: none;">
+    <i class="fas fa-exclamation-circle"></i>
+    <span id="errorToastMessage">Произошла ошибка</span>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const EMPLOYEE_ID = {{ user.id }};
+    const MANAGER_ASSESS_URL = "{{ url_for('user.assess_employee_skill') }}";
+    const MANAGER_CHART_URL = "{{ url_for('user.get_employee_skills_data', user_id=user.id) }}";
+</script>
+<script src="{{ url_for('static', filename='js/employee_profile.js') }}"></script>
+{% endblock %}

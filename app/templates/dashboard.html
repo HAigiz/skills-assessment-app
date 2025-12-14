@@ -39,9 +39,8 @@
                 <i class="fas fa-users"></i>
             </div>
             <div class="stat-info">
+                <p>Сотрудников в отделе под вашим руководством</p>
                 <h3>{{ stats.team_count or 0 }}</h3>
-                <p>Сотрудников в отделе</p>
-                <small>под вашим руководством</small>
             </div>
         </div>
         
@@ -50,9 +49,8 @@
                 <i class="fas fa-check-circle"></i>
             </div>
             <div class="stat-info">
+                <p>Ожидают проверки самооценок сотрудников</p>
                 <h3>{{ stats.pending_reviews or 0 }}</h3>
-                <p>Ожидают проверки</p>
-                <small>самооценок сотрудников</small>
             </div>
         </div>
         
@@ -106,17 +104,6 @@
             <a href="{{ url_for('user.my_team') }}" class="btn btn-primary">
                 <i class="fas fa-arrow-right me-2"></i>Просмотреть команду
             </a>
-        </div>
-        
-        <div class="action-card">
-            <h3><i class="fas fa-user-plus me-2"></i>Добавить сотрудника</h3>
-            <p>Добавьте нового сотрудника в ваш отдел</p>
-            <button class="open-add-user-modal btn btn-success"
-                    data-role="manager"
-                    data-department-id="{{ current_user.department_id }}"
-                    data-department-name="{{ current_user.department.name if current_user.department else 'Не назначен' }}">
-                <i class="fas fa-user-plus me-2"></i>Добавить сотрудника
-            </button>
         </div>
         
         {% elif current_user.role == 'hr' %}
