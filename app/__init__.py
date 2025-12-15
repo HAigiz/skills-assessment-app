@@ -42,7 +42,7 @@ def create_app():
     app.register_blueprint(user_bp, url_prefix='/user')
     app.register_blueprint(skill_bp, url_prefix='/skill')
     app.register_blueprint(hr_bp, url_prefix='/hr')
-    app.register_blueprint(main_bp)
+    app.register_blueprint(main_bp, url_prefix='/')
     
     # обработка ошибок
     @app.errorhandler(404)

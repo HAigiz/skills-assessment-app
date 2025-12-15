@@ -330,7 +330,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="team-container">
+<div class="team-container" style="margin-bottom: 32px;">
     <div class="team-header">
         <div>
             <h1>Моя команда</h1>
@@ -439,7 +439,7 @@
     </div>
 
     {% if team_members %}
-    <div class="team-members-grid">
+    <div class="team-members-grid" style="padding-bottom: 24px;">
         {% for member in team_members %}
         <div class="member-card" data-member-id="{{ member.id }}">
             <div class="member-header">

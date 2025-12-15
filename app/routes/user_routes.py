@@ -23,6 +23,12 @@ def dashboard():
         assessments = SkillAssessment.query.filter_by(user_id=current_user.id).all()
         stats['assessed_skills'] = len(assessments)
         stats['total_skills'] = Skill.query.count()
+
+        if assessments:
+            total_score = sum(a.self_score for a in assessments if a.self_score is not None)
+            stats['avg_score'] = round(total_score / len(assessments), 1)
+        else:
+            stats['avg_score'] = 0
         
     elif current_user.role == 'manager':
         #для руководства кол-во сотрудников

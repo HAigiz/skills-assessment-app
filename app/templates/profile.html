@@ -156,8 +156,8 @@
 }
 
 .score-manager {
-    background: #e8f5e9;
-    color: #388e3c;
+    background: #cac8ec;
+    color: #7255b1;
 }
 
 .score-buttons {
@@ -401,10 +401,12 @@
                         <div class="legend-color legend-self"></div>
                         <span>Самооценка</span>
                     </div>
-                    <div class="legend-item">
-                        <div class="legend-color legend-manager"></div>
-                        <span>Оценка руководителя</span>
-                    </div>
+                    {% if current_user.role != 'manager' %}
+                        <div class="legend-item">
+                            <div class="legend-color legend-manager"></div>
+                            <span>Оценка руководителя</span>
+                        </div>
+                    {% endif %}
                 </div>
             </div>
             
