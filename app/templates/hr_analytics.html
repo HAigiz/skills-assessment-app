@@ -3,215 +3,219 @@
 {% block title %}HR Аналитика | SkillExam{% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4">
-    <!-- Заголовок -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h1 class="h2 mb-0"><i class="fas fa-chart-bar me-2"></i>HR Аналитика</h1>
-                    <p class="text-muted mb-0">Статистика по навыкам сотрудников компании</p>
-                </div>
-                <div>
-                    <button class="btn btn-outline-primary" onclick="location.reload()">
-                        <i class="fas fa-sync-alt me-1"></i> Обновить
-                    </button>
+<main>
+    <div class="hr-analytics-container">
+        <div class="container-fluid py-4">
+            <!-- Заголовок -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h1 class="h2 mb-0"><i class="fas fa-chart-bar me-2"></i>HR Аналитика</h1>
+                            <p class="text-muted mb-0">Статистика по навыкам сотрудников компании</p>
+                        </div>
+                        <div>
+                            <button class="btn btn-outline-primary" onclick="location.reload()">
+                                <i class="fas fa-sync-alt me-1"></i> Обновить
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Статистика в карточках -->
-    <div class="row mb-4">
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-primary shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Всего сотрудников
+            <!-- Статистика в карточках -->
+            <div class="row mb-4">
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-primary shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                        Всего сотрудников
+                                    </div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.total_users|default(0) }}</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-users fa-2x text-gray-300"></i>
+                                </div>
                             </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.total_users|default(0) }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-users fa-2x text-gray-300"></i>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-success shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                Средняя оценка
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-success shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                        Средняя оценка
+                                    </div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ "%.1f"|format(stats.avg_score|default(0)) }}</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-star fa-2x text-gray-300"></i>
+                                </div>
                             </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ "%.1f"|format(stats.avg_score|default(0)) }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-star fa-2x text-gray-300"></i>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-info shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                Всего навыков
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-info shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                        Всего навыков
+                                    </div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.total_skills|default(0) }}</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-code fa-2x text-gray-300"></i>
+                                </div>
                             </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.total_skills|default(0) }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-code fa-2x text-gray-300"></i>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-warning shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                Оцененных навыков
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-warning shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                        Оцененных навыков
+                                    </div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.assessed_skills|default(0) }}</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                                </div>
                             </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.assessed_skills|default(0) }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Графики -->
-    <div class="row">
-        <div class="col-xl-6 col-lg-6">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-chart-pie me-2"></i>Распределение по ролям
-                    </h6>
+            <!-- Графики -->
+            <div class="row">
+                <div class="col-xl-6 col-lg-6">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                            <h6 class="m-0 font-weight-bold text-primary">
+                                <i class="fas fa-chart-pie me-2"></i>Распределение по ролям
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container">
+                                <canvas id="rolesChart" height="250"></canvas>
+                            </div>
+                            {% if not roles_stats or roles_stats|length == 0 %}
+                            <div class="text-center py-4">
+                                <i class="fas fa-chart-pie fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">Нет данных о распределении по ролям</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <div class="chart-container">
-                        <canvas id="rolesChart" height="250"></canvas>
+
+                <div class="col-xl-6 col-lg-6">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                            <h6 class="m-0 font-weight-bold text-primary">
+                                <i class="fas fa-chart-bar me-2"></i>Оценки по отделам
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container">
+                                <canvas id="departmentsChart" height="250"></canvas>
+                            </div>
+                            {% if not departments_stats or departments_stats|length == 0 %}
+                            <div class="text-center py-4">
+                                <i class="fas fa-chart-bar fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">Нет данных об оценках по отделам</p>
+                            </div>
+                            {% endif %}
+                        </div>
                     </div>
-                    {% if not roles_stats or roles_stats|length == 0 %}
-                    <div class="text-center py-4">
-                        <i class="fas fa-chart-pie fa-3x text-muted mb-3"></i>
-                        <p class="text-muted">Нет данных о распределении по ролям</p>
-                    </div>
-                    {% endif %}
                 </div>
             </div>
-        </div>
 
-        <div class="col-xl-6 col-lg-6">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-chart-bar me-2"></i>Оценки по отделам
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <div class="chart-container">
-                        <canvas id="departmentsChart" height="250"></canvas>
-                    </div>
-                    {% if not departments_stats or departments_stats|length == 0 %}
-                    <div class="text-center py-4">
-                        <i class="fas fa-chart-bar fa-3x text-muted mb-3"></i>
-                        <p class="text-muted">Нет данных об оценках по отделам</p>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Таблица с данными -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-table me-2"></i>Детальная статистика по отделам
-                    </h6>
-                </div>
-                <div class="card-body">
-                    {% if departments_stats and departments_stats|length > 0 %}
-                    <div class="table-responsive">
-                        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                            <thead>
-                                <tr>
-                                    <th>Отдел</th>
-                                    <th>Кол-во сотрудников</th>
-                                    <th>Средняя оценка</th>
-                                    <th>Прогресс</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for dept in departments_stats %}
-                                <tr>
-                                    <td><strong>{{ dept.department|default('Без отдела') }}</strong></td>
-                                    <td>{{ dept.count|default(0) }}</td>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="progress flex-grow-1 me-2" style="height: 8px;">
-                                                <div class="progress-bar 
-                                                    {% if dept.avg_score|default(0) >= 4 %}bg-success
-                                                    {% elif dept.avg_score|default(0) >= 3 %}bg-info
-                                                    {% elif dept.avg_score|default(0) >= 2 %}bg-warning
-                                                    {% else %}bg-danger{% endif %}" 
-                                                    style="width: {{ (dept.avg_score|default(0) / 5 * 100) }}%">
+            <!-- Таблица с данными -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">
+                                <i class="fas fa-table me-2"></i>Детальная статистика по отделам
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            {% if departments_stats and departments_stats|length > 0 %}
+                            <div class="table-responsive">
+                                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th>Отдел</th>
+                                            <th>Кол-во сотрудников</th>
+                                            <th>Средняя оценка</th>
+                                            <th>Прогресс</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for dept in departments_stats %}
+                                        <tr>
+                                            <td><strong>{{ dept.department|default('Без отдела') }}</strong></td>
+                                            <td>{{ dept.count|default(0) }}</td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="progress flex-grow-1 me-2" style="height: 8px;">
+                                                        <div class="progress-bar 
+                                                            {% if dept.avg_score|default(0) >= 4 %}bg-success
+                                                            {% elif dept.avg_score|default(0) >= 3 %}bg-info
+                                                            {% elif dept.avg_score|default(0) >= 2 %}bg-warning
+                                                            {% else %}bg-danger{% endif %}" 
+                                                            style="width: {{ (dept.avg_score|default(0) / 5 * 100) }}%">
+                                                        </div>
+                                                    </div>
+                                                    <span class="font-weight-bold">{{ "%.1f"|format(dept.avg_score|default(0)) }}</span>
                                                 </div>
-                                            </div>
-                                            <span class="font-weight-bold">{{ "%.1f"|format(dept.avg_score|default(0)) }}</span>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        {% set progress = (dept.avg_score|default(0) / 5 * 100) %}
-                                        {% if progress >= 80 %}
-                                            <span class="badge bg-success">Отлично</span>
-                                        {% elif progress >= 60 %}
-                                            <span class="badge bg-info">Хорошо</span>
-                                        {% elif progress >= 40 %}
-                                            <span class="badge bg-warning">Удовлетворительно</span>
-                                        {% else %}
-                                            <span class="badge bg-danger">Требует внимания</span>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                                            </td>
+                                            <td>
+                                                {% set progress = (dept.avg_score|default(0) / 5 * 100) %}
+                                                {% if progress >= 80 %}
+                                                    <span class="badge bg-success">Отлично</span>
+                                                {% elif progress >= 60 %}
+                                                    <span class="badge bg-info">Хорошо</span>
+                                                {% elif progress >= 40 %}
+                                                    <span class="badge bg-warning">Удовлетворительно</span>
+                                                {% else %}
+                                                    <span class="badge bg-danger">Требует внимания</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% else %}
+                            <div class="text-center py-5">
+                                <i class="fas fa-database fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">Нет данных для отображения</p>
+                                <a href="{{ url_for('main.register') }}" class="btn btn-primary mt-2">
+                                    <i class="fas fa-user-plus me-2"></i>Добавить сотрудников
+                                </a>
+                            </div>
+                            {% endif %}
+                        </div>
                     </div>
-                    {% else %}
-                    <div class="text-center py-5">
-                        <i class="fas fa-database fa-3x text-muted mb-3"></i>
-                        <p class="text-muted">Нет данных для отображения</p>
-                        <a href="{{ url_for('main.register') }}" class="btn btn-primary mt-2">
-                            <i class="fas fa-user-plus me-2"></i>Добавить сотрудников
-                        </a>
-                    </div>
-                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
-</div>
+</main>
 {% endblock %}
 
 {% block extra_css %}
