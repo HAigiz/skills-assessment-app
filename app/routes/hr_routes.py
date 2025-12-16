@@ -230,3 +230,9 @@ def export_hr_data():
             'success': False,
             'message': f'Ошибка при экспорте: {str(e)}'
         }), 500
+    
+
+@bp.route("/user_management")
+@login_required
+def user_managment():
+    return render_template('user_managment.html')

@@ -108,7 +108,7 @@
         
         {% elif current_user.role == 'hr' %}
         <div class="action-card">
-            <h3><i class="fas fa-chart-bar me-2"></i>HR Аналитика</h3>
+            <h3><i class="fas"></i>HR Аналитика</h3>
             <p>Статистика и аналитика по навыкам сотрудников</p>
             <a href="{{ url_for('hr.hr_analytics') }}" class="btn btn-primary">
                 <i class="fas fa-arrow-right me-2"></i>Перейти к аналитике
@@ -116,7 +116,7 @@
         </div>
         
         <div class="action-card">
-            <h3><i class="fas fa-cogs me-2"></i>Управление навыками</h3>
+            <h3><i class="fas"></i>Управление навыками</h3>
             <p>Редактирование справочника навыков и категорий</p>
             <a href="{{ url_for('skill.skill_management') }}" class="btn btn-primary">
                 <i class="fas fa-arrow-right me-2"></i>Управление навыками
@@ -124,44 +124,14 @@
         </div>
         
         <div class="action-card">
-            <h3><i class="fas fa-user-plus me-2"></i>Добавить пользователя</h3>
-            <p>Добавление новых пользователей в систему</p>
-            <button class="open-add-user-modal btn btn-success"
-                    data-role="hr">
-                <i class="fas fa-user-plus me-2"></i>Добавить пользователя
-            </button>
+            <h3><i class="fas"></i>Управление пользователями</h3>
+            <p>Добавление, сравнение, поиск по навыкам и т.д.</p>
+            <a href="{{ url_for('hr.user_managment') }}" class="btn btn-primary">
+                <i class="fas fa-arrow-right me-2"></i>Управление пользователями
+            </a>
         </div>
         {% endif %}
     </div>
-
-    {% if current_user.role in ['hr', 'admin'] %}
-    <div class="recent-activity">
-        <h3><i class="fas fa-history me-2"></i>Последняя активность</h3>
-        <div class="activity-list">
-            <div class="activity-item">
-                <i class="fas fa-user-plus text-success"></i>
-                <div>
-                    <strong>Новый пользователь добавлен</strong>
-                    <small>5 минут назад</small>
-                </div>
-            </div>
-            <div class="activity-item">
-                <i class="fas fa-star text-warning"></i>
-                <div>
-                    <strong>Оценка навыков обновлена</strong>
-                    <small>2 часа назад</small>
-                </div>
-            </div>
-            <div class="activity-item">
-                <i class="fas fa-file-export text-info"></i>
-                <div>
-                    <strong>Экспорт данных в CSV</strong>
-                    <small>Вчера, 14:30</small>
-                </div>
-            </div>
-        </div>
-    </div>
-    {% endif %}
 </div>
 
 <div id="addUserModal" class="modal-adduser">
