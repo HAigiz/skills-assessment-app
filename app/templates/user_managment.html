@@ -2,6 +2,165 @@
 
 {% block title %}Управление пользователями | SkillExam{% endblock %}
 
-<main>
-    
-</main>
+{% block extra_css %}
+<style>
+    .add-section {
+        background: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="managment-header">
+        <h1>Управление пользователями</h1>
+        <p class="text-muted">Вы можете добавлять, изменять и удалять пользователей. Искать сотрудников по навыкам. Сравнивать двух сотрудников и просмотривать их прошлые оценки</p>
+    </div>
+
+    <div class="add-section">
+        <h3><i class="fas fa-user-plus me-2"></i>Изменить или добавить пользователя</h3>
+        
+        <div class="form-row">
+            <div class="form-group" style="flex: 1;">
+                <label for="userSearch">Поиск по полному имени или логину</label>
+                <input type="text" id="userSearch" placeholder="Например: Иванов Иван или ivanov" 
+                    oninput="searchUsers(this.value)">
+                <div id="userSearchResults" class="search-results" style="display: none;"></div>
+            </div>
+        </div>
+        <button class="btn btn-primary" onclick="showAddUserModal()" style="width: 260px; height: 50px; padding-bottom: 10px; padding-top: 10px;">
+            <i class="fas fa-user-plus me-2"></i>Добавить пользователя
+        </button>
+    </div>
+
+    <!-- Модальное окно добавления пользователя -->
+    <div id="addUserModal" class="modal-adduser">
+        <div class="modal-adduser-content">
+            <div class="modal-adduser-header">
+                <h2 id="modaladduserTitle">Добавить пользователя</h2>
+                <button class="modal-adduser-close" id="closeadduserModal">&times;</button>
+            </div>
+            <div class="modal-adduser-body">
+                <div class="form-notice" id="formNotice"></div>
+                
+                <form id="addUserForm">
+                    <input type="hidden" id="user_id" name="user_id" value="">
+                    
+                    <div class="form-field">
+                        <label for="full_name">Полное имя *</label>
+                        <input type="text" id="full_name" name="full_name" required>
+                        <div class="error-message" id="full_name_error"></div>
+                    </div>
+                    
+                    <div class="form-field">
+                        <label for="login">Логин *</label>
+                        <input type="text" id="login" name="login" required>
+                        <div class="error-message" id="login_error"></div>
+                    </div>
+                    
+                    <div class="form-field">
+                        <label for="password">Пароль *</label>
+                        <input type="password" id="password" name="password">
+                        <small class="text-muted">Оставьте пустым, если не хотите менять пароль</small>
+                        <div class="error-message" id="password_error"></div>
+                    </div>
+                    
+                    <div class="form-field">
+                        <label for="role">Роль *</label>
+                        <select id="role" name="role" required>
+                            <option value="">Выберите роль</option>
+                            <option value="employee">Сотрудник</option>
+                            <option value="manager">Руководитель</option>
+                            <option value="hr">HR</option>
+                            <option value="admin">Администратор</option>
+                        </select>
+                        <div class="error-message" id="role_error"></div>
+                    </div>
+                    
+                    <div class="form-field" id="departmentField">
+                        <label for="department_id">Отдел</label>
+                        <select id="department_id" name="department_id">
+                            <option value="">Выберите отдел</option>
+                        </select>
+                        <div class="error-message" id="department_id_error"></div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-adduser-footer">
+                <button type="button" class="btn btn-secondary" id="cancelBtn">Отмена</button>
+                <button type="button" class="btn btn-primary" id="submitBtn">Сохранить</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно подтверждения удаления -->
+    <div id="deleteUserModal" class="modal-adduser">
+        <div class="modal-adduser-content">
+            <div class="modal-adduser-header">
+                <h2>Удаление пользователя</h2>
+                <button class="modal-adduser-close" onclick="closeDeleteUserModal()">&times;</button>
+            </div>
+            <div class="modal-adduser-body">
+                <p id="deleteUserMessage">Вы уверены, что хотите удалить пользователя?</p>
+                <p class="text-danger"><strong>Внимание:</strong> Все оценки и данные пользователя будут удалены без возможности восстановления.</p>
+            </div>
+            <div class="modal-adduser-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeDeleteUserModal()">Отмена</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteUserBtn">Удалить</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="add-section">
+        <h3><i class="fas fa-search me-2"></i>Поиск сотрудников по навыку</h3>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="skillSearch">Навык</label>
+                <input type="text" id="skillSearch" placeholder="Например: Python, JavaScript, Communication..." 
+                       list="skillSuggestions">
+                <datalist id="skillSuggestions">
+                    {% for category, skills in categories.items() %}
+                        {% for skill in skills %}
+                        <option value="{{ skill.name }}">{{ skill.category }}: {{ skill.name }}</option>
+                        {% endfor %}
+                    {% endfor %}
+                </datalist>
+            </div>
+            <div class="form-group">
+                <label for="minScore">Минимальный уровень</label>
+                <select id="minScore">
+                    <option value="1">1 - Начальный</option>
+                    <option value="2">2 - Базовый</option>
+                    <option value="3" selected>3 - Средний</option>
+                    <option value="4">4 - Продвинутый</option>
+                    <option value="5">5 - Эксперт</option>
+                </select>
+            </div>
+        </div>
+        <button class="btn btn-primary" onclick="searchBySkill()">
+            <i class="fas fa-search me-2"></i>Найти сотрудников
+        </button>
+        
+         <!-- Блок результатов поиска -->
+    <div id="skillSearchResults" class="search-results-container" style="display: none; margin-top: 1.5rem;">
+        <div class="search-results-header">
+            <div class="search-info">
+                <h4 id="searchSkillName"></h4>
+                <p id="searchSkillInfo" class="text-muted"></p>
+            </div>
+        </div>
+        
+        <div id="skillResultsContent">
+            <!-- Здесь будут появляться карточки сотрудников -->
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/user_managment.js') }}"></script>
+{% endblock %}

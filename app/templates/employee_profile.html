@@ -346,7 +346,11 @@
             <div class="user-info">
                 <h1>{{ user.full_name }}</h1>
                 <div class="role-badge">
-                    Сотрудник
+                    {% if user.role == 'admin' %}Администратор
+                    {% elif user.role == 'hr' %}HR
+                    {% elif user.role == 'manager' %}Руководитель
+                    {% elif user.role == 'employee' %}Сотрудник
+                    {% endif %}
                 </div>
             </div>
         </div>

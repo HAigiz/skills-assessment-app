@@ -135,61 +135,6 @@
     color: #999;
 }
 
-.add-section {
-    background: white;
-    border-radius: 10px;
-    padding: 1.5rem;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    margin-bottom: 2rem;
-}
-
-.form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-    margin-bottom: 1rem;
-}
-
-@media (max-width: 768px) {
-    .form-row {
-        grid-template-columns: 1fr;
-    }
-}
-
-.form-group {
-    margin-bottom: 1rem;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 500;
-    color: #333;
-}
-
-.form-group input,
-.form-group textarea,
-.form-group select {
-    width: 100%;
-    padding: 0.8rem;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 1rem;
-}
-
-.form-group textarea {
-    min-height: 100px;
-    resize: vertical;
-}
-
-.form-group input:focus,
-.form-group textarea:focus,
-.form-group select:focus {
-    outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
-}
-
 .empty-state {
     text-align: center;
     padding: 3rem;
@@ -289,41 +234,6 @@
         <button class="btn btn-primary" onclick="showAddSkillModal()">
             <i class="fas fa-plus me-2"></i>Добавить навык
         </button>
-    </div>
-
-    <div class="add-section">
-        <h3><i class="fas fa-search me-2"></i>Поиск сотрудников по навыку</h3>
-        <div class="form-row">
-            <div class="form-group">
-                <label for="skillSearch">Навык</label>
-                <input type="text" id="skillSearch" placeholder="Например: Python, JavaScript, Communication..." 
-                       list="skillSuggestions">
-                <datalist id="skillSuggestions">
-                    {% for category, skills in categories.items() %}
-                        {% for skill in skills %}
-                        <option value="{{ skill.name }}">{{ skill.category }}: {{ skill.name }}</option>
-                        {% endfor %}
-                    {% endfor %}
-                </datalist>
-            </div>
-            <div class="form-group">
-                <label for="minScore">Минимальный уровень</label>
-                <select id="minScore">
-                    <option value="1">1 - Начальный</option>
-                    <option value="2">2 - Базовый</option>
-                    <option value="3" selected>3 - Средний</option>
-                    <option value="4">4 - Продвинутый</option>
-                    <option value="5">5 - Эксперт</option>
-                </select>
-            </div>
-        </div>
-        <button class="btn btn-primary" onclick="searchBySkill()">
-            <i class="fas fa-search me-2"></i>Найти сотрудников
-        </button>
-        
-        <div id="searchResults" style="margin-top: 1.5rem; display: none;">
-            <div id="resultsContainer"></div>
-        </div>
     </div>
 
     {% if categories %}

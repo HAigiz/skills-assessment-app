@@ -80,37 +80,6 @@
         {% block content %}{% endblock %}
     </main>
 
-    <div id="registrationModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <div class="modal-nav">
-                <div class="modal-nav-item" data-target="login-form">Вход в систему</div>
-            </div>
-            <div id="login-form" class="form-section">
-                {% if form %}
-                <form id="log-form" action="{{ url_for('auth.login') }}" method="post">
-                    {{ form.hidden_tag() }}
-                    
-                    <label for="login-username">{{ form.login.label }}</label>
-                    {{ form.login(class="form-control", id="login-username", required=True) }}
-
-                    <label for="login-password">{{ form.password.label }}</label>
-                    {{ form.password(class="form-control", id="login-password", required=True) }}
-
-                    <div id="login-error-message" class="error-message-box" style="display: none;">
-                        <i class="fas fa-exclamation-circle"></i>
-                        <span><strong>Вы ввели неверные данные для входа. Повторите попытку.</strong></span>
-                    </div>
-                    
-                    <button type="submit">Войти</button>
-                </form>
-                {% else %}
-                <p>Форма входа недоступна. Пожалуйста, перейдите на <a href="/">главную страницу</a>.</p>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-
     <div id="logoutConfirmationModal" class="modal-adduser"> 
         <div class="modal-adduser-content">
             <div class="modal-adduser-header">
