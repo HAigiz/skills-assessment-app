@@ -28,6 +28,27 @@ body {
     line-height: 1.5;
 }
 
+.crown-gif {
+    position: absolute;
+    transform: translateX(-50%) rotate(21deg);
+    width: 80px;
+    height: 80px;
+    filter: drop-shadow(0 5px 10px rgba(255, 215, 0, 0.5));
+    z-index: 10;
+    top: -40px;
+    left: 60%;
+}
+
+.horns-png {
+    position: absolute;
+    filter: 
+        drop-shadow(0 0 20px rgb(255, 0, 0))
+        drop-shadow(0 0 30px rgba(255, 0, 0))
+        drop-shadow(0 0 40px rgba(255, 0, 0));
+    z-index: 10;
+    left: 32%;
+}
+
 .header-nav {
     background-color: var(--card-bg);
     box-shadow: var(--shadow);

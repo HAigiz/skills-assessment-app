@@ -6,7 +6,6 @@
     <title>Контакты | SkillExam</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700href="fonts.googleapis.com"display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
@@ -16,11 +15,7 @@
              <a href="{{ url_for('main.features') }}">Особенности</a>
              <a href="{{ url_for('main.commands') }}">Для команд</a>
             {% if current_user.is_authenticated %}
-                {% if current_user.role in ['employee', 'manager'] %}
                     <a href="{{ url_for('user.dashboard') }}" class="signup-btn">Мой Дашборд</a>
-                {% elif current_user.role in ['hr', 'admin'] %}
-                    <a href="{{ url_for('hr.hr_analytics') }}" class="signup-btn">Мой Дашборд</a>
-                {% endif %}
             {% else %}
                 <a href="#" class="signup-btn open-modal-btn" data-mode="login">Вход</a>
             {% endif %}
@@ -86,7 +81,7 @@
                                     <i class="bi bi-envelope fs-5"></i>
                                     <div>
                                         <strong>Email:</strong><br>
-                                        <a href="mailto:skillexamru@gmail.com" class="text-decoration-none">sma1kyyy001@gmail.com</a>
+                                        <a href="mailto:sma1kyyy001@gmail.com" class="text-decoration-none">sma1kyyy001@gmail.com</a>
                                     </div>
                                 </li>
                             </ul>
@@ -187,6 +182,36 @@
         </div>
     </main>
 
+    <div id="registrationModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+
+            <div class="modal-nav">
+                <div class="modal-nav-item" data-target="login-form">Вход в систему</div>
+            </div>
+
+            <div id="login-form" class="form-section">
+                <form id="log-form" action="{{ url_for('auth.login') }}" method="post">
+                    {{ form.hidden_tag() }} 
+                    
+                    <label for="login-username">{{ form.login.label }}</label>
+                    {{ form.login(class="form-control", id="login-username", required=True) }}
+
+                    <label for="login-password">{{ form.password.label }}</label>
+                    {{ form.password(class="form-control", id="login-password", required=True) }}
+
+                    <div id="login-error-message" class="error-message-box">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span><strong>Вы ввели неверные данные для входа. Повторите попытку.</strong></span>
+                    </div>
+                    
+                    <button type="submit">Войти</button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+
     <footer class="site-footer">
         <div class="footer-container">
             <div class="footer-col footer-col-info">
@@ -201,7 +226,7 @@
 
         <div class="footer-col">
             <h4 class="footer-heading">Продукт</h4>
-                <ul class="footer-links">
+                <ul class="footer-links" style="padding-left: 0px;">
                     <li><a href="{{ url_for('main.features') }}">Особенности</a></li>
                     <li><a href="{{ url_for('main.commands') }}">Для команд</a></li>
                 </ul>
@@ -209,7 +234,7 @@
 
         <div class="footer-col">
             <h4 class="footer-heading">Компания</h4>
-                <ul class="footer-links">
+                <ul class="footer-links" style="padding-left: 0px;">
                     <li><a href="{{ url_for('main.contacts') }}">Контакты</a></li>
                     <li><a href="{{ url_for('main.about') }}">О компании</a></li>
                 </ul>
@@ -217,7 +242,7 @@
 
         <div class="footer-col">
             <h4 class="footer-heading">Документы</h4>
-                <ul class="footer-links">
+                <ul class="footer-links" style="padding-left: 0px;">
                     <li><a href="{{ url_for('main.confidential') }}">Политика конфиденциальности</a></li>
                     <li><a href="{{ url_for('main.terms') }}">Условия использования</a></li>
                 </ul>
