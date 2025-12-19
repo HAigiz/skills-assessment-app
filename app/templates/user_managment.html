@@ -11,6 +11,391 @@
         box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         margin-bottom: 2rem;
     }
+
+    .dashboard-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+    
+    .managment-header {
+        margin-bottom: 2rem;
+    }
+    
+    .managment-header h1 {
+        color: #333;
+        margin-bottom: 0.5rem;
+    }
+    
+    .text-muted {
+        color: #666;
+    }
+    
+    .comparison-section {
+        background: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+    
+    .form-row {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .form-group {
+        flex: 1;
+        min-width: 250px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: #333;
+    }
+    
+    .form-group select,
+    .form-group input {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 1rem;
+    }
+    
+    .form-group select:focus,
+    .form-group input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 5px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-decoration: none;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        opacity: 0.9;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+    
+    .btn-primary:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+    
+    .comparison-results {
+        display: none;
+        margin-top: 2rem;
+    }
+    
+    .employees-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #f0f0f0;
+    }
+    
+    .employee-card {
+        flex: 1;
+        text-align: center;
+        padding: 1.5rem;
+        background: #f8f9fa;
+        border-radius: 10px;
+    }
+    
+    .employee-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        font-weight: bold;
+        margin: 0 auto 1rem;
+    }
+    
+    .employee-name {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #333;
+    }
+    
+    .employee-info {
+        color: #666;
+        font-size: 0.9rem;
+    }
+    
+    .skills-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+    }
+    
+    .skills-table th,
+    .skills-table td {
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .skills-table th {
+        background: #f8f9fa;
+        font-weight: 600;
+        color: #333;
+    }
+    
+    .skills-table tr:hover {
+        background: #f9f9f9;
+    }
+    
+    .skill-name {
+        font-weight: 500;
+        color: #333;
+    }
+    
+    .skill-category {
+        font-size: 0.85rem;
+        color: #666;
+        margin-top: 0.25rem;
+    }
+    
+    .score-cell {
+        text-align: center;
+        font-weight: 600;
+        min-width: 100px;
+    }
+    
+    .score-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+    
+    .score-1 { background: #ffebee; color: #d32f2f; }
+    .score-2 { background: #fff3e0; color: #f57c00; }
+    .score-3 { background: #fff8e1; color: #ffa000; }
+    .score-4 { background: #e8f5e9; color: #388e3c; }
+    .score-5 { background: #e3f2fd; color: #1976d2; }
+    
+    .difference-cell {
+        text-align: center;
+        min-width: 100px;
+    }
+    
+    .difference-positive {
+        color: #388e3c;
+        font-weight: 600;
+    }
+    
+    .difference-negative {
+        color: #d32f2f;
+        font-weight: 600;
+    }
+    
+    .difference-zero {
+        color: #666;
+    }
+    
+    .no-data {
+        color: #999;
+        font-style: italic;
+    }
+    
+    .chart-container {
+        background: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-top: 2rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .loading {
+        text-align: center;
+        padding: 3rem;
+        color: #666;
+    }
+    
+    .loading i {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: #666;
+    }
+    
+    .empty-state i {
+        font-size: 3rem;
+        color: #ccc;
+        margin-bottom: 1rem;
+    }
+    
+    .notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 1rem 1.5rem;
+        border-radius: 5px;
+        background: #4caf50;
+        color: white;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        animation: slideIn 0.3s ease;
+    }
+    
+    .notification.error {
+        background: #f44336;
+    }
+    
+    .notification.warning {
+        background: #ff9800;
+    }
+    
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    .search-results {
+        position: absolute;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        max-height: 300px;
+        overflow-y: auto;
+        z-index: 1000;
+        width: 100%;
+        margin-top: 0.5rem;
+    }
+    
+    .search-result-item {
+        padding: 0.75rem 1rem;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .search-result-item:hover {
+        background: #f5f5f5;
+    }
+    
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex: 1;
+    }
+        
+    .user-details {
+        flex: 1;
+    }
+    
+    .user-name {
+        font-weight: 500;
+        color: #333;
+    }
+    
+    .user-meta {
+        font-size: 0.85rem;
+        color: #666;
+    }
+    
+    .user-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .btn-action {
+        background: none;
+        border: 1px solid #ddd;
+        border-radius: 3px;
+        padding: 0.25rem 0.5rem;
+        cursor: pointer;
+        color: #666;
+        transition: all 0.2s;
+    }
+    
+    .btn-action:hover {
+        background: #f5f5f5;
+        color: #333;
+    }
+    
+    .btn-action.edit-btn:hover {
+        color: #1976d2;
+        border-color: #1976d2;
+    }
+    
+    .btn-action.delete-btn:hover {
+        color: #d32f2f;
+        border-color: #d32f2f;
+    }
+    
+    @media (max-width: 768px) {
+        .dashboard-container {
+            padding: 1rem;
+        }
+        
+        .form-row {
+            flex-direction: column;
+        }
+        
+        .employees-header {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .employee-card {
+            width: 100%;
+        }
+        
+        .skills-table {
+            display: block;
+            overflow-x: auto;
+        }
+    }
 </style>
 {% endblock %}
 
@@ -18,7 +403,7 @@
 <div class="dashboard-container">
     <div class="managment-header">
         <h1>Управление пользователями</h1>
-        <p class="text-muted">Вы можете добавлять, изменять и удалять пользователей. Искать сотрудников по навыкам. Сравнивать двух сотрудников и просмотривать их прошлые оценки</p>
+        <p class="text-muted">Вы можете добавлять, изменять и удалять пользователей. Искать сотрудников по навыкам. Сравнивать двух сотрудников и просматривать их прошлые оценки</p>
     </div>
 
     <div class="add-section">
@@ -29,7 +414,7 @@
                 <label for="userSearch">Поиск по полному имени или логину</label>
                 <input type="text" id="userSearch" placeholder="Например: Иванов Иван или ivanov" 
                     oninput="searchUsers(this.value)">
-                <div id="userSearchResults" class="search-results" style="display: none;"></div>
+                <div id="userSearchResults" class="search-results" style="display: none; margin-top: 20px;margin-left: 20px;"></div>
             </div>
         </div>
         <button class="btn btn-primary" onclick="showAddUserModal()" style="width: 260px; height: 50px; padding-bottom: 10px; padding-top: 10px;">
@@ -125,8 +510,34 @@
                 <datalist id="skillSuggestions">
                     {% for category, skills in categories.items() %}
                         {% for skill in skills %}
-                        <option value="{{ skill.name }}">{{ skill.category }}: {{ skill.name }}</option>
-                        {% endfor %}
+                            <div class="skill-card" data-skill-id="{{ skill.id }}">
+                                <div class="skill-header">
+                                    <div class="skill-name">{{ skill.name }}</div>
+                                    <div class="skill-actions">
+                                        <button class="action-btn edit" onclick="editSkill({{ skill.id }})" title="Редактировать">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="action-btn delete" onclick="confirmDeleteSkill({{ skill.id }}, '{{ skill.name }}', {{ skill.assessments|length if skill.assessments else 0 }})" title="Удалить">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                {% if skill.description %}
+                                <div class="skill-description">{{ skill.description }}</div>
+                                {% endif %}
+                                
+                                <div class="skill-stats">
+                                    <span>ID: {{ skill.id }}</span>
+                                    <span>
+                                        {% set assessment_count = skill.assessments|length if skill.assessments else 0 %}
+                                        <span class="assessment-count {% if assessment_count > 0 %}has-assessments{% endif %}">
+                                            {{ assessment_count }} оценок
+                                        </span>
+                                    </span>
+                                </div>
+                            </div>
+                            {% endfor %}
                     {% endfor %}
                 </datalist>
             </div>
@@ -145,22 +556,658 @@
             <i class="fas fa-search me-2"></i>Найти сотрудников
         </button>
         
-         <!-- Блок результатов поиска -->
-    <div id="skillSearchResults" class="search-results-container" style="display: none; margin-top: 1.5rem;">
-        <div class="search-results-header">
-            <div class="search-info">
-                <h4 id="searchSkillName"></h4>
-                <p id="searchSkillInfo" class="text-muted"></p>
+        <!-- Блок результатов поиска -->
+        <div id="skillSearchResults" class="search-results-container" style="display: none; margin-top: 1.5rem;">
+            <div class="search-results-header">
+                <div class="search-info">
+                    <h4 id="searchSkillName"></h4>
+                    <p id="searchSkillInfo" class="text-muted"></p>
+                </div>
+            </div>
+            
+            <div id="skillResultsContent">
+                <!-- Здесь будут появляться карточки сотрудников -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Новая секция для сравнения сотрудников -->
+    <div class="add-section">
+        <h3><i class="fas fa-users me-2"></i>Сравнение сотрудников</h3>
+        <p class="text-muted" style="margin-bottom: 1rem;">Сравните навыки и оценки двух сотрудников из одного отдела</p>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="department">Отдел *</label>
+                <select id="department" name="department" required>
+                    <option value="">Выберите отдел</option>
+                    <option value="backend">Backend</option>
+                    <option value="frontend">Frontend</option>
+                    <option value="devops">DevOps</option>
+                    <option value="hr">HR</option>
+                </select>
             </div>
         </div>
         
-        <div id="skillResultsContent">
-            <!-- Здесь будут появляться карточки сотрудников -->
+        <div class="form-row">
+            <div class="form-group">
+                <label for="employee1">Первый сотрудник *</label>
+                <input type="text" id="employee1" placeholder="Начните вводить имя..." 
+                    oninput="searchEmployee(1, this.value)">
+                <div id="employee1Results" class="search-results" style="display: none;"></div>
+                <input type="hidden" id="employee1Id" name="employee1_id">
+            </div>
+            
+            <div class="form-group">
+                <label for="employee2">Второй сотрудник *</label>
+                <input type="text" id="employee2" placeholder="Начните вводить имя..." 
+                    oninput="searchEmployee(2, this.value)">
+                <div id="employee2Results" class="search-results" style="display: none;"></div>
+                <input type="hidden" id="employee2Id" name="employee2_id">
+            </div>
+        </div>
+        
+        <button class="btn btn-primary" onclick="compareEmployees()" id="compareBtn">
+            <i class="fas fa-chart-line me-2"></i>Сравнить сотрудников
+        </button>
+        
+        <div class="comparison-results" id="comparisonResults">
+            <div class="employees-header">
+                <div class="employee-card" id="employee1Card">
+                    <div class="employee-avatar" id="employee1Avatar">?</div>
+                    <div class="employee-name" id="employee1Name">Не выбран</div>
+                    <div class="employee-info" id="employee1Info">Выберите сотрудника</div>
+                </div>
+                
+                <div style="display: flex; align-items: center; padding: 0 2rem;">
+                    <i class="fas fa-exchange-alt fa-2x" style="color: #667eea;"></i>
+                </div>
+                
+                <div class="employee-card" id="employee2Card">
+                    <div class="employee-avatar" id="employee2Avatar">?</div>
+                    <div class="employee-name" id="employee2Name">Не выбран</div>
+                    <div class="employee-info" id="employee2Info">Выберите сотрудника</div>
+                </div>
+            </div>
+            
+            <div id="skillsComparison">
+                <h4 style="margin-bottom: 1rem;">Сравнение навыков</h4>
+                
+                <div id="comparisonLoading" class="loading" style="display: none;">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Загружаем данные для сравнения...</p>
+                </div>
+                
+                <table class="skills-table" id="skillsTable" style="display: none;">
+                    <thead>
+                        <tr>
+                            <th>Навык</th>
+                            <th id="employee1Header">Сотрудник 1</th>
+                            <th id="employee2Header">Сотрудник 2</th>
+                            <th>Разница</th>
+                        </tr>
+                    </thead>
+                    <tbody id="skillsTableBody">
+                        <!-- Данные будут загружены динамически -->
+                    </tbody>
+                </table>
+                
+                <div id="noComparisonData" class="empty-state" style="display: none;">
+                    <i class="fas fa-chart-bar"></i>
+                    <h4>Нет данных для сравнения</h4>
+                    <p>У выбранных сотрудников нет оценок навыков для сравнения</p>
+                </div>
+            </div>
+            
+            <div class="chart-container" id="chartSection" style="display: none;">
+                <h4 style="margin-bottom: 1rem;">Визуализация сравнения</h4>
+                <div style="position: relative; height: 400px;">
+                    <canvas id="comparisonChart"></canvas>
+                </div>
+            </div>
         </div>
     </div>
+</div>
+
+<!-- Уведомления -->
+<div id="successToast" class="notification" style="display: none;">
+    <i class="fas fa-check-circle"></i>
+    <span id="toastMessage">Операция выполнена успешно!</span>
+</div>
+
+<div id="errorToast" class="notification error" style="display: none;">
+    <i class="fas fa-exclamation-circle"></i>
+    <span id="errorToastMessage">Произошла ошибка</span>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script src="{{ url_for('static', filename='js/user_managment.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Глобальные переменные
+    let comparisonChart = null;
+    let debounceTimers = {};
+    let selectedDepartment = '';
+    let selectedEmployees = { employee1: null, employee2: null };
+    
+    // Инициализация при загрузке страницы
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeComparisonPage();
+        
+        // Закрытие результатов поиска при клике вне
+        document.addEventListener('click', function(e) {
+            const searchInputs = ['employee1', 'employee2'];
+            searchInputs.forEach(inputId => {
+                const input = document.getElementById(inputId);
+                const results = document.getElementById(`${inputId}Results`);
+                if (input && results && !input.contains(e.target) && !results.contains(e.target)) {
+                    results.style.display = 'none';
+                }
+            });
+        });
+        
+        // Обработчик изменения отдела
+        document.getElementById('department').addEventListener('change', function() {
+            selectedDepartment = this.value;
+            // Очищаем выбранных сотрудников при смене отдела
+            clearSelectedEmployees();
+        });
+    });
+    
+    function initializeComparisonPage() {
+        console.log('Страница сравнения сотрудников инициализирована');
+    }
+    
+    function searchEmployee(employeeNum, query) {
+        if (!query || query.trim().length < 2) {
+            hideSearchResults(employeeNum);
+            return;
+        }
+        
+        clearTimeout(debounceTimers[employeeNum]);
+        debounceTimers[employeeNum] = setTimeout(() => {
+            performEmployeeSearch(employeeNum, query.trim());
+        }, 300);
+    }
+    
+    function performEmployeeSearch(employeeNum, query) {
+        const department = document.getElementById('department').value;
+        
+        // Фильтруем сотрудников по отделу
+        const params = new URLSearchParams({
+            q: query,
+            department: department
+        });
+        
+        fetch(`/hr/api/search-users?${params}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    displaySearchResults(employeeNum, data.users);
+                } else {
+                    hideSearchResults(employeeNum);
+                }
+            })
+            .catch(error => {
+                console.error('Error searching employees:', error);
+                hideSearchResults(employeeNum);
+            });
+    }
+    
+    function displaySearchResults(employeeNum, users) {
+        const resultsContainer = document.getElementById(`employee${employeeNum}Results`);
+        
+        if (!users || users.length === 0) {
+            resultsContainer.innerHTML = `
+                <div class="search-result-item">
+                    <div class="no-results" style="padding: 1rem; text-align: center; color: #666;">
+                        <i class="fas fa-search"></i>
+                        <span>Сотрудники не найдены</span>
+                    </div>
+                </div>
+            `;
+            resultsContainer.style.display = 'block';
+            return;
+        }
+        
+        let html = '';
+        users.forEach(user => {
+            const initials = getInitials(user.full_name);
+            
+            html += `
+                <div class="search-result-item" onclick="selectEmployee(${employeeNum}, ${user.id}, '${user.full_name}', '${user.role || 'employee'}')">
+                    <div class="user-info">
+                        <div class="user-avatar">${initials}</div>
+                        <div class="user-details">
+                            <div class="user-name">${user.full_name}</div>
+                            <div class="user-meta">
+                                <span class="user-role">${getRoleDisplayName(user.role)}</span>
+                                ${user.position ? `<span class="user-position">• ${user.position}</span>` : ''}
+                                ${user.department ? `<span class="user-department">• ${user.department}</span>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        resultsContainer.innerHTML = html;
+        resultsContainer.style.display = 'block';
+    }
+    
+    function hideSearchResults(employeeNum) {
+        const resultsContainer = document.getElementById(`employee${employeeNum}Results`);
+        if (resultsContainer) {
+            resultsContainer.style.display = 'none';
+        }
+    }
+    
+    function selectEmployee(employeeNum, userId, userName, userRole) {
+        // Скрываем результаты поиска
+        hideSearchResults(employeeNum);
+        
+        // Обновляем поле ввода
+        const inputField = document.getElementById(`employee${employeeNum}`);
+        const hiddenField = document.getElementById(`employee${employeeNum}Id`);
+        
+        inputField.value = userName;
+        hiddenField.value = userId;
+        
+        // Сохраняем выбранного сотрудника
+        selectedEmployees[`employee${employeeNum}`] = {
+            id: userId,
+            name: userName,
+            role: userRole
+        };
+        
+        // Обновляем карточку сотрудника
+        updateEmployeeCard(employeeNum, userName, userId);
+        
+        // Очищаем поле другого сотрудника, если выбрали того же сотрудника
+        const otherEmployeeNum = employeeNum === 1 ? 2 : 1;
+        const otherInputField = document.getElementById(`employee${otherEmployeeNum}`);
+        const otherHiddenField = document.getElementById(`employee${otherEmployeeNum}Id`);
+        
+        if (otherHiddenField.value == userId) {
+            otherInputField.value = '';
+            otherHiddenField.value = '';
+            selectedEmployees[`employee${otherEmployeeNum}`] = null;
+            updateEmployeeCard(otherEmployeeNum, 'Не выбран', null);
+        }
+    }
+    
+    function updateEmployeeCard(employeeNum, userName, userId) {
+        const avatarElement = document.getElementById(`employee${employeeNum}Avatar`);
+        const nameElement = document.getElementById(`employee${employeeNum}Name`);
+        const infoElement = document.getElementById(`employee${employeeNum}Info`);
+        
+        if (userId) {
+            const initials = getInitials(userName);
+            avatarElement.textContent = initials;
+            nameElement.textContent = userName;
+            
+            // Получаем дополнительную информацию о сотруднике
+            fetch(`/hr/api/users/${userId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const role = getRoleDisplayName(data.user.role);
+                        const position = data.user.position || '';
+                        const department = data.user.department || '';
+                        
+                        let infoText = role;
+                        if (position) infoText += ` • ${position}`;
+                        if (department) infoText += ` • ${department}`;
+                        
+                        infoElement.textContent = infoText;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading user details:', error);
+                    infoElement.textContent = 'Информация загружается...';
+                });
+        } else {
+            avatarElement.textContent = '?';
+            nameElement.textContent = 'Не выбран';
+            infoElement.textContent = 'Выберите сотрудника';
+        }
+    }
+    
+    function clearSelectedEmployees() {
+        // Очищаем поля ввода
+        ['employee1', 'employee2'].forEach(id => {
+            const input = document.getElementById(id);
+            const hidden = document.getElementById(`${id}Id`);
+            if (input) input.value = '';
+            if (hidden) hidden.value = '';
+            
+            const results = document.getElementById(`${id}Results`);
+            if (results) results.style.display = 'none';
+        });
+        
+        // Сбрасываем выбранных сотрудников
+        selectedEmployees.employee1 = null;
+        selectedEmployees.employee2 = null;
+        
+        // Обновляем карточки
+        updateEmployeeCard(1, 'Не выбран', null);
+        updateEmployeeCard(2, 'Не выбран', null);
+        
+        // Скрываем результаты сравнения
+        document.getElementById('comparisonResults').style.display = 'none';
+    }
+    
+    function compareEmployees() {
+        const employee1Id = document.getElementById('employee1Id').value;
+        const employee2Id = document.getElementById('employee2Id').value;
+        const department = document.getElementById('department').value;
+        
+        // Валидация
+        if (!department) {
+            showNotification('Выберите отдел', 'error');
+            return;
+        }
+        
+        if (!employee1Id || !employee2Id) {
+            showNotification('Выберите обоих сотрудников для сравнения', 'error');
+            return;
+        }
+        
+        if (employee1Id === employee2Id) {
+            showNotification('Выберите разных сотрудников для сравнения', 'error');
+            return;
+        }
+        
+        // Показываем кнопку загрузки
+        const compareBtn = document.getElementById('compareBtn');
+        const originalText = compareBtn.innerHTML;
+        compareBtn.disabled = true;
+        compareBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Сравнение...';
+        
+        // Показываем результаты
+        document.getElementById('comparisonResults').style.display = 'block';
+        
+        // Показываем загрузку таблицы
+        document.getElementById('comparisonLoading').style.display = 'block';
+        document.getElementById('skillsTable').style.display = 'none';
+        document.getElementById('noComparisonData').style.display = 'none';
+        document.getElementById('chartSection').style.display = 'none';
+        
+        // Обновляем заголовки таблицы
+        document.getElementById('employee1Header').textContent = selectedEmployees.employee1 ? selectedEmployees.employee1.name : 'Сотрудник 1';
+        document.getElementById('employee2Header').textContent = selectedEmployees.employee2 ? selectedEmployees.employee2.name : 'Сотрудник 2';
+        
+        // Загружаем данные сравнения
+        fetch(`/hr/compare-users?user1=${employee1Id}&user2=${employee2Id}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                compareBtn.disabled = false;
+                compareBtn.innerHTML = originalText;
+                
+                if (data.success) {
+                    displayComparisonData(data);
+                } else {
+                    showNotification(data.message || 'Ошибка при сравнении сотрудников', 'error');
+                    document.getElementById('comparisonLoading').style.display = 'none';
+                    document.getElementById('noComparisonData').style.display = 'block';
+                }
+            })
+            .catch(error => {
+                console.error('Error comparing employees:', error);
+                compareBtn.disabled = false;
+                compareBtn.innerHTML = originalText;
+                showNotification('Ошибка сети. Проверьте подключение.', 'error');
+                document.getElementById('comparisonLoading').style.display = 'none';
+            });
+    }
+    
+    function displayComparisonData(data) {
+        const tableBody = document.getElementById('skillsTableBody');
+        
+        // Очищаем таблицу
+        tableBody.innerHTML = '';
+        
+        if (!data.comparison || data.comparison.length === 0) {
+            document.getElementById('comparisonLoading').style.display = 'none';
+            document.getElementById('noComparisonData').style.display = 'block';
+            return;
+        }
+        
+        // Сортируем навыки по категории и названию
+        const sortedComparison = [...data.comparison].sort((a, b) => {
+            if (a.category !== b.category) {
+                return a.category.localeCompare(b.category);
+            }
+            return a.skill_name.localeCompare(b.skill_name);
+        });
+        
+        let currentCategory = '';
+        let rowCount = 0;
+        
+        sortedComparison.forEach(skill => {
+            // Добавляем заголовок категории, если она изменилась
+            if (skill.category !== currentCategory) {
+                currentCategory = skill.category;
+                tableBody.innerHTML += `
+                    <tr style="background: #f8f9fa;">
+                        <td colspan="4" style="font-weight: 600; color: #333; padding: 0.75rem 1rem;">
+                            ${skill.category}
+                        </td>
+                    </tr>
+                `;
+            }
+            
+            const user1Score = skill.user1_score !== null ? skill.user1_score : '—';
+            const user2Score = skill.user2_score !== null ? skill.user2_score : '—';
+            const difference = skill.difference;
+            
+            let differenceHtml = '—';
+            let differenceClass = 'difference-zero';
+            
+            if (difference !== null) {
+                if (difference > 0) {
+                    differenceHtml = `<span class="difference-positive">+${difference}</span>`;
+                    differenceClass = 'difference-positive';
+                } else if (difference < 0) {
+                    differenceHtml = `<span class="difference-negative">${difference}</span>`;
+                    differenceClass = 'difference-negative';
+                } else {
+                    differenceHtml = '<span class="difference-zero">0</span>';
+                    differenceClass = 'difference-zero';
+                }
+            }
+            
+            tableBody.innerHTML += `
+                <tr>
+                    <td>
+                        <div class="skill-name">${skill.skill_name}</div>
+                    </td>
+                    <td class="score-cell">
+                        ${user1Score !== '—' ? `<span class="score-badge score-${user1Score}">${user1Score}</span>` : '<span class="no-data">—</span>'}
+                    </td>
+                    <td class="score-cell">
+                        ${user2Score !== '—' ? `<span class="score-badge score-${user2Score}">${user2Score}</span>` : '<span class="no-data">—</span>'}
+                    </td>
+                    <td class="difference-cell ${differenceClass}">
+                        ${differenceHtml}
+                    </td>
+                </tr>
+            `;
+            
+            rowCount++;
+        });
+        
+        // Показываем таблицу
+        document.getElementById('comparisonLoading').style.display = 'none';
+        document.getElementById('skillsTable').style.display = 'table';
+        
+        // Создаем график, если есть данные
+        createComparisonChart(sortedComparison, data);
+    }
+    
+    function createComparisonChart(skillsData, comparisonData) {
+        // Фильтруем навыки, у которых есть оценки у обоих сотрудников
+        const chartSkills = skillsData.filter(skill => 
+            skill.user1_score !== null && skill.user2_score !== null
+        );
+        
+        if (chartSkills.length < 3) {
+            // Слишком мало данных для графика
+            document.getElementById('chartSection').style.display = 'none';
+            return;
+        }
+        
+        // Показываем секцию с графиком
+        document.getElementById('chartSection').style.display = 'block';
+        
+        const chartCanvas = document.getElementById('comparisonChart');
+        if (!chartCanvas) return;
+        
+        // Уничтожаем предыдущий график
+        if (comparisonChart) {
+            comparisonChart.destroy();
+        }
+        
+        const ctx = chartCanvas.getContext('2d');
+        
+        // Подготавливаем данные
+        const labels = chartSkills.map(skill => skill.skill_name);
+        const employee1Scores = chartSkills.map(skill => skill.user1_score);
+        const employee2Scores = chartSkills.map(skill => skill.user2_score);
+        
+        comparisonChart = new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: comparisonData.user1.full_name,
+                        data: employee1Scores,
+                        backgroundColor: 'rgba(102, 126, 234, 0.2)',
+                        borderColor: 'rgba(102, 126, 234, 0.8)',
+                        pointBackgroundColor: 'rgba(102, 126, 234, 1)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgba(102, 126, 234, 1)',
+                        borderWidth: 2,
+                        pointRadius: 4
+                    },
+                    {
+                        label: comparisonData.user2.full_name,
+                        data: employee2Scores,
+                        backgroundColor: 'rgba(118, 75, 162, 0.2)',
+                        borderColor: 'rgba(118, 75, 162, 0.8)',
+                        pointBackgroundColor: 'rgba(118, 75, 162, 1)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgba(118, 75, 162, 1)',
+                        borderWidth: 2,
+                        pointRadius: 4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        max: 5,
+                        min: 0,
+                        ticks: {
+                            stepSize: 1,
+                            backdropColor: 'transparent'
+                        },
+                        pointLabels: {
+                            font: {
+                                size: 11
+                            },
+                            color: '#333'
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        },
+                        angleLines: {
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            font: {
+                                size: 12
+                            },
+                            padding: 20
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.dataset.label}: ${context.raw}`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
+    // Вспомогательные функции
+    function getInitials(name) {
+        if (!name) return '?';
+        const parts = name.split(' ');
+        if (parts.length >= 2) {
+            return (parts[0][0] + parts[1][0]).toUpperCase();
+        }
+        return parts[0][0].toUpperCase();
+    }
+    
+    function getRoleDisplayName(role) {
+        const roles = {
+            'employee': 'Сотрудник',
+            'manager': 'Руководитель',
+            'hr': 'HR',
+            'admin': 'Администратор'
+        };
+        return roles[role] || role;
+    }
+    
+    function showNotification(message, type = 'success') {
+        // Используем существующую функцию или создаем простую реализацию
+        if (typeof window.showSkillToast === 'function') {
+            window.showSkillToast(message, type);
+        } else {
+            const toastId = type === 'error' ? 'errorToast' : 'successToast';
+            const toast = document.getElementById(toastId);
+            const messageElement = type === 'error' ? 
+                document.getElementById('errorToastMessage') : 
+                document.getElementById('toastMessage');
+            
+            if (toast && messageElement) {
+                messageElement.textContent = message;
+                toast.style.display = 'flex';
+                
+                // Автоматически скрываем через 3 секунды
+                setTimeout(() => {
+                    toast.style.display = 'none';
+                }, 3000);
+            } else {
+                alert(message);
+            }
+        }
+    }
+</script>
 {% endblock %}

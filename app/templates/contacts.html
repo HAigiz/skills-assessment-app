@@ -28,6 +28,21 @@
     </header>
 
     <main class="contact-section">
+        <!-- Flash сообщения -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="container mt-4">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show">
+                            {{ message|safe }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+
         <div class="container py-5">
             <div class="row mb-5">
                 <div class="col-12">
@@ -95,7 +110,8 @@
                         
                         <h3>Форма обратной связи</h3>
                         
-                        <form action="submit_form.php" method="POST">
+                        <form action="{{ url_for('main.contacts') }}" method="POST">
+                            
                             <div class="mb-4">
                                 <label for="name" class="form-label">Ваше имя</label>
                                 <input type="text" class="form-control" id="name" name="name" required placeholder="Иван Иванов">

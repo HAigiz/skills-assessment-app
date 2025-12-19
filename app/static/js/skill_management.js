@@ -125,7 +125,7 @@ function saveSkill() {
     saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Сохранение...';
     
     const method = skillId ? 'PUT' : 'POST';
-    const url = skillId ? `/api/skills/${skillId}` : '/api/skills';
+    const url = skillId ? `/skill/api/skills/${skillId}` : '/skill/api/skills';
     
     fetch(url, {
         method: method,
@@ -138,22 +138,31 @@ function saveSkill() {
             description: skillDescription
         })
     })
-    .then(response => response.json())
+    .then(response => {
+        console.log('URL:', url);
+        console.log('Метод:', method);
+        console.log('Статус:', response.status);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
     .then(data => {
+        console.log('Ответ:', data);
         if (data.success) {
             showSkillToast(skillId ? 'Навык обновлен' : 'Навык добавлен');
             closeSkillModal();
-            // Перезагрузка страницы для отображения изменений
             setTimeout(() => location.reload(), 1000);
         } else {
             showSkillToast(data.message || 'Ошибка сохранения', 'error');
-            saveBtn.disabled = false;
-            saveBtn.innerHTML = originalText;
         }
     })
     .catch(error => {
-        console.error('Error:', error);
-        showSkillToast('Ошибка сети', 'error');
+        console.error('Ошибка:', error);
+        showSkillToast('Ошибка сети: ' + error.message, 'error');
+    })
+    .finally(() => {
         saveBtn.disabled = false;
         saveBtn.innerHTML = originalText;
     });
@@ -165,8 +174,12 @@ function closeSkillModal() {
 
 function confirmDeleteSkill(skillId, skillName) {
     skillToDelete = skillId;
+    
+    // Простое сообщение без информации о количестве оценок
+    const message = 'Все оценки по этому навыку также будут удалены. Это действие нельзя отменить.';
+    
     document.getElementById('deleteSkillName').textContent = `Удалить навык "${skillName}"?`;
-    document.getElementById('deleteMessage').textContent = 'Все оценки по этому навыку также будут удалены. Это действие нельзя отменить.';
+    document.getElementById('deleteMessage').textContent = message;
     document.getElementById('deleteModal').classList.add('show');
 }
 
@@ -178,45 +191,106 @@ function closeDeleteModal() {
 function deleteSkill() {
     if (!skillToDelete) return;
     
+    const url = `/skill/api/skills/${skillToDelete}`;
+    console.log('DELETE запрос на:', url);
+
     const deleteBtn = document.getElementById('confirmDeleteBtn');
     const originalText = deleteBtn.innerHTML;
     deleteBtn.disabled = true;
     deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Удаление...';
     
-    fetch(`/api/skills/${skillToDelete}`, {
-        method: 'DELETE'
+    fetch(url, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        credentials: 'same-origin'
     })
-    .then(response => response.json())
+    .then(response => {
+        console.log('Статус DELETE:', response.status);
+        console.log('URL запроса:', response.url);
+
+        if (response.status === 409) {
+            // Конфликт - есть оценки
+            return response.json().then(data => {
+                throw new Error(data.message || 'Невозможно удалить навык с оценками');
+            });
+        }
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.success) {
             showSkillToast('Навык удален');
             closeDeleteModal();
-            // Удаляем карточку навыка из DOM
+
+            reloadSkillsSection();
+            
             const skillCard = document.querySelector(`.skill-card[data-skill-id="${skillToDelete}"]`);
+            
             if (skillCard) {
                 skillCard.style.opacity = '0.5';
                 setTimeout(() => {
                     skillCard.remove();
-                    // Если в категории не осталось навыков, скрываем категорию
+                    
+                    // Если в категории не осталось навыков, обновляем страницу
                     const categoryItem = skillCard.closest('.category-item');
-                    const skillsList = categoryItem.querySelector('.skills-list');
-                    if (skillsList.children.length === 0) {
-                        categoryItem.remove();
+                    if (categoryItem) {
+                        const skillsList = categoryItem.querySelector('.skills-list');
+                        if (skillsList && skillsList.children.length === 0) {
+                            setTimeout(() => location.reload(), 500);
+                        }
                     }
                 }, 300);
             }
         } else {
             showSkillToast(data.message || 'Ошибка удаления', 'error');
-            deleteBtn.disabled = false;
-            deleteBtn.innerHTML = originalText;
         }
     })
     .catch(error => {
-        console.error('Error:', error);
-        showSkillToast('Ошибка сети', 'error');
+        console.error('Ошибка DELETE:', error);
+        showSkillToast('Ошибка сети: ' + error.message, 'error');
+    })
+    .finally(() => {
         deleteBtn.disabled = false;
         deleteBtn.innerHTML = originalText;
+        skillToDelete = null;
     });
+}
+
+function reloadSkillsSection() {
+    const skillsSection = document.querySelector('.skills-management');
+    const loadingHTML = `
+        <div style="text-align: center; padding: 2rem;">
+            <i class="fas fa-spinner fa-spin fa-2x"></i>
+            <p>Обновление списка навыков...</p>
+        </div>
+    `;
+    
+    skillsSection.innerHTML = loadingHTML;
+    
+    // Загружаем обновленные данные с сервера
+    fetch('/skill/skills')
+        .then(response => response.text())
+        .then(html => {
+            // Парсим только нужную часть HTML
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const newContent = doc.querySelector('.skills-management').innerHTML;
+            
+            // Заменяем содержимое
+            skillsSection.innerHTML = newContent;
+            
+            // Инициализируем скрипты заново
+            setupEventListeners();
+        })
+        .catch(error => {
+            console.error('Error reloading skills:', error);
+            skillsSection.innerHTML = '<div class="error">Ошибка загрузки навыков</div>';
+        });
 }
 
 function showSkillToast(message, type = 'success') {

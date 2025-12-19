@@ -20,16 +20,32 @@ function searchBySkill() {
     const originalText = searchBtn.innerHTML;
     searchBtn.disabled = true;
     searchBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Поиск...';
+
+    const params = new URLSearchParams({
+        skill: skillName,
+        min_score: minScore
+    });
     
-    fetch(`/hr/search-by-skills?skill=${encodeURIComponent(skillName)}&min_score=${minScore}`)
-        .then(response => response.json())
+    fetch(`/hr/search-by-skills?${params}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(data => {
             searchBtn.disabled = false;
-            searchBtn.innerHTML = originalText;
+            searchBtn.innerHTML = '<i class="fas fa-search me-2"></i>Найти сотрудников';
             
             if (data.success) {
                 displaySkillSearchResults(data);
                 document.getElementById('skillSearchResults').style.display = 'block';
+                
+                // Прокрутка к результатам
+                document.getElementById('skillSearchResults').scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
             } else {
                 showNotification(data.message || 'Ошибка поиска', 'error');
                 document.getElementById('skillSearchResults').style.display = 'none';
@@ -38,8 +54,8 @@ function searchBySkill() {
         .catch(error => {
             console.error('Error:', error);
             searchBtn.disabled = false;
-            searchBtn.innerHTML = originalText;
-            showNotification('Ошибка сети', 'error');
+            searchBtn.innerHTML = '<i class="fas fa-search me-2"></i>Найти сотрудников';
+            showNotification('Ошибка сети. Проверьте подключение.', 'error');
         });
 }
 

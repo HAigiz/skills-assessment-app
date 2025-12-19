@@ -131,14 +131,6 @@ def delete_skill(skill_id):
     
     skill = Skill.query.get_or_404(skill_id)
     
-    #проверка оценок по навыку
-    assessments_count = SkillAssessment.query.filter_by(skill_id=skill_id).count()
-    if assessments_count > 0:
-        return jsonify({
-            'success': False, 
-            'message': f'Невозможно удалить навык: есть {assessments_count} оценок по нему'
-        }), 409
-    
     db.session.delete(skill)
     db.session.commit()
     
@@ -146,7 +138,6 @@ def delete_skill(skill_id):
         'success': True,
         'message': 'Навык удален'
     })
-
 
 @bp.route('/export/csv')
 @login_required

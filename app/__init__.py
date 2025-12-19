@@ -5,25 +5,34 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 import os
 from dotenv import load_dotenv
+from flask_mail import Mail
 
 load_dotenv()
 
 db = SQLAlchemy()
 migrate = Migrate()
+mail = Mail()
 login_manager = LoginManager()
 
 def create_app():
     app = Flask(__name__, template_folder='./templates', static_folder='./static')
     
-    # конфигурация для енв
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'postgresql://NV:NVCASE2@postgres:5432/RTK_DB')
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'NJNJ43232ojfds./*rewr--+78f4sd')
+    app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
     
+    app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER', 'smtp.gmail.com')
+    app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 587))
+    app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS', 'True').lower() == 'true'
+    app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+    app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+    app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER', os.getenv('MAIL_USERNAME'))
+
     db.init_app(app)
+    mail.init_app(app)
+    login_manager.init_app(app)
     migrate.init_app(app, db)
 
-    login_manager.init_app(app) 
     login_manager.login_view = 'auth.login'
     
     from .models import User
@@ -37,12 +46,14 @@ def create_app():
     from .routes.skill_routes import bp as skill_bp
     from .routes.hr_routes import bp as hr_bp
     from .routes.main_routes import bp as main_bp
+    from .routes.api_routes import api as api_bp
     
     app.register_blueprint(auth_bp, url_prefix='/auth')
     app.register_blueprint(user_bp, url_prefix='/user')
     app.register_blueprint(skill_bp, url_prefix='/skill')
     app.register_blueprint(hr_bp, url_prefix='/hr')
     app.register_blueprint(main_bp, url_prefix='/')
+    app.register_blueprint(api_bp)
     
     # обработка ошибок
     @app.errorhandler(404)
