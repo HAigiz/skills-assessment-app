@@ -25,6 +25,7 @@ class RegistrationForm(FlaskForm):
                                 validators=[DataRequired(message="Пожалуйста, выберите отдел")])
     
     submit = SubmitField('Зарегистрировать')
+    position = StringField('Должность', validators=[Length(max=100)])
 
     def __init__(self, current_user=None, department_name=None, *args, **kwargs):
         super(RegistrationForm, self).__init__(*args, **kwargs)

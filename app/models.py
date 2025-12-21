@@ -27,11 +27,20 @@ class User(UserMixin, db.Model):
     department_id = db.Column(db.Integer, db.ForeignKey('departments.id'))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    position = db.Column(db.String(100), nullable=True)
     
     skill_assessments = db.relationship('SkillAssessment', backref='user', cascade='all, delete-orphan')
 
     def __repr__(self):
         return f'<User {self.id}: {self.login}>'
+    
+    def set_password(self, password):
+        from werkzeug.security import generate_password_hash
+        self.password_hash = generate_password_hash(password)
+    
+    def check_password(self, password):
+        from werkzeug.security import check_password_hash
+        return check_password_hash(self.password_hash, password)
 
 class Skill(db.Model):
     __tablename__ = 'skills'
