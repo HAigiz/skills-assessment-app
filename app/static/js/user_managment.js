@@ -1,3 +1,14 @@
+console.log('User management script loaded');
+
+// Глобальная функция для отладки
+window.debugUser = function(userId) {
+    console.log(`Отладка пользователя ID: ${userId}`);
+    fetch(`/hr/api/users/${userId}`)
+        .then(r => r.json())
+        .then(data => console.log('Данные:', data))
+        .catch(e => console.error('Ошибка:', e));
+};
+
 // Переменные для управления пользователями
 let currentUserToDelete = null;
 let debounceTimer;
@@ -9,12 +20,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function searchBySkill() {
     const skillName = document.getElementById('skillSearch').value.trim();
-    const minScore = document.getElementById('minScore').value;
+    const minScoreSelect = document.getElementById('minScore');
+    const minScore = minScoreSelect ? minScoreSelect.value : 1;
     
     if (!skillName) {
         showNotification('Введите название навыка для поиска', 'error');
         return;
     }
+    
+    // Очищаем предыдущие результаты
+    document.getElementById('skillSearchResults').style.display = 'none';
+    document.getElementById('skillResultsContent').innerHTML = '';
     
     const searchBtn = document.querySelector('button[onclick="searchBySkill()"]');
     const originalText = searchBtn.innerHTML;
@@ -38,6 +54,8 @@ function searchBySkill() {
             searchBtn.innerHTML = '<i class="fas fa-search me-2"></i>Найти сотрудников';
             
             if (data.success) {
+                // Добавляем minScore в данные для отображения
+                data.minScore = minScore;
                 displaySkillSearchResults(data);
                 document.getElementById('skillSearchResults').style.display = 'block';
                 
@@ -47,8 +65,7 @@ function searchBySkill() {
                     block: 'start'
                 });
             } else {
-                showNotification(data.message || 'Ошибка поиска', 'error');
-                document.getElementById('skillSearchResults').style.display = 'none';
+                    showNotification(data.message || 'Ошибка поиска', 'error');
             }
         })
         .catch(error => {
@@ -65,23 +82,26 @@ function displaySkillSearchResults(data) {
     const info = document.getElementById('searchSkillInfo');
     const content = document.getElementById('skillResultsContent');
     
-    // Обновление заголовка
+    // Обновление заголовка - FIX: используем data.minScore или data.skill.min_score
     header.textContent = `Навык: ${data.skill.name}`;
-    info.textContent = `${data.skill.category} • Минимальный уровень: ${data.minScore}+ • Найдено сотрудников: ${data.total_found}`;
+    
+    // FIX: правильно получаем минимальный уровень
+    const minScore = data.minScore || data.skill?.min_score || 1;
+    info.textContent = `${data.skill.category} • Минимальный уровень: ${minScore}+ • Найдено сотрудников: ${data.total_found || data.users?.length || 0}`;
     
     if (!data.users || data.users.length === 0) {
         content.innerHTML = `
             <div class="empty-state" style="text-align: center; padding: 3rem; color: #666;">
                 <i class="fas fa-search fa-3x mb-3" style="color: #ccc;"></i>
                 <h4>Сотрудники не найдены</h4>
-                <p>Нет сотрудников с навыком "${data.skill.name}" уровня ${data.minScore}+</p>
+                <p>Нет сотрудников с навыком "${data.skill.name}" уровня ${minScore}+</p>
             </div>
         `;
         return;
     }
     
     // Создание карточек сотрудников
-    let html = '<div class="employee-cards-container">';
+    let html = '<div class="employee-cards-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; margin-top: 1rem;">';
     
     data.users.forEach(user => {
         const firstName = user.full_name.split(' ')[0];
@@ -91,37 +111,49 @@ function displaySkillSearchResults(data) {
         // Получаем финальную оценку
         const finalScore = user.final_score || user.self_score || user.manager_score || 0;
         
+        // Определяем цвет для оценки
+        let scoreClass = 'score-badge';
+        if (finalScore >= 4) {
+            scoreClass = 'score-4';
+        } else if (finalScore >= 3) {
+            scoreClass = 'score-3';
+        } else if (finalScore >= 2) {
+            scoreClass = 'score-2';
+        } else {
+            scoreClass = 'score-1';
+        }
+        
         html += `
-            <div class="employee-card">
-                <div class="employee-card-header">
-                    <div class="employee-info">
-                        <div class="employee-name">${user.full_name}</div>
-                        <div class="employee-department">
+            <div class="employee-card" style="background: white; border-radius: 10px; padding: 1.5rem; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                <div class="employee-card-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <div class="employee-info" style="flex: 1;">
+                        <div class="employee-name" style="font-size: 1.25rem; font-weight: 600; color: #333;">${user.full_name}</div>
+                        <div class="employee-department" style="color: #666; font-size: 0.9rem;">
                             <i class="fas fa-building"></i>
-                            ${user.department || 'Без отдела'}
+                            ${user.department || user.position || 'Не указано'}
                         </div>
                     </div>
-                    <div class="employee-score score-${finalScore}">
+                    <div class="employee-score ${scoreClass}" style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem; color: white; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
                         ${finalScore}
                     </div>
                 </div>
                 
-                <div class="employee-card-content">
-                    <div class="employee-avatar">
+                <div class="employee-card-content" style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+                    <div class="employee-avatar" style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold;">
                         ${initials}
                     </div>
                     <div class="score-details" style="flex: 1;">
-                        ${user.self_score ? `<div><strong>Самооценка:</strong> ${user.self_score}</div>` : ''}
-                        ${user.manager_score ? `<div><strong>Оценка руководителя:</strong> ${user.manager_score}</div>` : ''}
-                        <div><strong>Роль:</strong> ${getRoleDisplayName(user.role)}</div>
+                        ${user.self_score ? `<div style="margin-bottom: 0.5rem;"><strong>Самооценка:</strong> <span class="score-badge score-${user.self_score}">${user.self_score}</span></div>` : ''}
+                        ${user.manager_score ? `<div style="margin-bottom: 0.5rem;"><strong>Оценка руководителя:</strong> <span class="score-badge score-${user.manager_score}">${user.manager_score}</span></div>` : ''}
+                        <div style="margin-bottom: 0.5rem;"><strong>Роль:</strong> ${getRoleDisplayName(user.role)}</div>
                         ${user.position ? `<div><strong>Должность:</strong> ${user.position}</div>` : ''}
                     </div>
                 </div>
                 
                 <div class="employee-card-footer">
-                    <div class="view-profile-btn" onclick="viewUserProfile(${user.id})">
+                    <button class="btn" onclick="viewUserProfile(${user.id})" style="width: 100%; padding: 0.75rem; background: #f8f9fa; border: 1px solid #ddd; border-radius: 5px; cursor: pointer; color: #333; transition: all 0.3s;">
                         <i class="fas fa-eye"></i> Посмотреть профиль
-                    </div>
+                    </button>
                 </div>
             </div>
         `;
@@ -143,7 +175,7 @@ function getRoleDisplayName(role) {
 
 function viewUserProfile(userId) {
     // Открываем профиль пользователя
-    window.open(`/profile?user_id=${userId}`, '_blank');
+    window.open(`/user/employee/${userId}`, '_blank');
     // Или если нужно в текущей вкладке:
     // window.location.href = `/profile?user_id=${userId}`;
 }
@@ -248,20 +280,32 @@ function setupModalEventListeners() {
     }
 }
 
-// Поиск пользователей
+
 function searchUsers(query) {
     if (!query || query.trim().length < 2) {
         hideSearchResults();
         return;
     }
-    
+
     fetch(`/hr/api/search-users?q=${encodeURIComponent(query.trim())}`)
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(data => {
-            displaySearchResults(data);
+            if (data.success) {
+                displaySearchResults(data);
+            } else {
+                hideSearchResults();
+                showNotification(data.message || 'Ошибка поиска', 'error');
+            }
         })
         .catch(error => {
             console.error('Error searching users:', error);
+            showNotification('Ошибка сети. Проверьте подключение.', 'error');
+            hideSearchResults();
         });
 }
 
@@ -329,17 +373,9 @@ function displaySearchResults(data) {
     resultsContainer.innerHTML = html;
     resultsContainer.style.display = 'block';
 }
-
-function hideSearchResults() {
-    const resultsContainer = document.getElementById('userSearchResults');
-    if (resultsContainer) {
-        resultsContainer.style.display = 'none';
-    }
-}
-
-// Загрузка отделов для select
+// Исправил, чтобы она возвращала Promise
 function loadDepartments() {
-    fetch('/hr/api/departments')
+    return fetch('/hr/api/departments')
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -348,9 +384,16 @@ function loadDepartments() {
                 data.departments.forEach(dept => {
                     select.innerHTML += `<option value="${dept.id}">${dept.name}</option>`;
                 });
+                return data.departments; // Возвращаем данные для цепочки
             }
+            throw new Error(data.message || 'Ошибка загрузки отделов');
         })
-        .catch(error => console.error('Error loading departments:', error));
+        .catch(error => {
+            console.error('Error loading departments:', error);
+            const select = document.getElementById('department_id');
+            select.innerHTML = '<option value="">Ошибка загрузки отделов</option>';
+            throw error;
+        });
 }
 
 // Отображение модального окна для добавления пользователя
@@ -383,42 +426,87 @@ function showAddUserModal() {
 function editUser(userId, event) {
     if (event) event.stopPropagation();
     
+    console.log(`Редактирование пользователя ID: ${userId}`);
+    
+    // Показываем загрузку
+    const originalText = document.getElementById('submitBtn')?.textContent || '';
+    if (document.getElementById('submitBtn')) {
+        document.getElementById('submitBtn').disabled = true;
+        document.getElementById('submitBtn').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Загрузка...';
+    }
+    
     fetch(`/hr/api/users/${userId}`)
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(data => {
+            console.log('Данные пользователя:', data);
             if (data.success) {
                 showEditUserModal(data.user);
             } else {
-                showNotification(data.message, 'error');
+                showNotification(data.message || 'Ошибка загрузки данных пользователя', 'error');
             }
         })
         .catch(error => {
             console.error('Error loading user:', error);
-            showNotification('Ошибка загрузки данных пользователя', 'error');
+            showNotification('Ошибка загрузки данных пользователя. Проверьте консоль.', 'error');
+        })
+        .finally(() => {
+            // Восстанавливаем кнопку
+            if (document.getElementById('submitBtn')) {
+                document.getElementById('submitBtn').disabled = false;
+                document.getElementById('submitBtn').innerHTML = originalText;
+            }
         });
 }
 
 function showEditUserModal(user) {
     const modal = document.getElementById('addUserModal');
     const title = document.getElementById('modaladduserTitle');
-    const form = document.getElementById('addUserForm');
     const submitBtn = document.getElementById('submitBtn');
+    
+    console.log('Редактирование пользователя:', user); // Для отладки
     
     // Заполнение формы данными пользователя
     document.getElementById('user_id').value = user.id;
     document.getElementById('full_name').value = user.full_name || '';
     document.getElementById('login').value = user.login || '';
     document.getElementById('password').required = false;
-    document.getElementById('email').value = user.email || '';
-    document.getElementById('position').value = user.position || '';
     document.getElementById('role').value = user.role || '';
-    document.getElementById('status').value = user.status || 'active';
     
+    // Если есть email поле
+    if (document.getElementById('email')) {
+        document.getElementById('email').value = user.email || '';
+    }
+    
+    // Если есть position поле
+    if (document.getElementById('position')) {
+        document.getElementById('position').value = user.position || '';
+    }
+    
+    // Если есть status поле  
+    if (document.getElementById('status')) {
+        document.getElementById('status').value = user.status || 'active';
+    }
+    
+    // Установка отдела - дожидаемся загрузки отделов
     if (user.department_id) {
-        // Нужно дождаться загрузки отделов
-        setTimeout(() => {
-            document.getElementById('department_id').value = user.department_id;
-        }, 100);
+        // Проверяем, загружены ли отделы
+        const deptSelect = document.getElementById('department_id');
+        if (deptSelect && deptSelect.options.length > 1) {
+            // Отделы уже загружены
+            deptSelect.value = user.department_id;
+        } else {
+            // Загружаем отделы и затем устанавливаем значение
+            loadDepartments().then(() => {
+                setTimeout(() => {
+                    document.getElementById('department_id').value = user.department_id;
+                }, 100);
+            });
+        }
     }
     
     // Установка заголовка и текста кнопки
@@ -618,3 +706,11 @@ function showNotification(message, type = 'success') {
 
 // Назначение обработчика для кнопки удаления
 document.getElementById('confirmDeleteUserBtn')?.addEventListener('click', deleteUser);
+
+function clearSkillSearch() {
+    document.getElementById('skillSearch').value = '';
+    document.getElementById('minScore').value = 3;
+    document.getElementById('skillSearchResults').style.display = 'none';
+    document.getElementById('skillResultsContent').innerHTML = '';
+    showNotification('Поиск очищен', 'info');
+}
