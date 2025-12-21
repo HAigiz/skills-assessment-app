@@ -13,6 +13,34 @@
         margin-left: 0.5rem;
     }
 
+    #userSearchTable {
+        transition: all 0.3s;
+        border: 1px solid #ddd !important;
+    }
+
+    #userSearchTable:focus {
+        border-color: #667eea !important;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+        outline: none;
+    }
+
+    /* Подсветка найденного текста */
+    .highlight {
+        background-color: #fff3cd;
+        padding: 0 2px;
+        border-radius: 2px;
+    }
+
+    /* Анимация при поиске */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .user-row {
+        animation: fadeIn 0.3s ease-out;
+    }
+
     .score-1 { background: #ffebee; color: #d32f2f; }
     .score-2 { background: #fff3e0; color: #f57c00; }
     .score-3 { background: #fff8e1; color: #ffa000; }
@@ -533,22 +561,47 @@
     </div>
 
     <div class="add-section">
-        <h3><i class="fas fa-user-plus me-2"></i>Добавить пользователя</h3>
-        
+        <h3><i class="fas fa-users me-2"></i>Все пользователи</h3>
+        <p class="text-muted" style="margin-bottom: 1rem;">Список всех пользователей системы</p>
+
         <div class="form-row">
-            <div class="form-group" style="flex: 1;">
-                <label for="userSearch">Поиск по полному имени или логину</label>
-                <input type="text" id="userSearch" placeholder="Например: Иванов Иван или ivanov" 
-                    oninput="searchUsers(this.value)">
-                <div id="userSearchResults" class="search-results" style="display: none; margin-top: 20px;margin-left: 20px;"></div>
+            <div class="form-group" style="flex: 1; margin-bottom: 0px;">
+                <input type="text" id="userSearchTable" placeholder="Поиск по имени, логину или должности" 
+                    class="form-control" style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 5px;">
             </div>
         </div>
-        <button class="btn btn-primary" onclick="showAddUserModal()" style="width: 260px; height: 50px; padding-bottom: 10px; padding-top: 10px;">
-            <i class="fas fa-user-plus me-2"></i>Добавить пользователя
-        </button>
-    </div>
 
-    <!-- Модальное окно добавления пользователя -->
+        <div class="table-responsive">
+            <table class="table table-striped" id="usersTable" style="margin-top: 0px;">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>ФИО</th>
+                        <th>Логин</th>
+                        <th>Роль</th>
+                        <th>Должность</th>
+                        <th>Отдел</th>
+                        <th>Дата регистрации</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody id="usersTableBody">
+                    <!-- Данные будут загружены через JavaScript -->
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 2rem;">
+                            <i class="fas fa-spinner fa-spin"></i> Загрузка данных...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <button class="btn btn-primary" onclick="showAddUserModal()" style="width: 260px; height: 50px; padding-bottom: 10px; padding-top: 10px; float: right;">
+                <i class="fas fa-user-plus me-2"></i>Добавить пользователя
+            </button>
+
+        </div>
+    </div>
+    
     <div id="addUserModal" class="modal-adduser">
         <div class="modal-adduser-content">
             <div class="modal-adduser-header">
@@ -571,11 +624,6 @@
                         <label for="login">Логин *</label>
                         <input type="text" id="login" name="login" required>
                         <div class="error-message" id="login_error"></div>
-                    </div>
-
-                    <div class="form-field">
-                        <label for="email">Email</label>
-                        <input type="email" id="email" name="email">
                     </div>
         
                     <div class="form-field">
@@ -618,7 +666,6 @@
         </div>
     </div>
 
-    <!-- Модальное окно подтверждения удаления -->
     <div id="deleteUserModal" class="modal-adduser">
         <div class="modal-adduser-content">
             <div class="modal-adduser-header">
@@ -691,12 +738,6 @@
         <button class="btn btn-primary" onclick="searchBySkill()">
             <i class="fas fa-search me-2"></i>Найти сотрудников
         </button>
-        <button class="btn btn-primary" onclick="searchBySkill()" 
-                style="background: linear-gradient(135deg, #667eea 0%, #e74c3c 100%); 
-                    border: none;
-                    box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);">
-            <i class="fas fa-search me-2"></i>Очистить
-        </button>
         
         <!-- Блок результатов поиска -->
         <div id="skillSearchResults" class="search-results-container" style="display: none; margin-top: 1.5rem;">
@@ -708,42 +749,10 @@
             </div>
             
             <div id="skillResultsContent">
-                <!-- Здесь будут появляться карточки сотрудников -->
             </div>
         </div>
     </div>
     
-    <div class="add-section">
-            <h3><i class="fas fa-users me-2"></i>Все пользователи</h3>
-            <p class="text-muted" style="margin-bottom: 1rem;">Список всех пользователей системы</p>
-    
-            <div class="table-responsive">
-                <table class="table table-striped" id="usersTable">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>ФИО</th>
-                            <th>Логин</th>
-                            <th>Роль</th>
-                            <th>Должность</th>
-                            <th>Отдел</th>
-                            <th>Дата регистрации</th>
-                            <th>Действия</th>
-                        </tr>
-                    </thead>
-                    <tbody id="usersTableBody">
-                        <!-- Данные будут загружены через JavaScript -->
-                        <tr>
-                            <td colspan="8" style="text-align: center; padding: 2rem;">
-                                <i class="fas fa-spinner fa-spin"></i> Загрузка данных...
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    
-
     <!-- Новая секция для сравнения сотрудников -->
     <div class="add-section">
         <h3><i class="fas fa-users me-2"></i>Сравнение сотрудников</h3>
@@ -767,7 +776,7 @@
                 <label for="employee1">Первый сотрудник *</label>
                 <input type="text" id="employee1" placeholder="Начните вводить имя..." 
                     oninput="searchEmployee(1, this.value)">
-                <div id="employee1Results" class="search-results" style="display: none;"></div>
+                <div id="employee1Results" class="search-results" style="display: block;  width: 315px;"></div>
                 <input type="hidden" id="employee1Id" name="employee1_id">
             </div>
             
@@ -775,7 +784,7 @@
                 <label for="employee2">Второй сотрудник *</label>
                 <input type="text" id="employee2" placeholder="Начните вводить имя..." 
                     oninput="searchEmployee(2, this.value)">
-                <div id="employee2Results" class="search-results" style="display: none;"></div>
+                <div id="employee2Results" class="search-results" style="display: block; width: 315px;"></div>
                 <input type="hidden" id="employee2Id" name="employee2_id">
             </div>
         </div>
@@ -857,868 +866,4 @@
 {% block extra_js %}
 <script src="{{ url_for('static', filename='js/user_managment.js') }}"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    // Глобальные переменные
-    let comparisonChart = null;
-    let debounceTimers = {};
-    let selectedDepartment = '';
-    let selectedEmployees = { employee1: null, employee2: null };
-    
-    // Инициализация при загрузке страницы
-    document.addEventListener('DOMContentLoaded', function() {
-        initializeComparisonPage();
-        
-        // Закрытие результатов поиска при клике вне
-        document.addEventListener('click', function(e) {
-            const searchInputs = ['employee1', 'employee2'];
-            searchInputs.forEach(inputId => {
-                const input = document.getElementById(inputId);
-                const results = document.getElementById(`${inputId}Results`);
-                if (input && results && !input.contains(e.target) && !results.contains(e.target)) {
-                    results.style.display = 'none';
-                }
-            });
-        });
-        
-        // Обработчик изменения отдела
-        document.getElementById('department').addEventListener('change', function() {
-            selectedDepartment = this.value;
-            // Очищаем выбранных сотрудников при смене отдела
-            clearSelectedEmployees();
-        });
-    });
-    
-    function initializeComparisonPage() {
-        console.log('Страница сравнения сотрудников инициализирована');
-    }
-    
-    function searchEmployee(employeeNum, query) {
-        console.log(`Поиск сотрудника ${employeeNum}: "${query}"`);
-        if (!query || query.trim().length < 2) {
-            hideSearchResults(employeeNum);
-            return;
-        }
-        
-        clearTimeout(debounceTimers[employeeNum]);
-        debounceTimers[employeeNum] = setTimeout(() => {
-            performEmployeeSearch(employeeNum, query.trim());
-        }, 300);
-    }
-    
-    function performEmployeeSearch(employeeNum, query) {
-        console.log(`🔍 Поиск сотрудника ${employeeNum}: "${query}"`);
-        
-        const resultsContainer = document.getElementById(`employee${employeeNum}Results`);
-        
-        if (!query || query.trim().length < 2) {
-            resultsContainer.style.display = 'none';
-            return;
-        }
-    
-    const department = document.getElementById('department').value;
-        console.log(`Отдел: "${department}"`);
-        
-        // Показываем индикатор загрузки
-        resultsContainer.innerHTML = `
-            <div style="padding: 10px; text-align: center; color: #666;">
-                <i class="fas fa-spinner fa-spin"></i> Поиск...
-            </div>
-        `;
-        resultsContainer.style.display = 'block';
-    
-    // Тестовый запрос - проверяем доступность endpoint
-    fetch(`/hr/api/search-users?q=${encodeURIComponent(query.trim())}`)
-        .then(response => {
-            console.log(`Response status: ${response.status}`);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log('Данные с сервера:', data);
-            
-            if (data.success && data.users && data.users.length > 0) {
-                // Показываем реальные результаты
-                let html = '';
-                data.users.forEach(user => {
-                    const initials = getInitials(user.full_name);
-                    html += `
-                        <div onclick="selectEmployee(${employeeNum}, ${user.id}, '${user.full_name.replace(/'/g, "\\'")}')"
-                             style="padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; display: flex; align-items: center; gap: 10px;">
-                            <div style="width: 40px; height: 40px; border-radius: 50%; background: #667eea; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;">
-                                ${initials}
-                            </div>
-                            <div style="flex: 1;">
-                                <div style="font-weight: 500;">${user.full_name}</div>
-                                <div style="font-size: 0.85rem; color: #666;">
-                                    ${user.role} • ${user.department || 'Без отдела'}
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                });
-                resultsContainer.innerHTML = html;
-            } else {
-                resultsContainer.innerHTML = `
-                    <div style="padding: 10px; text-align: center; color: #666;">
-                        <i class="fas fa-search"></i>
-                        <span>${data.message || 'Сотрудники не найдены'}</span>
-                    </div>
-                `;
-            }
-        })
-        .catch(error => {
-            console.error('❌ Ошибка запроса:', error);
-            resultsContainer.innerHTML = `
-                <div style="padding: 10px; text-align: center; color: #d32f2f;">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <span>Ошибка: ${error.message}</span>
-                </div>
-            `;
-        });
-}
-    
-    function displaySearchResults(employeeNum, users) {
-        const resultsContainer = document.getElementById(`employee${employeeNum}Results`);
-    
-    if (!users || users.length === 0) {
-        resultsContainer.innerHTML = `
-            <div class="search-result-item">
-                <div class="no-results" style="padding: 1rem; text-align: center; color: #666;">
-                    <i class="fas fa-search"></i>
-                    <span>Совпадений не найдено</span>
-                </div>
-            </div>
-        `;
-        resultsContainer.style.display = 'block';
-        return;
-    }
-    
-    let html = '';
-    users.forEach(user => {
-        const initials = getInitials(user.full_name);
-        const roleName = getRoleDisplayName(user.role);
-        
-        html += `
-            <div class="search-result-item" onclick="selectEmployee(${employeeNum}, ${user.id}, '${user.full_name.replace(/'/g, "\\'")}', '${user.role}')"
-                 style="padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; display: flex; align-items: center; gap: 10px;">
-                <div class="user-avatar" style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;">
-                    ${initials}
-                </div>
-                <div class="user-details" style="flex: 1;">
-                    <div class="user-name" style="font-weight: 500; color: #333;">${user.full_name}</div>
-                    <div class="user-meta" style="font-size: 0.85rem; color: #666;">
-                        <span class="user-role">${roleName}</span>
-                        ${user.position ? `<span class="user-position"> • ${user.position}</span>` : ''}
-                        ${user.department ? `<span class="user-department"> • ${user.department}</span>` : ''}
-                    </div>
-                </div>
-            </div>
-        `;
-    });
-    
-    resultsContainer.innerHTML = html;
-    resultsContainer.style.display = 'block';
-}
-    
-    function hideSearchResults(employeeNum) {
-        const resultsContainer = document.getElementById(`employee${employeeNum}Results`);
-        if (resultsContainer) {
-            resultsContainer.style.display = 'none';
-        }
-    }
-    
-    function performEmployeeSearch(employeeNum, query) {
-    if (!query || query.trim().length < 2) {
-        hideSearchResults(employeeNum);
-        return;
-    }
-    
-    const department = document.getElementById('department').value;
-    
-    // Если отдел не выбран, предлагаем выбрать
-    if (!department) {
-        const resultsContainer = document.getElementById(`employee${employeeNum}Results`);
-        resultsContainer.innerHTML = `
-            <div class="search-result-item">
-                <div class="no-results" style="padding: 1rem; text-align: center; color: #666;">
-                    <i class="fas fa-exclamation-circle"></i>
-                    <span>Сначала выберите отдел</span>
-                </div>
-            </div>
-        `;
-        resultsContainer.style.display = 'block';
-        return;
-    }
-    
-    clearTimeout(debounceTimers[employeeNum]);
-    debounceTimers[employeeNum] = setTimeout(() => {
-        const resultsContainer = document.getElementById(`employee${employeeNum}Results`);
-        
-        // Показываем индикатор загрузки
-        resultsContainer.innerHTML = `
-            <div class="search-result-item">
-                <div class="no-results" style="padding: 1rem; text-align: center; color: #666;">
-                    <i class="fas fa-spinner fa-spin"></i>
-                    <span>Поиск...</span>
-                </div>
-            </div>
-        `;
-        resultsContainer.style.display = 'block';
-        
-        // Делаем запрос к серверу
-        fetch(`/hr/api/search-users?q=${encodeURIComponent(query.trim())}&department=${encodeURIComponent(department)}`)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.success && data.users && data.users.length > 0) {
-                    displaySearchResults(employeeNum, data.users);
-                } else {
-                    resultsContainer.innerHTML = `
-                        <div class="search-result-item">
-                            <div class="no-results" style="padding: 1rem; text-align: center; color: #666;">
-                                <i class="fas fa-search"></i>
-                                <span>Сотрудники не найдены</span>
-                            </div>
-                        </div>
-                    `;
-                    resultsContainer.style.display = 'block';
-                }
-            })
-            .catch(error => {
-                console.error('Error searching employees:', error);
-                resultsContainer.innerHTML = `
-                    <div class="search-result-item">
-                        <div class="no-results" style="padding: 1rem; text-align: center; color: #666;">
-                            <i class="fas fa-exclamation-triangle"></i>
-                            <span>Ошибка поиска. Проверьте консоль.</span>
-                        </div>
-                    </div>
-                `;
-                resultsContainer.style.display = 'block';
-            });
-    }, 500);
-}
-    function selectEmployee(employeeNum, userId, userName, userRole) {
-        // Скрываем результаты поиска
-        hideSearchResults(employeeNum);
-        
-        // Обновляем поле ввода
-        const inputField = document.getElementById(`employee${employeeNum}`);
-        const hiddenField = document.getElementById(`employee${employeeNum}Id`);
-        
-        inputField.value = userName;
-        hiddenField.value = userId;
-        
-        // Сохраняем выбранного сотрудника
-        selectedEmployees[`employee${employeeNum}`] = {
-            id: userId,
-            name: userName,
-            role: userRole
-        };
-        
-        // Обновляем карточку сотрудника
-        updateEmployeeCard(employeeNum, userName, userId);
-        
-        // Очищаем поле другого сотрудника, если выбрали того же сотрудника
-        const otherEmployeeNum = employeeNum === 1 ? 2 : 1;
-        const otherInputField = document.getElementById(`employee${otherEmployeeNum}`);
-        const otherHiddenField = document.getElementById(`employee${otherEmployeeNum}Id`);
-        
-        if (otherHiddenField.value == userId) {
-            otherInputField.value = '';
-            otherHiddenField.value = '';
-            selectedEmployees[`employee${otherEmployeeNum}`] = null;
-            updateEmployeeCard(otherEmployeeNum, 'Не выбран', null);
-        }
-    }
-    
-    function updateEmployeeCard(employeeNum, userName, userId) {
-        const avatarElement = document.getElementById(`employee${employeeNum}Avatar`);
-        const nameElement = document.getElementById(`employee${employeeNum}Name`);
-        const infoElement = document.getElementById(`employee${employeeNum}Info`);
-        
-        if (userId) {
-            const initials = getInitials(userName);
-            avatarElement.textContent = initials;
-            nameElement.textContent = userName;
-            
-            // Получаем дополнительную информацию о сотруднике
-            fetch(`/hr/api/users/${userId}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        const role = getRoleDisplayName(data.user.role);
-                        const position = data.user.position || '';
-                        const department = data.user.department || '';
-                        
-                        let infoText = role;
-                        if (position) infoText += ` • ${position}`;
-                        if (department) infoText += ` • ${department}`;
-                        
-                        infoElement.textContent = infoText;
-                    }
-                })
-                .catch(error => {
-                    console.error('Error loading user details:', error);
-                    infoElement.textContent = 'Информация загружается...';
-                });
-        } else {
-            avatarElement.textContent = '?';
-            nameElement.textContent = 'Не выбран';
-            infoElement.textContent = 'Выберите сотрудника';
-        }
-    }
-    
-    function clearSelectedEmployees() {
-        // Очищаем поля ввода
-        ['employee1', 'employee2'].forEach(id => {
-            const input = document.getElementById(id);
-            const hidden = document.getElementById(`${id}Id`);
-            if (input) input.value = '';
-            if (hidden) hidden.value = '';
-            
-            const results = document.getElementById(`${id}Results`);
-            if (results) results.style.display = 'none';
-        });
-        
-        // Сбрасываем выбранных сотрудников
-        selectedEmployees.employee1 = null;
-        selectedEmployees.employee2 = null;
-        
-        // Обновляем карточки
-        updateEmployeeCard(1, 'Не выбран', null);
-        updateEmployeeCard(2, 'Не выбран', null);
-        
-        // Скрываем результаты сравнения
-        document.getElementById('comparisonResults').style.display = 'none';
-    }
-    
-    function compareEmployees() {
-        const employee1Id = document.getElementById('employee1Id').value;
-        const employee2Id = document.getElementById('employee2Id').value;
-        const department = document.getElementById('department').value;
-        
-        // Валидация
-        if (!department) {
-            showNotification('Выберите отдел', 'error');
-            return;
-        }
-        
-        if (!employee1Id || !employee2Id) {
-            showNotification('Выберите обоих сотрудников для сравнения', 'error');
-            return;
-        }
-        
-        if (employee1Id === employee2Id) {
-            showNotification('Выберите разных сотрудников для сравнения', 'error');
-            return;
-        }
-        
-        // Показываем кнопку загрузки
-        const compareBtn = document.getElementById('compareBtn');
-        const originalText = compareBtn.innerHTML;
-        compareBtn.disabled = true;
-        compareBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Сравнение...';
-        
-        // Показываем результаты
-        document.getElementById('comparisonResults').style.display = 'block';
-        
-        // Показываем загрузку таблицы
-        document.getElementById('comparisonLoading').style.display = 'block';
-        document.getElementById('skillsTable').style.display = 'none';
-        document.getElementById('noComparisonData').style.display = 'none';
-        document.getElementById('chartSection').style.display = 'none';
-        
-        // Обновляем заголовки таблицы
-        document.getElementById('employee1Header').textContent = selectedEmployees.employee1 ? selectedEmployees.employee1.name : 'Сотрудник 1';
-        document.getElementById('employee2Header').textContent = selectedEmployees.employee2 ? selectedEmployees.employee2.name : 'Сотрудник 2';
-        
-        // Загружаем данные сравнения
-        fetch(`/hr/compare-users?user1=${employee1Id}&user2=${employee2Id}`)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                compareBtn.disabled = false;
-                compareBtn.innerHTML = originalText;
-                
-                if (data.success) {
-                    displayComparisonData(data);
-                } else {
-                    showNotification(data.message || 'Ошибка при сравнении сотрудников', 'error');
-                    document.getElementById('comparisonLoading').style.display = 'none';
-                    document.getElementById('noComparisonData').style.display = 'block';
-                }
-            })
-            .catch(error => {
-                console.error('Error comparing employees:', error);
-                compareBtn.disabled = false;
-                compareBtn.innerHTML = originalText;
-                showNotification('Ошибка сети. Проверьте подключение.', 'error');
-                document.getElementById('comparisonLoading').style.display = 'none';
-            });
-    }
-    
-    function displayComparisonData(data) {
-        const tableBody = document.getElementById('skillsTableBody');
-        
-        // Очищаем таблицу
-        tableBody.innerHTML = '';
-        
-        if (!data.comparison || data.comparison.length === 0) {
-            document.getElementById('comparisonLoading').style.display = 'none';
-            document.getElementById('noComparisonData').style.display = 'block';
-            return;
-        }
-        
-        // Сортируем навыки по категории и названию
-        const sortedComparison = [...data.comparison].sort((a, b) => {
-            if (a.category !== b.category) {
-                return a.category.localeCompare(b.category);
-            }
-            return a.skill_name.localeCompare(b.skill_name);
-        });
-        
-        let currentCategory = '';
-        let rowCount = 0;
-        
-        sortedComparison.forEach(skill => {
-            // Добавляем заголовок категории, если она изменилась
-            if (skill.category !== currentCategory) {
-                currentCategory = skill.category;
-                tableBody.innerHTML += `
-                    <tr style="background: #f8f9fa;">
-                        <td colspan="4" style="font-weight: 600; color: #333; padding: 0.75rem 1rem;">
-                            ${skill.category}
-                        </td>
-                    </tr>
-                `;
-            }
-            
-            const user1Score = skill.user1_score !== null ? skill.user1_score : '—';
-            const user2Score = skill.user2_score !== null ? skill.user2_score : '—';
-            const difference = skill.difference;
-            
-            let differenceHtml = '—';
-            let differenceClass = 'difference-zero';
-            
-            if (difference !== null) {
-                if (difference > 0) {
-                    differenceHtml = `<span class="difference-positive">+${difference}</span>`;
-                    differenceClass = 'difference-positive';
-                } else if (difference < 0) {
-                    differenceHtml = `<span class="difference-negative">${difference}</span>`;
-                    differenceClass = 'difference-negative';
-                } else {
-                    differenceHtml = '<span class="difference-zero">0</span>';
-                    differenceClass = 'difference-zero';
-                }
-            }
-            
-            tableBody.innerHTML += `
-                <tr>
-                    <td>
-                        <div class="skill-name">${skill.skill_name}</div>
-                    </td>
-                    <td class="score-cell">
-                        ${user1Score !== '—' ? `<span class="score-badge score-${user1Score}">${user1Score}</span>` : '<span class="no-data">—</span>'}
-                    </td>
-                    <td class="score-cell">
-                        ${user2Score !== '—' ? `<span class="score-badge score-${user2Score}">${user2Score}</span>` : '<span class="no-data">—</span>'}
-                    </td>
-                    <td class="difference-cell ${differenceClass}">
-                        ${differenceHtml}
-                    </td>
-                </tr>
-            `;
-            
-            rowCount++;
-        });
-        
-        // Показываем таблицу
-        document.getElementById('comparisonLoading').style.display = 'none';
-        document.getElementById('skillsTable').style.display = 'table';
-        
-        // Создаем график, если есть данные
-        createComparisonChart(sortedComparison, data);
-    }
-    
-    function createComparisonChart(skillsData, comparisonData) {
-        // Фильтруем навыки, у которых есть оценки у обоих сотрудников
-        const chartSkills = skillsData.filter(skill => 
-            skill.user1_score !== null && skill.user2_score !== null
-        );
-        
-        if (chartSkills.length < 3) {
-            // Слишком мало данных для графика
-            document.getElementById('chartSection').style.display = 'none';
-            return;
-        }
-        
-        // Показываем секцию с графиком
-        document.getElementById('chartSection').style.display = 'block';
-        
-        const chartCanvas = document.getElementById('comparisonChart');
-        if (!chartCanvas) return;
-        
-        // Уничтожаем предыдущий график
-        if (comparisonChart) {
-            comparisonChart.destroy();
-        }
-        
-        const ctx = chartCanvas.getContext('2d');
-        
-        // Подготавливаем данные
-        const labels = chartSkills.map(skill => skill.skill_name);
-        const employee1Scores = chartSkills.map(skill => skill.user1_score);
-        const employee2Scores = chartSkills.map(skill => skill.user2_score);
-        
-        comparisonChart = new Chart(ctx, {
-            type: 'radar',
-            data: {
-                labels: labels,
-                datasets: [
-                    {
-                        label: comparisonData.user1.full_name,
-                        data: employee1Scores,
-                        backgroundColor: 'rgba(102, 126, 234, 0.2)',
-                        borderColor: 'rgba(102, 126, 234, 0.8)',
-                        pointBackgroundColor: 'rgba(102, 126, 234, 1)',
-                        pointBorderColor: '#fff',
-                        pointHoverBackgroundColor: '#fff',
-                        pointHoverBorderColor: 'rgba(102, 126, 234, 1)',
-                        borderWidth: 2,
-                        pointRadius: 4
-                    },
-                    {
-                        label: comparisonData.user2.full_name,
-                        data: employee2Scores,
-                        backgroundColor: 'rgba(118, 75, 162, 0.2)',
-                        borderColor: 'rgba(118, 75, 162, 0.8)',
-                        pointBackgroundColor: 'rgba(118, 75, 162, 1)',
-                        pointBorderColor: '#fff',
-                        pointHoverBackgroundColor: '#fff',
-                        pointHoverBorderColor: 'rgba(118, 75, 162, 1)',
-                        borderWidth: 2,
-                        pointRadius: 4
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    r: {
-                        beginAtZero: true,
-                        max: 5,
-                        min: 0,
-                        ticks: {
-                            stepSize: 1,
-                            backdropColor: 'transparent'
-                        },
-                        pointLabels: {
-                            font: {
-                                size: 11
-                            },
-                            color: '#333'
-                        },
-                        grid: {
-                            color: 'rgba(0, 0, 0, 0.1)'
-                        },
-                        angleLines: {
-                            color: 'rgba(0, 0, 0, 0.1)'
-                        }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        position: 'top',
-                        labels: {
-                            font: {
-                                size: 12
-                            },
-                            padding: 20
-                        }
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return `${context.dataset.label}: ${context.raw}`;
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    }
-    
-    // Вспомогательные функции
-    function getInitials(name) {
-        if (!name) return '?';
-        const parts = name.split(' ');
-        if (parts.length >= 2) {
-            return (parts[0][0] + parts[1][0]).toUpperCase();
-        }
-        return parts[0][0].toUpperCase();
-    }
-    
-    function getRoleDisplayName(role) {
-        const roles = {
-            'employee': 'Сотрудник',
-            'manager': 'Руководитель',
-            'hr': 'HR',
-            'admin': 'Администратор'
-        };
-        return roles[role] || role;
-    }
-    
-    function showNotification(message, type = 'success') {
-        // Используем существующую функцию или создаем простую реализацию
-        if (typeof window.showSkillToast === 'function') {
-            window.showSkillToast(message, type);
-        } else {
-            const toastId = type === 'error' ? 'errorToast' : 'successToast';
-            const toast = document.getElementById(toastId);
-            const messageElement = type === 'error' ? 
-                document.getElementById('errorToastMessage') : 
-                document.getElementById('toastMessage');
-            
-            if (toast && messageElement) {
-                messageElement.textContent = message;
-                toast.style.display = 'flex';
-                
-                // Автоматически скрываем через 3 секунды
-                setTimeout(() => {
-                    toast.style.display = 'none';
-                }, 3000);
-            } else {
-                alert(message);
-            }
-        }
-    }
-    // Загрузка всех пользователей
-    function loadAllUsers() {
-        const tableBody = document.getElementById('usersTableBody');
-        
-        fetch('/hr/api/all-users')
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    renderUsersTable(data.users);
-                } else {
-                    tableBody.innerHTML = `
-                        <tr>
-                            <td colspan="8" style="text-align: center; padding: 2rem; color: #d32f2f;">
-                                <i class="fas fa-exclamation-triangle"></i>
-                                ${data.message || 'Ошибка загрузки пользователей'}
-                            </td>
-                        </tr>
-                    `;
-                }
-            })
-            .catch(error => {
-                console.error('Ошибка загрузки пользователей:', error);
-                tableBody.innerHTML = `
-                    <tr>
-                        <td colspan="8" style="text-align: center; padding: 2rem; color: #d32f2f;">
-                            <i class="fas fa-exclamation-triangle"></i>
-                            Ошибка сети. Проверьте подключение.
-                        </td>
-                    </tr>
-                `;
-            });
-    }
-
-    // Отображение пользователей в таблице
-    function renderUsersTable(users) {
-        const tableBody = document.getElementById('usersTableBody');
-        
-        if (!users || users.length === 0) {
-            tableBody.innerHTML = `
-                <tr>
-                    <td colspan="8" style="text-align: center; padding: 2rem;">
-                        <i class="fas fa-users" style="font-size: 2rem; color: #ccc; margin-bottom: 1rem;"></i>
-                        <div>Пользователи не найдены</div>
-                    </td>
-                </tr>
-            `;
-            return;
-        }
-        
-        let html = '';
-        
-        users.forEach(user => {
-            const createdAt = user.created_at ? new Date(user.created_at).toLocaleDateString('ru-RU') : '—';
-            const departmentName = user.department || 'Не указан';
-            const position = user.position || 'Не указана';
-            
-            html += `
-                <tr>
-                    <td>${user.id}</td>
-                    <td><strong>${user.full_name}</strong></td>
-                    <td>${user.login}</td>
-                    <td>
-                        <span class="badge" style="background: ${getRoleColor(user.role)}; color: white; padding: 0.25rem 0.5rem; border-radius: 3px;">
-                            ${getRoleDisplayName(user.role)}
-                        </span>
-                    </td>
-                    <td>${position}</td>
-                    <td>${departmentName}</td>
-                    <td>${createdAt}</td>
-                    <td>
-                        <div class="action-buttons">
-                            <button class="btn btn-sm btn-edit" onclick="editUser(${user.id})" title="Редактировать">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn btn-sm btn-view" onclick="viewUserProfile(${user.id})" title="Просмотреть профиль">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button class="btn btn-sm btn-delete" onclick="confirmDeleteUser(${user.id}, '${user.full_name.replace(/'/g, "\\'")}')" title="Удалить">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-            `;
-        });
-        
-        tableBody.innerHTML = html;
-    }
-
-    // Цвета для ролей
-    function getRoleColor(role) {
-        const colors = {
-            'admin': '#dc3545',
-            'hr': '#17a2b8',
-            'manager': '#28a745',
-            'employee': '#6c757d'
-        };
-        return colors[role] || '#6c757d';
-    }
-
-    // Функция показа модального окна редактирования
-    function showEditUserModal(user) {
-        console.log('Показ модального окна для пользователя:', user);
-        
-        const modal = document.getElementById('addUserModal');
-        const title = document.getElementById('modaladduserTitle');
-        const submitBtn = document.getElementById('submitBtn');
-        
-        // Заполнение формы данными пользователя
-        document.getElementById('user_id').value = user.id || '';
-        document.getElementById('full_name').value = user.full_name || '';
-        document.getElementById('login').value = user.login || '';
-        document.getElementById('password').required = false;
-        
-        // Заполняем дополнительные поля если они есть
-        if (document.getElementById('email')) {
-            document.getElementById('email').value = user.email || '';
-        }
-        
-        if (document.getElementById('position')) {
-            document.getElementById('position').value = user.position || '';
-        }
-        
-        if (document.getElementById('status')) {
-            document.getElementById('status').value = user.status || 'active';
-        }
-        
-        document.getElementById('role').value = user.role || '';
-        
-        // Загружаем отделы и устанавливаем значение
-        loadDepartments().then(() => {
-            setTimeout(() => {
-                if (user.department_id) {
-                    document.getElementById('department_id').value = user.department_id;
-                }
-            }, 100);
-        }).catch(error => {
-            console.error('Ошибка загрузки отделов:', error);
-        });
-        
-        // Установка заголовка и текста кнопки
-        title.textContent = 'Редактировать пользователя';
-        submitBtn.textContent = 'Сохранить изменения';
-        submitBtn.className = 'btn btn-primary';
-        
-        // Показать модальное окно
-        modal.style.display = 'block';
-        
-        // Фокус на первом поле
-        setTimeout(() => {
-            document.getElementById('full_name').focus();
-        }, 100);
-    }
-
-    // Обновленная функция просмотра профиля
-    function viewUserProfile(userId) {
-        // Используем правильный endpoint из user_routes.py
-        // endpoint: /user/employee/<int:user_id>
-        window.open(`/user/employee/${userId}`, '_blank');
-    
-        // Альтернативно, если endpoint не работает:
-        // window.open(`/employee/${userId}`, '_blank');
-        
-        // Или для теста откройте в этой же вкладке:
-        // window.location.href = `/user/employee/${userId}`;
-    }
-
-    // Обновленная функция редактирования пользователя
-    function editUser(userId, event) {
-        if (event) event.stopPropagation();
-    
-        console.log(`Редактирование пользователя ID: ${userId}`);
-        
-        fetch(`/hr/api/users/${userId}`)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log('Данные пользователя с сервера:', data);
-                if (data.success) {
-                    showEditUserModal(data.user);
-                } else {
-                    showNotification(data.message || 'Ошибка загрузки данных', 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error loading user:', error);
-                showNotification('Ошибка загрузки данных пользователя. Проверьте консоль браузера.', 'error');
-            });
-    }
-
-    // Обновленная функция подтверждения удаления
-    function confirmDeleteUser(userId, userName) {
-        currentUserToDelete = userId;
-        const modal = document.getElementById('deleteUserModal');
-        const message = document.getElementById('deleteUserMessage');
-        
-        message.textContent = `Вы уверены, что хотите удалить пользователя "${userName}"?`;
-        modal.style.display = 'block';
-    }
-
-    // Инициализация при загрузке страницы
-    document.addEventListener('DOMContentLoaded', function() {
-        // Загружаем всех пользователей
-        loadAllUsers();
-        
-        // Обновляем список пользователей после сохранения
-        window.refreshUserList = function() {
-            loadAllUsers();
-        };
-    });
-    
-</script>
 {% endblock %}
