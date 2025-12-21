@@ -113,7 +113,7 @@
 
             <div class="footer-col">
                 <h4 class="footer-heading">Навигация</h4>
-                <ul class="footer-links">
+                <ul class="footer-links" style="padding-left: 0px;">
                     <li><a href="{{ url_for('main.index') }}">Главная</a></li>
                     <li><a href="{{ url_for('main.features') }}">Особенности</a></li>
                     <li><a href="{{ url_for('main.commands') }}">Для команд</a></li>
@@ -123,12 +123,14 @@
 
             <div class="footer-col">
                 <h4 class="footer-heading">Платформа</h4>
-                <ul class="footer-links">
+                <ul class="footer-links" style="padding-left: 0px;">
                     {% if current_user.is_authenticated %}
                         <li><a href="{{ url_for('user.dashboard') }}">Дашборд</a></li>
                         <li><a href="{{ url_for('user.profile') }}">Профиль</a></li>
                         {% if current_user.role in ['hr', 'admin'] %}
                             <li><a href="{{ url_for('hr.hr_analytics') }}">HR Аналитика</a></li>
+                            <li><a href="{{ url_for('skill.skill_management') }}">Управление навыками</a></li>
+                            <li><a href="{{ url_for('hr.user_managment') }}">Управление пользователями</a></li>
                         {% endif %}
                     {% else %}
                         <li><a href="#" class="open-modal-btn" data-mode="login">Вход в систему</a></li>
@@ -138,7 +140,7 @@
 
             <div class="footer-col">
                 <h4 class="footer-heading">Документы</h4>
-                <ul class="footer-links">
+                <ul class="footer-links" style="padding-left: 0px;">
                     <li><a href="{{ url_for('main.about') }}">О компании</a></li>
                     <li><a href="{{ url_for('main.confidential') }}">Политика конфиденциальности</a></li>
                     <li><a href="{{ url_for('main.terms') }}">Пользовательское соглашение</a></li>

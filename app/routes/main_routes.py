@@ -5,8 +5,8 @@ from flask import Blueprint
 from flask_login import login_user, current_user, login_required, logout_user
 from datetime import datetime
 
-from flask_mail import Message
-import os
+import logging
+logging.basicConfig(level=logging.DEBUG)
 
 from . import db
 from ..models import *
@@ -155,7 +155,10 @@ def contacts():
     login_form = LoginForm()
 
     if request.method == 'POST':
+<<<<<<< HEAD
         #получаем данные из формы
+=======
+>>>>>>> 1527e70b5c499def108c24d2f71ac9d7d656c46b
         name = request.form.get('name', '').strip()
         email = request.form.get('email', '').strip()
         phone = request.form.get('phone', '').strip()
@@ -177,21 +180,27 @@ def contacts():
             return redirect(url_for('main.contacts'))
         
         try:
+<<<<<<< HEAD
+=======
+            from .email_service import send_contact_email
+            
+>>>>>>> 1527e70b5c499def108c24d2f71ac9d7d656c46b
             success = send_contact_email(name, email, phone, subject, message)
             
             if success:
                 flash('✅ Сообщение успешно отправлено! Мы свяжемся с вами в ближайшее время.', 'success')
             else:
-                flash('❌ Ошибка при отправке сообщения. Пожалуйста, попробуйте позже.', 'error')
+                flash('❌ Ошибка при отправке сообщения. Пожалуйста, попробуйте позже или свяжитесь с нами по телефону.', 'error')
                 
         except Exception as e:
             print(f"[ERROR] Ошибка отправки: {e}")
-            flash('❌ Произошла ошибка при отправке сообщения.', 'error')
+            flash(f'❌ Произошла ошибка при отправке сообщения: {str(e)}', 'error')
         
         return redirect(url_for('main.contacts'))
-
+    
     return render_template('contacts.html', form=login_form)
 
+<<<<<<< HEAD
 def send_contact_email(name, email, phone, subject, message):
     """Отправляет email через Flask-Mail"""
     try:
@@ -311,6 +320,8 @@ def send_contact_email(name, email, phone, subject, message):
         print(f"[ERROR] Ошибка отправки email: {type(e).__name__}: {e}")
         return False
 
+=======
+>>>>>>> 1527e70b5c499def108c24d2f71ac9d7d656c46b
 @bp.route('/profile')
 @login_required
 def profile():

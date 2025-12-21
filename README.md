@@ -50,10 +50,41 @@ SkillExam - веб-приложение для учета и визуализа�
 
 ### Быстрый запуск
 
+#### Клонирование репозитория
 ```bash
-# Клонирование репозитория
-git clone <https://github.com/HAigiz/skills-assessment-app.git>
+git clone https://github.com/HAigiz/skills-assessment-app.git
 cd skills-assessment-app
+```
 
-# Запуск проекта
+#### Создайте переменные окружения(по примеру) для этого создайте .env файл
+```.env
+#flask
+FLASK_APP=
+FLASK_ENV=
+FLASK_DEBUG=
+SECRET_KEY=
+
+#bd
+DATABASE_URL=
+POSTGRES_DB=
+POSTGRES_USER=
+POSTGRES_PASSWORD=
+
+#back
+APP_HOST=
+APP_PORT=
+
+#mail
+MAIL_SERVER=
+MAIL_PORT=
+MAIL_USE_TLS=
+MAIL_USERNAME=
+MAIL_PASSWORD=
+MAIL_DEFAULT_SENDER=
+MAIL_TO=
+```
+
+#### Запуск проекта
+```bash
 docker-compose up --build
+```
