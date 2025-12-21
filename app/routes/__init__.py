@@ -78,7 +78,7 @@ def register():
                 'message': f'Ошибка базы данных: {str(e)}'
             }), 500
     
-    # GET запрос или не-JSON запрос
+    #GET запрос или не-JSON запрос
     current_user_department_name = None
     if current_user.role == 'manager':
         department = Department.query.get(current_user.department_id)
