@@ -37,7 +37,7 @@ def create_skill():
     if not data or 'name' not in data or 'category' not in data:
         return jsonify({"success": False, "message": "Не указаны название и категория"}), 400
     
-    # Проверка существующего навыка
+    #проверка существующего навыка
     existing = Skill.query.filter_by(
         name=data['name'].strip(),
         category=data['category'].strip()
@@ -115,7 +115,7 @@ def delete_skill(skill_id):
     if not skill:
         return jsonify({"success": False, "message": "Навык не найден"}), 404
     
-    # Проверка на наличие оценок
+    #проверка на наличие оценок
     if skill.assessments:
         return jsonify({
             "success": False, 

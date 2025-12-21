@@ -55,7 +55,7 @@ def create_app():
     app.register_blueprint(main_bp, url_prefix='/')
     app.register_blueprint(api_bp)
     
-    # обработка ошибок
+    #обработка ошибок
     @app.errorhandler(404)
     def not_found_error(error):
         return render_template('404.html'), 404

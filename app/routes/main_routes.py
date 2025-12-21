@@ -155,14 +155,14 @@ def contacts():
     login_form = LoginForm()
 
     if request.method == 'POST':
-        # Получаем данные из формы
+        #получаем данные из формы
         name = request.form.get('name', '').strip()
         email = request.form.get('email', '').strip()
         phone = request.form.get('phone', '').strip()
         subject = request.form.get('subject', 'general')
         message = request.form.get('message', '').strip()
         
-        # Валидация
+        #валидация
         errors = []
         if not name or len(name) < 2:
             errors.append("Имя должно содержать не менее 2 символов")
@@ -177,7 +177,6 @@ def contacts():
             return redirect(url_for('main.contacts'))
         
         try:
-            # Отправляем email
             success = send_contact_email(name, email, phone, subject, message)
             
             if success:
@@ -199,10 +198,10 @@ def send_contact_email(name, email, phone, subject, message):
         from flask_mail import Mail
         mail = Mail(current_app)
         
-        # Получаем email получателя из .env
+        #получаем email получателя из .env
         to_email = os.getenv('MAIL_TO', current_app.config.get('MAIL_USERNAME'))
         
-        # Тема письма
+        #тема письма
         subject_translations = {
             'general': 'Общий вопрос',
             'support': 'Техническая поддержка',
@@ -213,7 +212,7 @@ def send_contact_email(name, email, phone, subject, message):
         }
         subject_text = subject_translations.get(subject, 'Общий вопрос')
         
-        # HTML содержимое письма
+        #HTML содержимое письма
         html_content = f"""
         <!DOCTYPE html>
         <html>
@@ -276,7 +275,7 @@ def send_contact_email(name, email, phone, subject, message):
         </html>
         """
         
-        # Текстовое содержимое (для почтовых клиентов без HTML)
+        #текстовое содержимое (для почтовых клиентов без HTML)
         text_content = f"""
         НОВОЕ СООБЩЕНИЕ С САЙТА SKILLEXAM
         
@@ -293,16 +292,16 @@ def send_contact_email(name, email, phone, subject, message):
         Это сообщение отправлено автоматически.
         """
         
-        # Создаем сообщение
+        #создаем сообщение
         msg = Message(
             subject=f'[SkillExam] {subject_text} от {name}',
             recipients=[to_email],
             html=html_content,
             body=text_content,
-            reply_to=email  # Указываем email пользователя для ответа
+            reply_to=email
         )
         
-        # Отправляем
+        #отправляем
         mail.send(msg)
         
         print(f"[SUCCESS] Email отправлен на {to_email}")

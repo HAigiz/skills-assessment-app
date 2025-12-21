@@ -193,3 +193,28 @@ def export_csv():
         as_attachment=True,
         download_name=f'skill_assessments_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv'
     )
+
+@bp.route('/api/assessments', methods=['POST'])
+@login_required
+def create_assessment():
+    data = request.json
+
+    assessment = SkillAssessment.query.filter_by(
+        user_id=data['user_id'],
+        skill_id=data['skill_id']
+    ).first()
+
+    if assessment:
+        assessment.self_score = data.get('self_score')
+        assessment.manager_score = data.get('manager_score')
+    else:
+        assessment = SkillAssessment(
+            user_id=data['user_id'],
+            skill_id=data['skill_id'],
+            self_score=data.get('self_score'),
+            manager_score=data.get('manager_score')
+        )
+        db.session.add(assessment)
+
+    db.session.commit()
+    return jsonify({'success': True})
