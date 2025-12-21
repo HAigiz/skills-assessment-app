@@ -1,3 +1,23 @@
+console.log('=== Employee Profile Debug Info ===');
+console.log('EMPLOYEE_ID:', EMPLOYEE_ID);
+console.log('MANAGER_ASSESS_URL:', MANAGER_ASSESS_URL);
+console.log('MANAGER_CHART_URL:', MANAGER_CHART_URL);
+
+// Проверьте API endpoint вручную
+window.testChartAPI = function() {
+    console.log('Testing chart API...');
+    fetch(MANAGER_CHART_URL)
+        .then(r => r.json())
+        .then(data => {
+            console.log('API Response:', data);
+            if (data.success && data.chart_data) {
+                console.log('Skills from API:', data.chart_data.labels);
+                console.log('Total skills:', data.chart_data.labels.length);
+            }
+        })
+        .catch(e => console.error('API Error:', e));
+};
+
 let skillsRadarChart = null;
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -124,6 +144,10 @@ function rateEmployeeSkill(skillId, score) {
             
             // Обновляем график
             updateChartFromDOM();
+
+            setTimeout(() => {
+                loadChartData(); // Загружаем свежие данные из API
+            }, 500);
             
         } else {
             // Находим элемент навыка
@@ -228,7 +252,7 @@ function initializeRadarChart() {
 }
 
 function loadChartData() {
-    console.log('Loading chart data...');
+    console.log('Loading chart data from API...');
     
     // Показываем загрузку
     document.getElementById('chartLoading').style.display = 'block';
@@ -244,19 +268,22 @@ function loadChartData() {
             return response.json();
         })
         .then(data => {
-            console.log('Chart data received:', data);
+            console.log('Chart data received from API:', data);
             if (data.success && data.chart_data) {
+                // Используем данные из API, а не из DOM
                 updateChart(data.chart_data.labels, 
                           data.chart_data.self_scores, 
                           data.chart_data.manager_scores);
             } else {
-                console.warn('No chart data available');
-                showNoDataMessage();
+                console.warn('No chart data available from API');
+                // Если API не вернул данные, пробуем из DOM
+                updateChartFromDOM();
             }
         })
         .catch(error => {
-            console.error('Error loading chart data:', error);
-            showNoDataMessage();
+            console.error('Error loading chart data from API:', error);
+            // При ошибке API используем данные из DOM
+            updateChartFromDOM();
         });
 }
 

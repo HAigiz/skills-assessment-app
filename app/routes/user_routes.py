@@ -49,18 +49,23 @@ def dashboard():
 @bp.route('/employee/<int:user_id>')
 @login_required
 def view_employee_profile(user_id):
-    """Просмотр профиля сотрудника руководителем"""
-    if current_user.role != 'manager':
-        flash('Доступ запрещен. Только для руководителей.', 'error')
+    """Просмотр профиля сотрудника руководителем или HR"""
+    # Разрешаем доступ руководителям и HR/администраторам
+    if current_user.role not in ['manager', 'hr', 'admin']:
+        flash('Доступ запрещен. Только для руководителей и HR.', 'error')
         return redirect(url_for('user.dashboard'))
     
     # Получаем сотрудника
     employee = User.query.get_or_404(user_id)
     
-    # Проверяем, что сотрудник из того же отдела
-    if employee.department_id != current_user.department_id:
-        flash('Вы можете просматривать только сотрудников своего отдела', 'error')
-        return redirect(url_for('user.my_team'))
+    # Для руководителей проверяем, что сотрудник из их отдела
+    if current_user.role == 'manager':
+        if employee.department_id != current_user.department_id:
+            flash('Вы можете просматривать только сотрудников своего отдела', 'error')
+            return redirect(url_for('user.my_team'))
+    
+    # Для HR - доступ ко всем сотрудникам без ограничений
+    # (HR и admin могут смотреть всех)
     
     # Получаем навыки с оценками
     skills_with_assessments = db.session.query(
@@ -111,30 +116,43 @@ def view_employee_profile(user_id):
 @login_required
 def get_employee_skills_data(user_id):
     """API для получения данных навыков сотрудника для графика"""
-    if current_user.role != 'manager':
+    # Разрешаем руководителям и HR
+    if current_user.role not in ['manager', 'hr', 'admin']:
         return jsonify({'success': False, 'message': 'Доступ запрещен'}), 403
     
     employee = User.query.get_or_404(user_id)
     
-    # Проверка доступа
-    if employee.department_id != current_user.department_id:
-        return jsonify({'success': False, 'message': 'Доступ запрещен'}), 403
+    # Проверяем права доступа
+    if current_user.role == 'manager':
+        if employee.department_id != current_user.department_id:
+            return jsonify({'success': False, 'message': 'Доступ запрещен'}), 403
     
-    # Получаем данные навыков (получаем объекты Skill)
+    # Получаем ВСЕ навыки с оценками (даже без оценок)
     results = db.session.query(
-        Skill,  # Получаем весь объект Skill
+        Skill,
         SkillAssessment.self_score,
         SkillAssessment.manager_score
     ).outerjoin(
         SkillAssessment, 
         (SkillAssessment.skill_id == Skill.id) & 
         (SkillAssessment.user_id == user_id)
-    ).order_by(Skill.name).all()
+    ).order_by(Skill.category, Skill.name).all()
+    
+    # Создаем данные для графика
+    labels = []
+    self_scores = []
+    manager_scores = []
+    
+    for skill, self_score, manager_score in results:
+        labels.append(skill.name)
+        self_scores.append(self_score or 0)  # 0 если нет оценки
+        manager_scores.append(manager_score or 0)  # 0 если нет оценки
     
     chart_data = {
-        'labels': [skill.name for skill, self_score, manager_score in results],
-        'self_scores': [self_score or 0 for skill, self_score, manager_score in results],
-        'manager_scores': [manager_score or 0 for skill, self_score, manager_score in results]
+        'labels': labels,
+        'self_scores': self_scores,
+        'manager_scores': manager_scores,
+        'total_skills': len(labels)
     }
     
     return jsonify({
@@ -145,8 +163,9 @@ def get_employee_skills_data(user_id):
 @bp.route('/api/assess-employee-skill', methods=['POST'])
 @login_required
 def assess_employee_skill():
-    """API для оценки навыков сотрудника руководителем"""
-    if current_user.role != 'manager':
+    """API для оценки навыков сотрудника руководителем или HR"""
+    # Разрешаем руководителям и HR/администраторам
+    if current_user.role not in ['manager', 'hr', 'admin']:
         return jsonify({'success': False, 'message': 'Доступ запрещен'}), 403
     
     data = request.get_json()
@@ -161,13 +180,18 @@ def assess_employee_skill():
     if not all([employee_id, skill_id, manager_score is not None]):
         return jsonify({'success': False, 'message': 'Не указаны все параметры'}), 400
     
-    # Проверяем, что сотрудник из того же отдела
+    # Проверяем сотрудника
     employee = User.query.get(employee_id)
     if not employee:
         return jsonify({'success': False, 'message': 'Сотрудник не найден'}), 404
     
-    if employee.department_id != current_user.department_id:
-        return jsonify({'success': False, 'message': 'Доступ запрещен'}), 403
+    # Проверяем права доступа
+    if current_user.role == 'manager':
+        # Руководитель может оценивать только своих сотрудников
+        if employee.department_id != current_user.department_id:
+            return jsonify({'success': False, 'message': 'Доступ запрещен'}), 403
+    
+    # HR и администраторы могут оценивать всех сотрудников без ограничений
     
     try:
         score_int = int(manager_score)
@@ -203,9 +227,23 @@ def assess_employee_skill():
     
     try:
         db.session.commit()
+        
+        # Добавляем запись в историю изменений
+        from ..models import AssessmentHistory
+        history = AssessmentHistory(
+            assessment_id=assessment.id,
+            field_changed='manager_score',
+            old_value=None,  # Нет старого значения для новой оценки
+            new_value=score_int,
+            changed_by=current_user.id,
+            notes=f'Оценка поставлена {"руководителем" if current_user.role == "manager" else "HR специалистом"}'
+        )
+        db.session.add(history)
+        db.session.commit()
+        
         return jsonify({
             'success': True,
-            'message': 'Оценка руководителя сохранена',
+            'message': 'Оценка сохранена',
             'assessment': {
                 'skill_id': skill_id,
                 'skill_name': skill.name,
@@ -214,6 +252,7 @@ def assess_employee_skill():
         })
     except Exception as e:
         db.session.rollback()
+        print(f"❌ Ошибка при сохранении оценки: {str(e)}")  # Для отладки
         return jsonify({
             'success': False,
             'message': f'Ошибка при сохранении: {str(e)}'
