@@ -98,7 +98,7 @@ services:
       - ./app/static/js:/app/app/static/js
       - ./app/templates:/app/app/templates
     ports:
-      - "8000:5000"
+      - "5000:5000"
     depends_on:
       postgres:
         condition: service_healthy
