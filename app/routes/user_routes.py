@@ -44,7 +44,8 @@ def dashboard():
     return render_template('dashboard.html', 
                           current_user=current_user, 
                           department=department,
-                          stats=stats)
+                          stats=stats,
+                          USER_ROLE=current_user.role)
 
 @bp.route('/employee/<int:user_id>')
 @login_required
@@ -63,10 +64,7 @@ def view_employee_profile(user_id):
         if employee.department_id != current_user.department_id:
             flash('Вы можете просматривать только сотрудников своего отдела', 'error')
             return redirect(url_for('user.my_team'))
-    
-    # Для HR - доступ ко всем сотрудникам без ограничений
-    # (HR и admin могут смотреть всех)
-    
+        
     # Получаем навыки с оценками
     skills_with_assessments = db.session.query(
         Skill,
@@ -110,7 +108,8 @@ def view_employee_profile(user_id):
                           total_assessed_skills=total_assessed_skills,
                           average_self_score=average_self_score,
                           average_manager_score=average_manager_score,
-                          current_user=current_user)
+                          current_user=current_user,
+                          USER_ROLE=current_user.role)
 
 @bp.route('/api/employee/<int:user_id>/skills-data')
 @login_required
@@ -293,7 +292,8 @@ def profile():
     
     return render_template('profile.html', 
                           user=user,
-                          skills_by_category=skills_by_category)
+                          skills_by_category=skills_by_category,
+                          USER_ROLE=current_user.role)
 
 @bp.route('/my-team')
 @login_required
@@ -337,7 +337,8 @@ def my_team():
     
     return render_template('my_team.html',
                           current_user=current_user,
-                          team_members=members_data)
+                          team_members=members_data,
+                          USER_ROLE=current_user.role)
     
 @bp.route('/api/dashboard/stats')
 @login_required

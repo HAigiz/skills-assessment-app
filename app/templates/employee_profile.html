@@ -331,11 +331,13 @@
 
 {% block content %}
 <div class="profile-container">
-    <div class="back-button">
-        <a href="{{ url_for('user.my_team') }}" class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-left me-2"></i>Назад к команде
-        </a>
-    </div>
+    {% if current_user.role == "manager" %}
+        <div class="back-button">
+            <a href="{{ url_for('user.my_team') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Назад к команде
+            </a>
+        </div>
+    {% endif %}
 
     <!-- Заголовок профиля -->
     <div class="profile-header">
@@ -453,10 +455,20 @@
                                     {{ skill.self_score }}
                                 </div>
                                 {% endif %}
-                                {% if skill.manager_score %}
-                                <div class="score-badge score-manager" title="Ваша оценка">
-                                    {{ skill.manager_score }}
-                                </div>
+                                {% if current_user.role == "manager" %}
+                                    {% if skill.manager_score %}
+                                    <div class="score-badge score-manager" title="Ваша оценка">
+                                        {{ skill.manager_score }}
+                                    </div>
+                                    {% else %}
+                                    <div class="score-badge score-manager" title="Ваша оценка">
+                                        -
+                                    </div>
+                                    {% endif %}
+                                {% else %}
+                                    <div class="score-badge score-manager" title="Оценка руководителя">
+                                        {{ skill.manager_score }}
+                                    </div>
                                 {% endif %}
                                 <div class="score-buttons">
                                     {% for i in range(1, 6) %}
@@ -504,10 +516,17 @@
                         <div class="legend-color legend-self"></div>
                         <span>Самооценка сотрудника</span>
                     </div>
-                    <div class="legend-item">
-                        <div class="legend-color legend-manager"></div>
-                        <span>Ваша оценка</span>
-                    </div>
+                    {% if current_user.role == "manager" %}
+                        <div class="legend-item">
+                            <div class="legend-color legend-manager"></div>
+                            <span>Ваша оценка</span>
+                        </div>
+                    {% else %}
+                        <div class="legend-item">
+                            <div class="legend-color legend-manager"></div>
+                            <span>Оценка руководителя</span>
+                        </div>
+                    {% endif %}
                 </div>
             </div>
             
@@ -536,6 +555,7 @@
     const EMPLOYEE_ID = {{ user.id }};
     const MANAGER_ASSESS_URL = "{{ url_for('user.assess_employee_skill') }}";
     const MANAGER_CHART_URL = "{{ url_for('user.get_employee_skills_data', user_id=user.id) }}";
+    const USER_ROLE = "{{ USER_ROLE }}";
 </script>
 <script src="{{ url_for('static', filename='js/employee_profile.js') }}"></script>
 {% endblock %}

@@ -1,31 +1,21 @@
-console.log('=== Employee Profile Debug Info ===');
-console.log('EMPLOYEE_ID:', EMPLOYEE_ID);
-console.log('MANAGER_ASSESS_URL:', MANAGER_ASSESS_URL);
-console.log('MANAGER_CHART_URL:', MANAGER_CHART_URL);
-
-// Проверьте API endpoint вручную
-window.testChartAPI = function() {
-    console.log('Testing chart API...');
-    fetch(MANAGER_CHART_URL)
-        .then(r => r.json())
-        .then(data => {
-            console.log('API Response:', data);
-            if (data.success && data.chart_data) {
-                console.log('Skills from API:', data.chart_data.labels);
-                console.log('Total skills:', data.chart_data.labels.length);
-            }
-        })
-        .catch(e => console.error('API Error:', e));
-};
+// employee_profile.js - исправленная версия
 
 let skillsRadarChart = null;
 
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Employee profile page loaded');
-    initializeManagerRating();
-    initializeRadarChart();
+    console.log('=== Employee Profile Initialization ===');
+    console.log('EMPLOYEE_ID:', EMPLOYEE_ID);
+    console.log('MANAGER_CHART_URL:', MANAGER_CHART_URL);
+    console.log('USER_ROLE:', USER_ROLE || 'not defined');
     
-    // Загружаем данные для графика
+    // Инициализация в зависимости от роли
+    if (USER_ROLE !== 'hr') {
+        initializeManagerRating();
+    } else {
+        initializeHRView();
+    }
+    
+    initializeRadarChart();
     loadChartData();
 });
 
@@ -38,6 +28,13 @@ function initializeManagerRating() {
             const skillItem = this.closest('.skill-item');
             const skillId = skillItem.dataset.skillId;
             const score = parseInt(this.dataset.score);
+            
+            // Проверяем, есть ли самооценка у сотрудника
+            const selfScoreBadge = skillItem.querySelector('.score-self');
+            if (!selfScoreBadge || !selfScoreBadge.textContent.trim()) {
+                showErrorToast('Сотруднику необходимо сначала оценить этот навык!');
+                return;
+            }
             
             // Удаляем активный класс у всех кнопок этого навыка
             this.closest('.skill-rating').querySelectorAll('.score-btn').forEach(b => {
@@ -53,6 +50,22 @@ function initializeManagerRating() {
             // Сохраняем оценку руководителя
             rateEmployeeSkill(skillId, score);
         });
+    });
+}
+
+function initializeHRView() {
+    console.log('Initializing HR view (read-only mode)');
+    
+    // Для HR скрываем кнопки оценки
+    document.querySelectorAll('.score-btn').forEach(btn => {
+        btn.style.display = 'none';
+    });
+    
+    // Меняем заголовки оценок
+    document.querySelectorAll('.score-manager').forEach(badge => {
+        if (badge.title === 'Ваша оценка') {
+            badge.title = 'Оценка руководителя';
+        }
     });
 }
 
@@ -81,11 +94,16 @@ function updateSkillLevelText(skillItem, score, isManager = true) {
         }
         
         // Добавляем пометку, чья это оценка
-        if (isManager) {
-            levelText += ' (ваша оценка)';
+        if (USER_ROLE === 'hr') {
+            if (isManager) {
+                levelText += ' (оценка руководителя)';
+            } else {
+                levelText += ' (самооценка сотрудника)';
+            }
         } else {
-            const selfScoreBadge = skillItem.querySelector('.score-self');
-            if (selfScoreBadge && selfScoreBadge.textContent) {
+            if (isManager) {
+                levelText += ' (ваша оценка)';
+            } else {
                 levelText += ' (самооценка)';
             }
         }
@@ -95,6 +113,12 @@ function updateSkillLevelText(skillItem, score, isManager = true) {
 }
 
 function rateEmployeeSkill(skillId, score) {
+    // Если пользователь HR, не позволяем оценивать
+    if (USER_ROLE === 'hr') {
+        showErrorToast('HR не может оценивать сотрудников. Только просмотр.');
+        return;
+    }
+    
     console.log(`Rating employee ${EMPLOYEE_ID} skill ${skillId} with manager score ${score}`);
     
     fetch(MANAGER_ASSESS_URL, {
@@ -123,12 +147,13 @@ function rateEmployeeSkill(skillId, score) {
             
             if (managerScoreBadge) {
                 managerScoreBadge.textContent = score;
+                managerScoreBadge.title = USER_ROLE === 'hr' ? 'Оценка руководителя' : 'Ваша оценка';
             } else {
                 // Создаем новый бейдж, если его нет
                 const skillRatingDiv = skillItem.querySelector('.skill-rating');
                 const newBadge = document.createElement('div');
                 newBadge.className = 'score-badge score-manager';
-                newBadge.title = 'Ваша оценка';
+                newBadge.title = USER_ROLE === 'hr' ? 'Оценка руководителя' : 'Ваша оценка';
                 newBadge.textContent = score;
                 
                 // Вставляем перед кнопками
@@ -143,10 +168,8 @@ function rateEmployeeSkill(skillId, score) {
             showSuccessToast('Ваша оценка сохранена!');
             
             // Обновляем график
-            updateChartFromDOM();
-
             setTimeout(() => {
-                loadChartData(); // Загружаем свежие данные из API
+                loadChartData();
             }, 500);
             
         } else {
@@ -168,10 +191,9 @@ function rateEmployeeSkill(skillId, score) {
                         btn.classList.add('active');
                     }
                 });
-                // Возвращаем предыдущий текст уровня
                 updateSkillLevelText(skillItem, previousScore, true);
             } else {
-                // Если не было оценки руководителя, показываем самооценку или "Не оценено"
+                // Если не было оценки руководителя, показываем самооценку
                 const selfScoreBadge = skillItem.querySelector('.score-self');
                 if (selfScoreBadge && selfScoreBadge.textContent) {
                     const selfScore = parseInt(selfScoreBadge.textContent);
@@ -206,12 +228,18 @@ function initializeRadarChart() {
         skillsRadarChart.destroy();
     }
     
-    // Создаем пустой график
+    // Создаем пустой график с заглушкой
     skillsRadarChart = new Chart(ctx, {
         type: 'radar',
         data: {
-            labels: [],
-            datasets: []
+            labels: ['Данные загружаются...'],
+            datasets: [{
+                label: 'Загрузка данных',
+                data: [0],
+                backgroundColor: 'rgba(200, 200, 200, 0.2)',
+                borderColor: 'rgba(200, 200, 200, 0.8)',
+                borderWidth: 1
+            }]
         },
         options: {
             responsive: true,
@@ -220,6 +248,7 @@ function initializeRadarChart() {
                 r: {
                     beginAtZero: true,
                     max: 5,
+                    min: 0,
                     ticks: {
                         stepSize: 1,
                         backdropColor: 'transparent'
@@ -238,13 +267,6 @@ function initializeRadarChart() {
                 legend: {
                     display: true,
                     position: 'top'
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return `${context.dataset.label}: ${context.raw}`;
-                        }
-                    }
                 }
             }
         }
@@ -269,88 +291,76 @@ function loadChartData() {
         })
         .then(data => {
             console.log('Chart data received from API:', data);
+            
             if (data.success && data.chart_data) {
-                // Используем данные из API, а не из DOM
-                updateChart(data.chart_data.labels, 
-                          data.chart_data.self_scores, 
-                          data.chart_data.manager_scores);
+                // Фильтруем только те навыки, у которых есть хотя бы одна оценка
+                const filteredData = filterChartData(data.chart_data);
+                
+                if (filteredData.hasData) {
+                    updateChartWithFilteredData(filteredData);
+                } else {
+                    console.log('No assessment data available');
+                    showNoDataMessage();
+                }
             } else {
                 console.warn('No chart data available from API');
-                // Если API не вернул данные, пробуем из DOM
-                updateChartFromDOM();
+                showNoDataMessage();
             }
         })
         .catch(error => {
             console.error('Error loading chart data from API:', error);
-            // При ошибке API используем данные из DOM
-            updateChartFromDOM();
+            showNoDataMessage();
         });
 }
 
-function updateChartFromDOM() {
-    console.log('Updating chart from DOM...');
-    
-    const skills = [];
+function filterChartData(chartData) {
+    const labels = [];
     const selfScores = [];
     const managerScores = [];
     
-    document.querySelectorAll('.skill-item').forEach(skillItem => {
-        const skillName = skillItem.querySelector('.skill-name').textContent;
+    // Проверяем каждый навык
+    for (let i = 0; i < chartData.labels.length; i++) {
+        const selfScore = chartData.self_scores[i];
+        const managerScore = chartData.manager_scores[i];
         
-        // Получаем самооценку
-        const selfScoreBadge = skillItem.querySelector('.score-self');
-        const selfScore = selfScoreBadge ? parseInt(selfScoreBadge.textContent) : 0;
-        
-        // Получаем оценку руководителя
-        const managerScoreBadge = skillItem.querySelector('.score-manager');
-        const managerScore = managerScoreBadge ? parseInt(managerScoreBadge.textContent) : 0;
-        
-        if (selfScore > 0 || managerScore > 0) {
-            skills.push(skillName);
-            selfScores.push(selfScore);
-            managerScores.push(managerScore);
+        // Включаем навык, если есть хотя бы одна оценка (> 0)
+        if ((selfScore && selfScore > 0) || (managerScore && managerScore > 0)) {
+            labels.push(truncateLabel(chartData.labels[i]));
+            selfScores.push(selfScore || 0);
+            managerScores.push(managerScore || 0);
         }
-    });
-    
-    if (skills.length > 0) {
-        updateChart(skills, selfScores, managerScores);
-    } else {
-        showNoDataMessage();
     }
+    
+    return {
+        labels: labels,
+        selfScores: selfScores,
+        managerScores: managerScores,
+        hasData: labels.length > 0
+    };
 }
 
-function updateChart(skills, selfScores, managerScores) {
-    console.log('Updating chart with data:', { 
-        skillsCount: skills.length,
-        skills: skills,
-        selfScores: selfScores,
-        managerScores: managerScores 
+function truncateLabel(label) {
+    // Обрезаем длинные названия для лучшего отображения
+    if (label.length > 20) {
+        return label.substring(0, 17) + '...';
+    }
+    return label;
+}
+
+function updateChartWithFilteredData(filteredData) {
+    console.log('Updating chart with filtered data:', {
+        skillsCount: filteredData.labels.length,
+        labels: filteredData.labels
     });
-    
-    const chartCanvas = document.getElementById('skillsRadarChart');
-    if (!chartCanvas) {
-        console.error('Chart canvas not found');
-        return;
-    }
-    
-    // Проверяем, есть ли данные для отображения
-    const hasSelfData = selfScores && selfScores.some(score => score > 0);
-    const hasManagerData = managerScores && managerScores.some(score => score > 0);
-    
-    console.log('Data check:', { hasSelfData, hasManagerData });
-    
-    if ((!hasSelfData && !hasManagerData) || !skills || skills.length === 0) {
-        console.log('No valid data for chart');
-        showNoDataMessage();
-        return;
-    }
     
     const datasets = [];
     
+    // Добавляем самооценку, если есть данные
+    const hasSelfData = filteredData.selfScores.some(score => score > 0);
     if (hasSelfData) {
         datasets.push({
             label: 'Самооценка сотрудника',
-            data: selfScores,
+            data: filteredData.selfScores,
             backgroundColor: 'rgba(102, 126, 234, 0.2)',
             borderColor: 'rgba(102, 126, 234, 0.8)',
             pointBackgroundColor: 'rgba(102, 126, 234, 1)',
@@ -362,10 +372,16 @@ function updateChart(skills, selfScores, managerScores) {
         });
     }
     
+    // Добавляем оценку руководителя, если есть данные
+    const hasManagerData = filteredData.managerScores.some(score => score > 0);
     if (hasManagerData) {
+        const managerLabel = USER_ROLE === 'hr' 
+            ? 'Оценка руководителя' 
+            : 'Ваша оценка';
+        
         datasets.push({
-            label: 'Ваша оценка',
-            data: managerScores,
+            label: managerLabel,
+            data: filteredData.managerScores,
             backgroundColor: 'rgba(118, 75, 162, 0.2)',
             borderColor: 'rgba(118, 75, 162, 0.8)',
             pointBackgroundColor: 'rgba(118, 75, 162, 1)',
@@ -377,17 +393,28 @@ function updateChart(skills, selfScores, managerScores) {
         });
     }
     
+    // Проверяем, есть ли данные для отображения
+    if (datasets.length === 0) {
+        showNoDataMessage();
+        return;
+    }
+    
     try {
-        // Уничтожаем предыдущий график, если он существует
+        // Уничтожаем предыдущий график
         if (skillsRadarChart) {
             skillsRadarChart.destroy();
         }
         
+        const chartCanvas = document.getElementById('skillsRadarChart');
         const ctx = chartCanvas.getContext('2d');
+        
+        // Рассчитываем размер шрифта в зависимости от количества навыков
+        const pointLabelsSize = Math.max(10, Math.min(12, 300 / filteredData.labels.length));
+        
         skillsRadarChart = new Chart(ctx, {
             type: 'radar',
             data: {
-                labels: skills,
+                labels: filteredData.labels,
                 datasets: datasets
             },
             options: {
@@ -407,7 +434,7 @@ function updateChart(skills, selfScores, managerScores) {
                         },
                         pointLabels: {
                             font: {
-                                size: 11
+                                size: pointLabelsSize
                             }
                         },
                         grid: {
@@ -444,7 +471,6 @@ function updateChart(skills, selfScores, managerScores) {
     }
 }
 
-
 function showNoDataMessage() {
     console.log('No data for chart, showing message');
     
@@ -475,4 +501,30 @@ function showErrorToast(message) {
     setTimeout(() => {
         toast.style.display = 'none';
     }, 3000);
+}
+
+// Вспомогательная функция для отладки (можно удалить в продакшене)
+window.testChartAPI = function() {
+    console.log('Testing chart API...');
+    fetch(MANAGER_CHART_URL)
+        .then(r => r.json())
+        .then(data => {
+            console.log('API Response:', data);
+            if (data.success && data.chart_data) {
+                console.log('Skills from API:', data.chart_data.labels);
+                console.log('Total skills:', data.chart_data.labels.length);
+                console.log('Self scores:', data.chart_data.self_scores);
+                console.log('Manager scores:', data.chart_data.manager_scores);
+            }
+        })
+        .catch(e => console.error('API Error:', e));
+};
+
+// Проверяем наличие Chart.js при загрузке
+if (typeof Chart === 'undefined') {
+    console.error('Chart.js is not loaded!');
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('chartLoading').innerHTML = 
+            '<div class="alert alert-danger">Ошибка: Chart.js не загружен. Проверьте подключение библиотеки.</div>';
+    });
 }
